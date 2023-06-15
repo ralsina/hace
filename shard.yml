@@ -8,6 +8,10 @@ targets:
   hace:
     main: src/hace.cr
 
+dependencies:
+  croupier:
+    github: ralsina/croupier
+
 crystal: 1.8.2
 
 license: MIT
