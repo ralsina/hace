@@ -1,6 +1,15 @@
-# TODO: Write documentation for `Hace`
+require "yaml"
+
 module Hace
   VERSION = "0.1.0"
 
-  # TODO: Put your code here
+  def parse_file(path = "Hacefile.yml")
+    config = File.open(path, "r") do |file|
+      YAML.parse(file).as_h
+    end
+    config.each do |key, value|
+      p! key
+    end
+    config
+  end
 end
