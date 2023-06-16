@@ -15,6 +15,7 @@ module Hace
 
   # Create tasks out of config
   def create_tasks(config)
+    # FIXME: use a proper type to parse this crap
     config["tasks"].as_h.each do |name, data|
       data = data.as_h
       output = data.fetch("output", name).as_s
