@@ -12,6 +12,10 @@ dependencies:
   croupier:
     github: ralsina/croupier
 
+development_dependencies:
+  crytic:
+    github: hanneskaeufler/crytic
+
 crystal: 1.8.2
 
 license: MIT

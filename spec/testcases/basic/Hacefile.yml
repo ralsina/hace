@@ -1,6 +1,6 @@
 tasks:
-  foo: 
-    dependencies: 
+  foo:
+    dependencies:
       bar
     command: |
       echo "make foo out of bar" > foo
