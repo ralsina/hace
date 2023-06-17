@@ -36,14 +36,16 @@ module Hace
     include YAML::Serializable
     include YAML::Serializable::Strict
 
-    property commands : String
-    property dependencies : Array(String)
+    @commands : String
+    @dependencies : Array(String) = [] of String
+    @phony : Bool = false
 
     def gen_task(name)
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
       commands.map do |command|
         Task.new(
-          name: name, output: name,
+          name: name,
+          output: @phony ? [] of String : name,
           inputs: @dependencies, no_save: true,
           proc: TaskProc.new {
             Process.run(

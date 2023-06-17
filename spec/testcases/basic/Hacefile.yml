@@ -5,3 +5,6 @@ tasks:
     commands: |
       echo "make foo out of bar" > foo
       cat bar >> foo
+  phony:
+    phony: true
+    commands: /bin/true

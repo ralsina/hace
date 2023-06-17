@@ -6,7 +6,8 @@ describe Hace do
     it "should parse the tasks section" do
       TaskManager.cleanup
       f = HaceFile.from_yaml(File.read("spec/testcases/basic/Hacefile.yml"))
-      f.tasks.keys.should eq ["foo"]
+      # This has all the parsed tasks, including phony ones
+      f.tasks.keys.should eq ["foo", "phony"]
     end
 
     it "should create tasks for all tasks" do
