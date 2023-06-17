@@ -2,6 +2,6 @@ tasks:
   foo:
     dependencies:
       - bar
-    command: |
+    commands: |
       echo "make foo out of bar" > foo
       cat bar >> foo
