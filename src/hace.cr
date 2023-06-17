@@ -13,6 +13,18 @@ module Hace
 
     property tasks : Hash(String, CommandTask)
 
+    def self.run(options = [] of String, arguments = [] of String)
+      if !File.exists?("Hacefile.yml")
+        raise "No Hacefile.yml found"
+      end
+      Hace::HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
+      if arguments.empty?
+        TaskManager.run_tasks
+      else
+        TaskManager.run_tasks(arguments)
+      end
+    end
+
     def gen_tasks
       @tasks.each do |name, task|
         task.gen_task(name)
@@ -33,31 +45,14 @@ module Hace
         Task.new(
           name: name, output: name,
           inputs: @dependencies, no_save: true,
-          proc: TaskProc.new { Process.run(
-            command: command,
-            shell: true,
-          ).to_s }
+          proc: TaskProc.new {
+            Process.run(
+              command: command,
+              shell: true,
+            ).to_s
+          }
         )
       end
     end
   end
 end
-
-def run(options, arguments)
-  if !File.exists?("Hacefile.yml")
-    raise "No Hacefile.yml found"
-  end
-  Hace::HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
-  TaskManager.run_tasks
-end
-
-cli = Commander::Command.new do |cmd|
-  cmd.use = "hace"
-  cmd.long = "hace makes things, like make"
-
-  cmd.run do |options, arguments|
-    run(options, arguments)
-  end
-end
-
-Commander.run(cli, ARGV)

@@ -6,7 +6,7 @@ authors:
 
 targets:
   hace:
-    main: src/hace.cr
+    main: src/main.cr
 
 dependencies:
   croupier:
