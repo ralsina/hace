@@ -6,52 +6,39 @@ include Croupier
 module Hace
   VERSION = "0.1.0"
 
-  class CommandTask < Task
-    @commands : Array(String)
+  class HaceFile
+    include YAML::Serializable
+    include YAML::Serializable::Strict
 
-    # @args : Array(String)
+    property tasks : Hash(String, CommandTask)
 
-    def initialize(name, commands : String, output, inputs, no_save)
-      @commands = commands.split("\n").map(&.strip).reject(&.empty?)
-      @procs = @commands.map do |command|
-        TaskProc.new { Process.run(
-          command: command,
-          shell: true,
-        ).to_s }
+    def gen_tasks
+      croupier_tasks = [] of Croupier::Task
+      @tasks.each do |name, task|
+        task.gen_task(name)
       end
-      super(
-        name: name, output: output,
-        inputs: inputs, no_save: no_save
-      )
-    end
-
-    def to_s
-      "Commands: \n  #{@commands.join("\n  ")}"
     end
   end
 
-  def parse_file(path = "Hacefile.yml")
-    config = File.open(path, "r") do |file|
-      YAML.parse(file).as_h
-    end
-    config
-  end
+  class CommandTask
+    include YAML::Serializable
+    include YAML::Serializable::Strict
 
-  # Create tasks out of config
-  def create_tasks(config)
-    # FIXME: use a proper type to parse this crap
-    config["tasks"].as_h.each do |name, data|
-      data = data.as_h
-      output = data.fetch("output", name).as_s
-      inputs = data.fetch("dependencies", YAML.parse("[]")).as_a.map(&.as_s)
-      commands = data["commands"].as_s
-      CommandTask.new(
-        name: name.as_s,
-        commands: commands,
-        output: output,
-        inputs: inputs,
-        no_save: true,
-      )
+    property commands : String
+    property dependencies : Array(String)
+
+    def gen_task(name)
+      commands = @commands.split("\n").map(&.strip).reject(&.empty?)
+      commands.map do |command|
+        Task.new(
+          name: name, output: name,
+          inputs: @dependencies, no_save: true,
+          proc: TaskProc.new { Process.run(
+            command: command,
+            shell: true,
+          ).to_s }
+        )
+      end
     end
   end
 end
