@@ -18,5 +18,7 @@ bin/crytic:
 clean:
 	rm -rf lib/ bin/ coverage/
 	git clean -f
+lint:
+	ameba --all --fix
 
 .PHONY: clean coverage mutation test all
