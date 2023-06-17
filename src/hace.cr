@@ -13,7 +13,6 @@ module Hace
     property tasks : Hash(String, CommandTask)
 
     def gen_tasks
-      croupier_tasks = [] of Croupier::Task
       @tasks.each do |name, task|
         task.gen_task(name)
       end
