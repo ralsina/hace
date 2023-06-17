@@ -3,11 +3,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
-env:
-  CIRCLE_BRANCH: master
-  CIRCLE_PROJECT_REPONAME: croupier
-  CIRCLE_PROJECT_USERNAME: ralsina
-  STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
 
 permissions:
   contents: read
