@@ -1,5 +1,6 @@
-require "yaml"
+require "commander"
 require "croupier"
+require "yaml"
 
 include Croupier
 
@@ -41,3 +42,22 @@ module Hace
     end
   end
 end
+
+def run(options, arguments)
+  if !File.exists?("Hacefile.yml")
+    raise "No Hacefile.yml found"
+  end
+  Hace::HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
+  TaskManager.run_tasks
+end
+
+cli = Commander::Command.new do |cmd|
+  cmd.use = "hace"
+  cmd.long = "hace makes things, like make"
+
+  cmd.run do |options, arguments|
+    run(options, arguments)
+  end
+end
+
+Commander.run(cli, ARGV)

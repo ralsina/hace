@@ -11,6 +11,8 @@ targets:
 dependencies:
   croupier:
     github: ralsina/croupier
+  commander:
+    github: mrrooijen/commander
 
 development_dependencies:
   crytic:
