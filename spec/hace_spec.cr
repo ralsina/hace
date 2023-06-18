@@ -26,29 +26,17 @@ describe Hace do
         TaskManager.tasks.keys.should eq ["foo", "phony"]
       end
     end
-
-    it "create the right tasks to do things" do
-      with_scenario("basic") do
-        f = HaceFile.from_yaml(File.read("Hacefile.yml"))
-        f.gen_tasks
-        File.open("bar", "w") do |io|
-          io << "quux\n"
-        end
-        TaskManager.run_tasks
-        File.read("foo").should eq "make foo out of bar\nquux\n"
-        File.read("bat").should eq "bat\n"
-      end
-    end
   end
 
   describe "run" do
-    it "should parse ./Hacefile.yml" do
+    it "should run all tasks" do
       with_scenario("basic") do
         File.open("bar", "w") do |io|
           io << "quux\n"
         end
         HaceFile.run
         File.read("foo").should eq "make foo out of bar\nquux\n"
+        File.read("bat").should eq "bat\n"
       end
     end
 

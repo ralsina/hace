@@ -1,0 +1,16 @@
+variables:
+  i: 3
+  s: "string"
+  foo:
+    bar: "bat"
+    foo: "quux"
+tasks:
+  foo:
+    dependencies:
+      - bar
+    commands: |
+      echo "make foo out of bar" > foo
+      cat bar >> foo
+  phony:
+    phony: true
+    commands: echo "bat" > bat
