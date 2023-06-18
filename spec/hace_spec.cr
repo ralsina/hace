@@ -74,5 +74,16 @@ describe Hace do
         File.read("bat").should eq "bat\n"
       end
     end
+
+    it "should expand variables in commands" do
+      with_scenario("variables") do
+        File.open("bar", "w") do |io|
+          io << "quux\n"
+        end
+        HaceFile.run
+        File.read("foo").should eq "make foo out of bat at 3\nquux\n"
+        File.read("bat").should eq "bat\n"
+      end
+    end
   end
 end

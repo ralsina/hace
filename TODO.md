@@ -3,10 +3,8 @@
 ## Things that may be a good idea to add
 
 * Makefile parser when there is no Hacefile
-* Templated tasks
 * Tasks with wildcard targets / dependencies
 * Verbosity management
-* Variables
 * Automatic variables (like make's `$@`)
 * Multiple outputs
 * Something equivalent to static patterns:
@@ -20,8 +18,10 @@
 * Environment variables
 * Add -B --always-make option like make
 
+* ~~Templated tasks~~
 * ~~Real command line interface~~
 * ~~The equivalent of PHONY tasks~~
+* ~~Variables~~
 
 ## Things that look like bad ideas and why
 

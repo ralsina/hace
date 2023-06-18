@@ -14,6 +14,8 @@ dependencies:
     version: 0.1.7
   commander:
     github: mrrooijen/commander
+  crinja:
+    github: straight-shoota/crinja
 
 development_dependencies:
   crytic:
