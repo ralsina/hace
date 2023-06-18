@@ -6,11 +6,14 @@ authors:
 
 targets:
   hace:
-    main: src/hace.cr
+    main: src/main.cr
 
 dependencies:
   croupier:
     github: ralsina/croupier
+    version: 0.1.7
+  commander:
+    github: mrrooijen/commander
 
 development_dependencies:
   crytic:

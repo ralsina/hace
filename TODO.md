@@ -18,6 +18,7 @@
   `%o : %c`
 * Shell selection
 * Environment variables
+* Add -B --always-make option like make
 
 * ~~Real command line interface~~
 * ~~The equivalent of PHONY tasks~~
