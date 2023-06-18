@@ -3,7 +3,7 @@ variables:
   s: "string"
   foo:
     bar: "bat"
-    foo: "quux"
+    foo: 86
 tasks:
   foo:
     dependencies:

@@ -26,6 +26,16 @@ describe Hace do
         TaskManager.tasks.keys.should eq ["foo", "phony"]
       end
     end
+
+    it "should parse the variables section" do
+      with_scenario("variables") do
+        f = HaceFile.from_yaml(File.read("Hacefile.yml"))
+        f.variables.keys.should eq ["i", "s", "foo"]
+        f.variables["i"].should eq 3
+        f.variables["s"].should eq "string"
+        f.variables["foo"].as_h.should eq ({"bar" => "bat", "foo" => 86})
+      end
+    end
   end
 
   describe "run" do

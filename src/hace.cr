@@ -11,7 +11,8 @@ module Hace
     include YAML::Serializable
     include YAML::Serializable::Strict
 
-    property tasks : Hash(String, CommandTask)
+    property tasks : Hash(String, CommandTask) = {} of String => CommandTask
+    property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
 
     def self.run(options = [] of String, arguments = [] of String)
       if !File.exists?("Hacefile.yml")
@@ -53,7 +54,7 @@ module Hace
               shell: true,
             ).to_s
           },
-          id: @phony? name : nil,
+          id: @phony ? name : nil,
         )
       end
     end
