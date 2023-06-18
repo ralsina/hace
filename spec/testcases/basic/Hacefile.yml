@@ -7,4 +7,4 @@ tasks:
       cat bar >> foo
   phony:
     phony: true
-    commands: /bin/true
+    commands: echo "bat" > bat

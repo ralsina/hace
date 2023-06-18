@@ -11,6 +11,7 @@ targets:
 dependencies:
   croupier:
     github: ralsina/croupier
+    version: 0.1.7
   commander:
     github: mrrooijen/commander
 

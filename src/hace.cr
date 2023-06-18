@@ -52,7 +52,8 @@ module Hace
               command: command,
               shell: true,
             ).to_s
-          }
+          },
+          id: @phony? name : nil,
         )
       end
     end
