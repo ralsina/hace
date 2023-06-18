@@ -1,16 +1,13 @@
-variables:
-  i: 3
-  s: "string"
-  foo:
-    bar: "bat"
-    foo: 86
+env:
+  barfile: bar
+  bat: null
 tasks:
   foo:
     dependencies:
       - bar
     commands: |
-      echo "make foo out of {{ foo['bar'] }} at {{ i }}" > foo
+      echo "make foo out of ${barfile}" > foo
       cat bar >> foo
   phony:
     phony: true
-    commands: echo "bat" > bat
+    commands: echo "${bat}" > bat

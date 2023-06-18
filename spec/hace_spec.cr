@@ -33,7 +33,14 @@ describe Hace do
         f.variables.keys.should eq ["i", "s", "foo"]
         f.variables["i"].should eq 3
         f.variables["s"].should eq "string"
-        f.variables["foo"].as_h.should eq ({"bar" => "bat", "foo" => 86})
+        f.variables["foo"].as_h.should eq({"bar" => "bat", "foo" => 86})
+      end
+    end
+
+    it "should parse the env section" do
+      with_scenario("env") do
+        f = HaceFile.from_yaml(File.read("Hacefile.yml"))
+        f.env.should eq({"barfile" => "bar", "bat" => nil})
       end
     end
   end
@@ -83,6 +90,18 @@ describe Hace do
         HaceFile.run
         File.read("foo").should eq "make foo out of bat at 3\nquux\n"
         File.read("bat").should eq "bat\n"
+      end
+    end
+
+    it "should expand environment variables in commands" do
+      with_scenario("env") do
+        File.open("bar", "w") do |io|
+          io << "quux\n"
+        end
+        HaceFile.run
+        File.read("foo").should eq "make foo out of bar\nquux\n"
+        # This is empty because $bat is unset
+        File.read("bat").should eq "\n"
       end
     end
   end

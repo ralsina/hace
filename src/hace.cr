@@ -14,7 +14,7 @@ module Hace
 
     property tasks : Hash(String, CommandTask) = {} of String => CommandTask
     property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
-    property env : Hash(String, String) = {} of String => String
+    property env : Process::Env = {} of String => String
 
     def self.run(options = [] of String, arguments = [] of String)
       if !File.exists?("Hacefile.yml")
@@ -30,7 +30,7 @@ module Hace
 
     def gen_tasks
       @tasks.each do |name, task|
-        task.gen_task(name, variables)
+        task.gen_task(name, variables, env)
       end
     end
   end
@@ -43,7 +43,7 @@ module Hace
     @dependencies : Array(String) = [] of String
     @phony : Bool = false
 
-    def gen_task(name, variables)
+    def gen_task(name, variables, env)
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
       commands.map do |command|
         Task.new(
@@ -54,6 +54,7 @@ module Hace
             Process.run(
               command: Crinja.render(command, variables),
               shell: true,
+              env: env,
             ).to_s
           },
           id: @phony ? name : nil,
