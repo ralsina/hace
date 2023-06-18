@@ -17,6 +17,11 @@ describe Hace do
       with_scenario("basic") do
         f = HaceFile.from_yaml(File.read("Hacefile.yml"))
         f.tasks.keys.should eq ["foo", "phony"]
+        f.tasks["foo"].@phony.should be_false
+        f.tasks["foo"].@dependencies.should eq ["bar"]
+
+        f.tasks["phony"].@phony.should be_true
+        f.tasks["phony"].@dependencies.empty?.should be_true
       end
     end
 
@@ -24,6 +29,9 @@ describe Hace do
       with_scenario("basic") do
         HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
         TaskManager.tasks.keys.should eq ["foo", "phony"]
+
+        TaskManager.tasks["foo"].@outputs.should eq ["foo"]
+        TaskManager.tasks["phony"].@outputs.empty?.should be_true
       end
     end
 

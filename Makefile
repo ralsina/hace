@@ -8,7 +8,7 @@ bin/crytic:
 	rm -rf lib/crytic
 	shards install
 mutation: bin/crytic
-	bin/crytic test
+	bin/crytic test -s src/hace.cr
 coverage/index.html: bin/run_tests
 	rm -rf coverage/
 	kcov --clean --include-path=./src coverage ./bin/run_tests
