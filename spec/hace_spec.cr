@@ -1,7 +1,11 @@
 require "./spec_helper"
 include Hace
 
+logs = IO::Memory.new
+
 def with_scenario(name, &)
+  ::logs = IO::Memory.new
+  Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
     File.delete?(".croupier")
     Dir.glob("*").each do |f|
@@ -147,6 +151,14 @@ describe Hace do
         File.read("bat").should eq "bat\n"
       end
     end
+
+    # FIXME: have not figured out how to assrt on the logs
+    # it "should warn of phony tasks with outputs" do
+    #   with_scenario("basic") do
+    #     HaceFile.run(arguments: ["phony"])
+    #     logs.to_s.includes?("phony task 'phony' has outputs").should be_true
+    #   end
+    # end
 
     it "should expand variables in commands" do
       with_scenario("variables") do

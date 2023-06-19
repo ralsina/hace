@@ -8,3 +8,6 @@ tasks:
   phony:
     phony: true
     commands: echo "bat" > bat
+    # This outputs entry actually triggers a warning
+    outputs:
+      - bat
