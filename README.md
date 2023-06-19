@@ -2,7 +2,8 @@
 
 Hacé makes things like make, but not the same.
 
-Its functionality is mostly derived from using [Croupier](https://github.com/ralsina/croupier), a dataflow library.
+Its functionality is mostly derived from using
+[Croupier](https://github.com/ralsina/croupier), a dataflow library.
 
 [![Docs](https://github.com/ralsina/hace/actions/workflows/static.yml/badge.svg)](https://ralsina.github.io/hace/)
 [![License](https://img.shields.io/badge/License-MIT-green)](https://github.com/ralsina/hace/blob/main/LICENSE)
@@ -11,7 +12,6 @@ Its functionality is mostly derived from using [Croupier](https://github.com/ral
 
 [![Tests](https://github.com/ralsina/hace/actions/workflows/ci.yml/badge.svg)](https://github.com/ralsina/hace/actions/workflows/ci.yml)
 [![Mutation Tests](https://github.com/ralsina/hace/actions/workflows/mutation.yml/badge.svg)](https://github.com/ralsina/hace/actions/workflows/mutation.yml)
-
 
 ## ⚠️⚠️WARNING⚠️⚠️
 
@@ -157,14 +157,17 @@ so consider this warning.
 
 ### Dependencies
 
-Dependencies are files. If a dependency has changed since the last time
-the task was run, the task runs again.
+Dependencies are files. Hacefile will try to run tasks only if a dependency
+has changed since the last time the task was run.
 
 If a dependency is the output of another task, then that task will run
-first if needed.
+first (if needed).
 
 If a dependency is missing and the Hacefile doesn't describe how to
 generate it, the task is not ready to run, and there will be an error.
+
+Tasks without dependencies are always considered "out of date" and
+will always run if you ask for them.
 
 ### Default tasks
 

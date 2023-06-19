@@ -177,5 +177,17 @@ describe Hace do
         File.read("counter").should eq "running\n"
       end
     end
+
+    it "should always run tasks without dependencies" do
+      with_scenario("no-deps") do
+        HaceFile.run
+        # Should have ran once
+        File.read("foo").should eq "running\n"
+        TaskManager.cleanup
+        HaceFile.run
+        # Should have ran twice
+        File.read("foo").should eq "running\nrunning\n"
+      end
+    end
   end
 end
