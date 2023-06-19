@@ -4,6 +4,7 @@ include Hace
 # logs = IO::Memory.new
 
 def with_scenario(name, keep = [] of String, &)
+  Log.setup(:debug)  # Helps for coverage
   # ::logs = IO::Memory.new
   # Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
