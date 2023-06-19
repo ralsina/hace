@@ -2,6 +2,17 @@
 
 Hacé makes things like make, but not the same.
 
+Its functionality is mostly derived from using [Croupier](https://github.com/ralsina/croupier), a dataflow library.
+
+[![Docs](https://github.com/ralsina/hace/actions/workflows/static.yml/badge.svg)](https://ralsina.github.io/hace/)
+[![License](https://img.shields.io/badge/License-MIT-green)](https://github.com/ralsina/hace/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/release/ralsina/hace.svg)](https://GitHub.com/ralsina/hace/releases/)
+[![News about Hace](https://img.shields.io/badge/News-About%20Hace-blue)](https://ralsina.me/categories/hace.html)
+
+[![Tests](https://github.com/ralsina/hace/actions/workflows/ci.yml/badge.svg)](https://github.com/ralsina/hace/actions/workflows/ci.yml)
+[![Mutation Tests](https://github.com/ralsina/hace/actions/workflows/mutation.yml/badge.svg)](https://github.com/ralsina/hace/actions/workflows/mutation.yml)
+
+
 ## ⚠️⚠️WARNING⚠️⚠️
 
 This tool is **very** alpha. It's not even a 0.1.0 yet. It's not meant
