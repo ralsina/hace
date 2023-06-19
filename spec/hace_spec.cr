@@ -95,9 +95,13 @@ describe Hace do
 
     it "should be able to run just a task" do
       with_scenario("basic") do
+        File.open("bar", "w") do |io|
+          io << "quux\n"
+        end
         HaceFile.run(arguments: ["foo"])
         File.exists?("foo").should be_true
         File.exists?("bat").should be_false
+        File.read("foo").should eq "make foo out of bar\nquux\n"
       end
     end
 

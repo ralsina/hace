@@ -56,7 +56,10 @@ module Hace
     def gen_task(name, variables, env)
       # phony tasks have no outputs.
       # tasks where outputs are not specified have only one output, the task name
-      # FIXME: warn about phony tasks with outputs
+
+      if @phony && !@outputs.empty?
+        Log.warn {"Task #{name} is phony but has outputs. Outputs will be ignored."}
+      end
       @outputs = @phony ? [] of String : [name] if @outputs.empty?
 
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
