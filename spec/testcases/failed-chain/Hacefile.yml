@@ -1,0 +1,11 @@
+tasks:
+  foo:
+    commands: |
+      echo "test"
+      /bin/false
+  bar:
+    default: true
+    dependencies:
+      - foo
+    commands: |
+      echo "test" > bar
