@@ -20,7 +20,8 @@ module Hace
     def self.run(
       arguments = [] of String,
       filename = "Hacefile.yml",
-      run_all : Bool = false
+      run_all : Bool = false,
+      dry_run : Bool = false,
     )
       begin
         if !File.exists?(filename)
@@ -41,7 +42,7 @@ module Hace
         end
       end
       Log.info { "Running tasks: #{arguments.join(", ")}" }
-      TaskManager.run_tasks(arguments, run_all: run_all)
+      TaskManager.run_tasks(arguments, run_all: run_all, dry_run: dry_run)
     end
 
     def gen_tasks

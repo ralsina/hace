@@ -56,6 +56,15 @@ cli = Commander::Command.new do |cmd|
     flag.persistent = true
   end
 
+  cmd.flags.add do |flag|
+    flag.name = "dry_run"
+    flag.short = "-n"
+    flag.long = "--dry-run"
+    flag.description = "Don't actually run any commands"
+    flag.default = false
+    flag.persistent = true
+  end
+
   cmd.run do |options, arguments|
     begin
       if options.@bool["quiet"]
@@ -78,7 +87,8 @@ cli = Commander::Command.new do |cmd|
       Hace::HaceFile.run(
         filename: options.@string["file"],
         arguments: arguments,
-        run_all: options.@bool["run_all"]
+        run_all: options.@bool["run_all"],
+        dry_run: options.@bool["dry_run"],
       )
     rescue ex
       Log.error { ex.message }

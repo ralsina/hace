@@ -17,7 +17,6 @@ Not ordered in any particular way.
   `$(objects): %o: %c`
 
 * Something like pattern rules: `%o : %c`
-* Make default tasks opt-in instead of opt-out
 * Add equivalent of make's `-i` and `-k` options to
   ignore errors
 * Support merging multiple Hacefiles from the CLI
@@ -25,6 +24,7 @@ Not ordered in any particular way.
 * Implement make's `--question` option
 * Tasks that always run (needs Croupier 0.1.8)
 
+* ~~Make default tasks opt-in instead of opt-out~~
 * ~~Add equivalent of make's `-f` option~~
 * ~~Automatic variables (like make's `$@`)~~
 * ~~Logging / Verbosity management~~

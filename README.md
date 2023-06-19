@@ -54,6 +54,7 @@ directory.
     help [command]  Help about any command.
 
   Flags:
+    -n, --dry-run      Don't actually run any commands
     -f, --file         Read the file named as a Hacefile default: 'Hacefile.yml'
     -h, --help         Help for this command.
     -q, --quiet        Don't log anything

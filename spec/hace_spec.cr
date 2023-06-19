@@ -205,6 +205,14 @@ describe Hace do
       end
     end
 
+    it "should not run things if using dry_run" do
+      with_scenario("no-deps") do
+        HaceFile.run(dry_run: true)
+        # Should not have actually ran
+        File.exists?("foo").should be_false
+      end
+    end
+
     it "should error out if a command fails" do
       with_scenario("failure") do
         expect_raises(Exception, "Command failed: exit 1 when running /bin/false") do
