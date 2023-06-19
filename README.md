@@ -15,9 +15,9 @@ Its functionality is mostly derived from using
 
 ## ⚠️⚠️WARNING⚠️⚠️
 
-This tool is **very** alpha. It's not even a 0.1.0 yet. It's not meant
-for serious usage anywhere under any circumstances. It's not even used
-to build itself yet, it uses a Makefile.
+This tool is **very** alpha. It's not meant for serious usage anywhere
+under any circumstances. It's not even used to build itself yet, it
+uses a Makefile.
 
 On the other hand, what's there seems to be pretty solid, so give it a
 spin if you want and let me know how it looks to you.😄
