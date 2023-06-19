@@ -21,5 +21,6 @@ clean:
 	git clean -f
 lint:
 	ameba --all --fix
-
+docs:   src/*.cr *.md
+	crystal docs
 .PHONY: clean coverage mutation test all
