@@ -17,4 +17,4 @@ jobs:
       - name: Run tests
         run: |
           shards install
-          bin/crytic test -r Stryker,Console
+          bin/crytic test -s src/hace.cr
