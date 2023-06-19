@@ -55,6 +55,14 @@ describe Hace do
   end
 
   describe "run" do
+    it "fails without a Hacefile.yml" do
+      Dir.cd("spec/testcases/") do
+        expect_raises(Exception, "No Hacefile.yml found") do
+          HaceFile.run
+        end
+      end
+    end
+
     it "should run all tasks" do
       with_scenario("basic") do
         File.open("bar", "w") do |io|
