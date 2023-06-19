@@ -53,6 +53,12 @@ module Hace
     @default : Bool = true
     @outputs : Array(String) = [] of String
 
+    def to_hash
+      # Yes, not pretty but this gives me the right types for merging
+      # with variables, so I can use it in Crinja.render
+      YAML.parse(self.to_yaml)
+    end
+
     def gen_task(name, variables, env)
       # phony tasks have no outputs.
       # tasks where outputs are not specified have only one output, the task name
@@ -64,14 +70,16 @@ module Hace
       @outputs = @phony ? [] of String : [name] if @outputs.empty?
 
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
+      context = {"self" => self.to_hash}.merge variables
 
       Task.new(
         name: name,
         output: @outputs,
-        inputs: @dependencies, no_save: true,
+        inputs: @dependencies,
+        no_save: true,
         proc: TaskProc.new {
           commands.map do |command|
-            command = Crinja.render(command, variables)
+            command = Crinja.render(command, context)
             Log.info { "Running command: #{command}" }
             status = Process.run(
               command: command,

@@ -4,13 +4,13 @@
 
 * Makefile parser when there is no Hacefile
 * Tasks with wildcard targets / dependencies
-* Automatic variables (like make's `$@`)
 * Something equivalent to static patterns:
 
   `$(objects): %o: %c`
 
 * Something like pattern rules: `%o : %c`
 * Make default tasks opt-in instead of opt-out
+* Automatic variables (like make's `$@`)
 
 * ~~Logging / Verbosity management~~
 * ~~Multiple outputs~~

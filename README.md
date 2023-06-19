@@ -22,6 +22,9 @@ uses a Makefile.
 On the other hand, what's there seems to be pretty solid, so give it a
 spin if you want and let me know how it looks to you.😄
 
+Finally, this README is for the code in git's main branch, not for the
+latest release, so YMMV.
+
 ## Installation
 
 If you have `crystal` and `shards` installed, you can do:
@@ -214,7 +217,23 @@ tasks:
       - bar
     commands: |
       echo "make foo out of {{ foo['bar'] }} at {{ i }}" > foo
+      cat {{ self["dependencies"][0] }} >> foo
 ```
+
+A special variable is `self` which is the task itself, so you can
+use the task itself to define parts of the commands it contains.
+
+In that example, it's doing `cat bar >> foo` because that's in
+`self["dependencies"]`. This may look a bit confusing but I expect
+it will be useful.
+
+Currently the available members of `self` are:
+
+* commands: all commands
+* dependencies: all dependencies, as an array
+* phony: boolean
+* default: boolean
+* outputs: all outputs, as an array
 
 ## Development
 

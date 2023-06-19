@@ -10,7 +10,7 @@ tasks:
       - bar
     commands: |
       echo "make foo out of {{ foo['bar'] }} at {{ i }}" > foo
-      cat bar >> foo
+      cat {{ self["dependencies"][0] }} >> foo
   phony:
     phony: true
     commands: echo "bat" > bat
