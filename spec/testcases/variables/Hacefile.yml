@@ -6,11 +6,9 @@ variables:
     foo: 86
 tasks:
   foo:
+    default: true
     dependencies:
       - bar
     commands: |
       echo "make foo out of {{ foo['bar'] }} at {{ i }}" > foo
       cat {{ self["dependencies"][0] }} >> foo
-  phony:
-    phony: true
-    commands: echo "bat" > bat

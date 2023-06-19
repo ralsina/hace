@@ -78,6 +78,7 @@ Here's a simple example, details to be explained below:
 ```yaml
 tasks:
   foo:
+    default: true
     dependencies:
       - bar
     commands: |
@@ -96,6 +97,7 @@ under the `tasks` toplevel key. For example:
 ```yaml
 tasks:
   foo:
+    default: true
     dependencies:
       - bar
     commands: |
@@ -104,6 +106,9 @@ tasks:
 ```
 
 This defines a task named `foo` that depends on `bar` and runs two commands.
+
+Because it's marked as `default` it will be run if you don't specify any
+tasks on the command line.
 
 ### Commands
 
@@ -178,14 +183,14 @@ will always run if you ask for them.
 ### Default tasks
 
 If a task has `default` set to `true`, it will run when no task is
-specified on the command line. Currently all tasks are `default`
-unless you set `default: false`, but that **will** change.
+specified on the command line. You have to set this explicitly if
+you want it, otherwise no task will run unless explicitly required.
 
 ## Environment variables
 
 Just an ordinary map of environment variables in the `env` top
 key. The variables will be available to all tasks and you can
-expand them using in commands `${PATH}` or any other usual
+expand them using in commands with `${PATH}` or any other usual
 shell mechanism.
 
 If you want to *unset* a variable, set it to `null`. If you want

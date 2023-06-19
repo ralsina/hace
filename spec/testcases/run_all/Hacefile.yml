@@ -1,4 +1,5 @@
 tasks:
   foo:
+    default: true
     commands: |
       cat bar > foo

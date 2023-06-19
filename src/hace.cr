@@ -58,7 +58,7 @@ module Hace
     @commands : String
     @dependencies : Array(String) = [] of String
     @phony : Bool = false
-    @default : Bool = true
+    @default : Bool = false
     @outputs : Array(String) = [] of String
 
     def to_hash

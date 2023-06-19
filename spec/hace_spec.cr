@@ -167,7 +167,6 @@ describe Hace do
         end
         HaceFile.run
         File.read("foo").should eq "make foo out of bat at 3\nquux\n"
-        File.read("bat").should eq "bat\n"
       end
     end
 

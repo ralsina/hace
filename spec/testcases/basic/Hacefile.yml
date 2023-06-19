@@ -1,11 +1,13 @@
 tasks:
   foo:
+    default: true
     dependencies:
       - bar
     commands: |
       echo "make foo out of bar" > foo
       cat bar >> foo
   phony:
+    default: true
     phony: true
     commands: echo "bat" > bat
     # This outputs entry actually triggers a warning

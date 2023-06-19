@@ -1,5 +1,6 @@
 tasks:
   foo:
+    default: true
     commands: |
       echo "bat" > bat
       echo "bar" > bar
