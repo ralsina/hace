@@ -1,0 +1,8 @@
+tasks:
+  foo:
+    default: true
+    always_run: true
+    commands: |
+      echo "running" >> counter
+    outputs:
+      - counter

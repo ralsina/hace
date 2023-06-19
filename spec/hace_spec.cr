@@ -3,7 +3,7 @@ include Hace
 
 def with_scenario(name, keep = [] of String, &)
   logs = IO::Memory.new
-  Log.setup(:debug, Log::IOBackend.new(io: logs))  # Helps for coverage
+  Log.setup(:debug, Log::IOBackend.new(io: logs)) # Helps for coverage
   # ::logs = IO::Memory.new
   # Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
@@ -190,6 +190,16 @@ describe Hace do
         File.read("bat").should eq "bat\n"
         # Should only have ran once
         File.read("counter").should eq "running\n"
+      end
+    end
+
+    it "should run tasks with always_run every time" do
+      with_scenario("always-run") do
+        HaceFile.run
+        TaskManager.cleanup
+        HaceFile.run
+        # Should only have ran twice
+        File.read("counter").should eq "running\nrunning\n"
       end
     end
 

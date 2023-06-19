@@ -20,10 +20,10 @@ Not ordered in any particular way.
 * Add equivalent of make's `-i` and `-k` options to
   ignore errors
 * Support merging multiple Hacefiles from the CLI
-* Implement dry run
 * Implement make's `--question` option
-* Tasks that always run (needs Croupier 0.1.8)
 
+* ~~Tasks that always run~~
+* ~~Implement dry run~~
 * ~~Make default tasks opt-in instead of opt-out~~
 * ~~Add equivalent of make's `-f` option~~
 * ~~Automatic variables (like make's `$@`)~~

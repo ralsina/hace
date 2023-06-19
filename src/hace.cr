@@ -62,6 +62,7 @@ module Hace
     @phony : Bool = false
     @default : Bool = false
     @outputs : Array(String) = [] of String
+    @always_run : Bool = false
 
     def to_hash
       # Yes, not pretty but this gives me the right types for merging
@@ -87,6 +88,7 @@ module Hace
         output: @outputs,
         inputs: @dependencies,
         no_save: true,
+        always_run: @always_run,
         proc: TaskProc.new {
           commands.map do |command|
             command = Crinja.render(command, context)

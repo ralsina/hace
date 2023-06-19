@@ -187,6 +187,11 @@ If a task has `default` set to `true`, it will run when no task is
 specified on the command line. You have to set this explicitly if
 you want it, otherwise no task will run unless explicitly required.
 
+### Always Run
+
+If a task has `always_run` set to `true`, it will run even if it's
+not out of date. This is useful for tasks that don't have outputs.
+
 ## Environment variables
 
 Just an ordinary map of environment variables in the `env` top
