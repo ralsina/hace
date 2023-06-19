@@ -59,7 +59,7 @@ cli = Commander::Command.new do |cmd|
           Log::Severity::Info,
           Log::Severity::Debug,
           Log::Severity::Trace,
-        ][options.@int["verbosity"]]
+        ][[options.@int["verbosity"], 5].min]
       end
       Log.setup(
         verbosity,
