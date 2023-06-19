@@ -7,7 +7,7 @@ require "yaml"
 include Croupier
 
 module Hace
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
   class HaceFile
     include YAML::Serializable
