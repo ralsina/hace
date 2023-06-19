@@ -9,4 +9,7 @@
 /shard.lock
 .croupier
 /coverage/
+
+# These are files used in test cases
 /spec/testcases/**/???
+/spec/testcases/**/counter

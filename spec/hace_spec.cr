@@ -189,5 +189,13 @@ describe Hace do
         File.read("foo").should eq "running\nrunning\n"
       end
     end
+
+    it "should error out if a command fails" do
+      with_scenario("failure") do
+        expect_raises(Exception, "Command failed: exit 1 when running /bin/false") do
+          HaceFile.run
+        end
+      end
+    end
   end
 end

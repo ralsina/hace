@@ -32,6 +32,7 @@ module Hace
           end
         end
       end
+      Log.info { "Running tasks: #{arguments.join(", ")}" }
       TaskManager.run_tasks(arguments, run_all: run_all)
     end
 
@@ -66,11 +67,15 @@ module Hace
         inputs: @dependencies, no_save: true,
         proc: TaskProc.new {
           commands.map do |command|
-            Process.run(
-              command: Crinja.render(command, variables),
+            command = Crinja.render(command, variables)
+            Log.info { "Running command: #{command}" }
+            status = Process.run(
+              command: command,
               shell: true,
               env: env,
-            ).to_s
+            )
+            raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
+            status.to_s
           end
         },
         id: @phony ? name : nil,
