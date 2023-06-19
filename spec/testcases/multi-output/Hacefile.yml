@@ -1,0 +1,9 @@
+tasks:
+  foo:
+    commands: |
+      echo "bat" > bat
+      echo "bar" > bar
+      echo "running" >> counter
+    outputs:
+      - bar
+      - bat

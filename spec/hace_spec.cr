@@ -52,6 +52,17 @@ describe Hace do
         f.env.should eq({"barfile" => "bar", "bat" => nil})
       end
     end
+
+    it "should support tasks with multiple outputs" do
+      with_scenario("multi-output") do
+        f = HaceFile.from_yaml(File.read("Hacefile.yml"))
+        f.gen_tasks
+
+        f.tasks.keys.should eq ["foo"]
+        f.tasks["foo"].@outputs.should eq ["bar", "bat"]
+        TaskManager.tasks.keys.should eq ["bar", "bat"]
+      end
+    end
   end
 
   describe "run" do
@@ -153,6 +164,17 @@ describe Hace do
         File.read("foo").should eq "make foo out of bar\nquux\n"
         # This is empty because $bat is unset
         File.read("bat").should eq "\n"
+      end
+    end
+
+    it "should run tasks with multiple outputs once" do
+      with_scenario("multi-output") do
+        HaceFile.run
+
+        File.read("bar").should eq "bar\n"
+        File.read("bat").should eq "bat\n"
+        # Should only have ran once
+        File.read("counter").should eq "running\n"
       end
     end
   end

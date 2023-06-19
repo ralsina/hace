@@ -26,7 +26,7 @@ module Hace
       if arguments.empty?
         f.tasks.each do |name, task|
           if task.@default
-            arguments += task.@output
+            arguments += task.@outputs
             arguments << name if task.@phony
           end
         end
@@ -49,28 +49,31 @@ module Hace
     @dependencies : Array(String) = [] of String
     @phony : Bool = false
     @default : Bool = true
-    @output : Array(String) = [] of String
+    @outputs : Array(String) = [] of String
 
     def gen_task(name, variables, env)
-      @output = @phony ? [] of String : [name] if @output.empty?
+      # phony tasks have no outputs.
+      # tasks where outputs are not specified have only one output, the task name
+      # FIXME: warn about phony tasks with outputs
+      @outputs = @phony ? [] of String : [name] if @outputs.empty?
 
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
 
-      commands.map do |command|
-        Task.new(
-          name: name,
-          output: @output,
-          inputs: @dependencies, no_save: true,
-          proc: TaskProc.new {
+      Task.new(
+        name: name,
+        output: @outputs,
+        inputs: @dependencies, no_save: true,
+        proc: TaskProc.new {
+          commands.map do |command|
             Process.run(
               command: Crinja.render(command, variables),
               shell: true,
               env: env,
             ).to_s
-          },
-          id: @phony ? name : nil,
-        )
-      end
+          end
+        },
+        id: @phony ? name : nil,
+      )
     end
   end
 end
