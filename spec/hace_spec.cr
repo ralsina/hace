@@ -1,11 +1,11 @@
 require "./spec_helper"
 include Hace
 
-logs = IO::Memory.new
+# logs = IO::Memory.new
 
 def with_scenario(name, &)
-  ::logs = IO::Memory.new
-  Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
+  # ::logs = IO::Memory.new
+  # Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
     File.delete?(".croupier")
     Dir.glob("*").each do |f|

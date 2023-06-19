@@ -58,7 +58,7 @@ module Hace
       # tasks where outputs are not specified have only one output, the task name
 
       if @phony && !@outputs.empty?
-        Log.warn {"Task #{name} is phony but has outputs #{@outputs}. Outputs will be ignored."}
+        Log.warn { "Task #{name} is phony but has outputs #{@outputs}. Outputs will be ignored." }
         @outputs = [] of String
       end
       @outputs = @phony ? [] of String : [name] if @outputs.empty?
