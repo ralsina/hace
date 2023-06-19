@@ -10,8 +10,11 @@
 
 * Something like pattern rules: `%o : %c`
 * Make default tasks opt-in instead of opt-out
-* Automatic variables (like make's `$@`)
+* Add equivalent of make's `-i` option to ignore errors
+* Support merging multiple Hacefiles from the CLI
 
+* ~~Add equivalent of make's `-f` option~~
+* ~~Automatic variables (like make's `$@`)~~
 * ~~Logging / Verbosity management~~
 * ~~Multiple outputs~~
 * ~~Mark some tasks as "default" which run when no task is specified~~

@@ -6,6 +6,8 @@
   to achieve what you would use $@ or other automatic variables
   in Makefiles.
 
+* Added `-f` option to specify a Hacefile to use.
+
 ## Version v0.1.1
 
 First actual release. While the tool is not feature complete by any means,

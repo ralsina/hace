@@ -17,11 +17,19 @@ module Hace
     property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
     property env : Process::Env = {} of String => String
 
-    def self.run(arguments = [] of String, run_all : Bool = false)
-      if !File.exists?("Hacefile.yml")
-        raise "No Hacefile.yml found"
+    def self.run(
+      arguments = [] of String,
+      filename = "Hacefile.yml",
+      run_all : Bool = false
+    )
+      begin
+        if !File.exists?(filename)
+          raise "No Hacefile '#{filename}' found"
+        end
+        f = Hace::HaceFile.from_yaml(File.read(filename))
+      rescue ex
+        raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
-      f = Hace::HaceFile.from_yaml(File.read("Hacefile.yml"))
       f.gen_tasks
       # If no tasks are specified, run only default tasks
       if arguments.empty?

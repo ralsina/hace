@@ -47,6 +47,15 @@ cli = Commander::Command.new do |cmd|
     flag.persistent = true
   end
 
+  cmd.flags.add do |flag|
+    flag.name = "file"
+    flag.short = "-f"
+    flag.long = "--file"
+    flag.description = "Read the file named as a Hacefile"
+    flag.default = "Hacefile.yml"
+    flag.persistent = true
+  end
+
   cmd.run do |options, arguments|
     begin
       if options.@bool["quiet"]
@@ -67,7 +76,8 @@ cli = Commander::Command.new do |cmd|
       )
 
       Hace::HaceFile.run(
-        arguments,
+        filename: options.@string["file"],
+        arguments: arguments,
         run_all: options.@bool["run_all"]
       )
     rescue ex

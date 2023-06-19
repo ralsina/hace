@@ -3,13 +3,13 @@ include Hace
 
 # logs = IO::Memory.new
 
-def with_scenario(name, &)
+def with_scenario(name, keep = [] of String, &)
   # ::logs = IO::Memory.new
   # Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
     File.delete?(".croupier")
     Dir.glob("*").each do |f|
-      File.delete?(f) unless f == "Hacefile.yml"
+      File.delete?(f) unless f == "Hacefile.yml" || keep.includes?(f)
     end
     TaskManager.cleanup
     yield
@@ -72,7 +72,7 @@ describe Hace do
   describe "run" do
     it "fails without a Hacefile.yml" do
       Dir.cd("spec/testcases/") do
-        expect_raises(Exception, "No Hacefile.yml found") do
+        expect_raises(Exception, "No Hacefile 'Hacefile.yml' found") do
           HaceFile.run
         end
       end
@@ -211,6 +211,15 @@ describe Hace do
         expect_raises(Exception, "Command failed: exit 1 when running /bin/false") do
           HaceFile.run
         end
+      end
+    end
+
+    it "should run with a named file" do
+      with_scenario("filename", keep: ["foobar"]) do
+        expect_raises(Exception) do
+          HaceFile.run
+        end
+        HaceFile.run(filename: "foobar")
       end
     end
   end
