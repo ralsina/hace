@@ -41,7 +41,7 @@ You can use the `hace` command to run tasks from a `Hacefile.yml` in the current
 directory.
 
 ```sh
-> bin/hace --help
+> hace --help
   hace - hace makes things, like make
 
   Usage:
@@ -52,7 +52,9 @@ directory.
 
   Flags:
     -h, --help         Help for this command.
+    -q, --quiet        Don't log anything
     -B, --always-make  Unconditionally run all tasks.
+    -v, --verbosity    Control the logging verbosity, 0 to 5  default: 2
 ```
 
 The arguments are task names, and if you don't specify any, the default

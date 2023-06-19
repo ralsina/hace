@@ -2,7 +2,7 @@ require "./hace"
 require "colorize"
 
 struct LogFormat < Log::StaticFormatter
-  @colors = {
+  @@colors = {
     "FATAL" => :red,
     "ERROR" => :red,
     "WARN"  => :yellow,
@@ -12,7 +12,7 @@ struct LogFormat < Log::StaticFormatter
   }
 
   def run
-    string "[#{Time.local}] #{@entry.severity.label}: #{@entry.message}".colorize(@colors[@entry.severity.label])
+    string "[#{Time.local}] #{@entry.severity.label}: #{@entry.message}".colorize(@@colors[@entry.severity.label])
   end
 end
 
@@ -38,13 +38,34 @@ cli = Commander::Command.new do |cmd|
     flag.persistent = true
   end
 
+  cmd.flags.add do |flag|
+    flag.name = "verbosity"
+    flag.short = "-v"
+    flag.long = "--verbosity"
+    flag.description = "Control the logging verbosity, 0 to 5 "
+    flag.default = 2
+    flag.persistent = true
+  end
+
   cmd.run do |options, arguments|
     begin
       if options.@bool["quiet"]
-        Log.setup(:fatal, Log::IOBackend.new(formatter: LogFormat))
+        verbosity = Log::Severity::Fatal
       else
-        Log.setup(:error, Log::IOBackend.new(formatter: LogFormat))
+        verbosity = [
+          Log::Severity::Fatal,
+          Log::Severity::Error,
+          Log::Severity::Warn,
+          Log::Severity::Info,
+          Log::Severity::Debug,
+          Log::Severity::Trace,
+        ][options.@int["verbosity"]]
       end
+      Log.setup(
+        verbosity,
+        Log::IOBackend.new(io: STDERR, formatter: LogFormat)
+      )
+
       Hace::HaceFile.run(
         arguments,
         run_all: options.@bool["run_all"]

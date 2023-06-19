@@ -11,8 +11,8 @@
 
 * Something like pattern rules: `%o : %c`
 * Make default tasks opt-in instead of opt-out
-* Logging / Verbosity management
 
+* ~~Logging / Verbosity management~~
 * ~~Multiple outputs~~
 * ~~Mark some tasks as "default" which run when no task is specified~~
 * ~~Add -B --always-make option like make~~
