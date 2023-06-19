@@ -11,12 +11,10 @@
 
   `$(objects): %o: %c`
 
-* Something like pattern rules:
-
-  `%o : %c`
-* Add -B --always-make option like make
+* Something like pattern rules: `%o : %c`
 * Mark some tasks as "default" which run when no task is specified
 
+* ~~Add -B --always-make option like make~~
 * ~~Environment variables~~
 * ~~Templated tasks~~
 * ~~Real command line interface~~
