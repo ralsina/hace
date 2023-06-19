@@ -10,8 +10,8 @@
   `$(objects): %o: %c`
 
 * Something like pattern rules: `%o : %c`
-* Logging / Verbosity management
 * Make default tasks opt-in instead of opt-out
+* Logging / Verbosity management
 
 * ~~Multiple outputs~~
 * ~~Mark some tasks as "default" which run when no task is specified~~

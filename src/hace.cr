@@ -1,6 +1,7 @@
 require "commander"
 require "crinja"
 require "croupier"
+require "log"
 require "yaml"
 
 include Croupier
