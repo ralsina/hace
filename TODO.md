@@ -2,6 +2,14 @@
 
 ## Things that may be a good idea to add
 
+Note that some of these may not be possible to implement,
+in which case they will move to the "bad ideas" section.
+
+Or, they may require special support from Croupier, in which
+case they will take a little longer.
+
+Not ordered in any particular way.
+
 * Makefile parser when there is no Hacefile
 * Tasks with wildcard targets / dependencies
 * Something equivalent to static patterns:
@@ -10,8 +18,11 @@
 
 * Something like pattern rules: `%o : %c`
 * Make default tasks opt-in instead of opt-out
-* Add equivalent of make's `-i` option to ignore errors
+* Add equivalent of make's `-i` and `-k` options to
+  ignore errors
 * Support merging multiple Hacefiles from the CLI
+* Implement dry run
+* Implement make's `--question` option
 
 * ~~Add equivalent of make's `-f` option~~
 * ~~Automatic variables (like make's `$@`)~~
