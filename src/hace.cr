@@ -20,12 +20,18 @@ module Hace
       if !File.exists?("Hacefile.yml")
         raise "No Hacefile.yml found"
       end
-      Hace::HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
+      f = Hace::HaceFile.from_yaml(File.read("Hacefile.yml"))
+      f.gen_tasks
+      # If no tasks are specified, run only default tasks
       if arguments.empty?
-        TaskManager.run_tasks(run_all: run_all)
-      else
-        TaskManager.run_tasks(arguments, run_all: run_all)
+        f.tasks.each do |name, task|
+          if task.@default
+            arguments += task.@output
+            arguments << name if task.@phony
+          end
+        end
       end
+      TaskManager.run_tasks(arguments, run_all: run_all)
     end
 
     def gen_tasks
@@ -42,13 +48,18 @@ module Hace
     @commands : String
     @dependencies : Array(String) = [] of String
     @phony : Bool = false
+    @default : Bool = true
+    @output : Array(String) = [] of String
 
     def gen_task(name, variables, env)
+      @output = @phony ? [] of String : [name] if @output.empty?
+
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
+
       commands.map do |command|
         Task.new(
           name: name,
-          output: @phony ? [] of String : name,
+          output: @output,
           inputs: @dependencies, no_save: true,
           proc: TaskProc.new {
             Process.run(
