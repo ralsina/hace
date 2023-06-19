@@ -1,10 +1,9 @@
 require "./spec_helper"
 include Hace
 
-# logs = IO::Memory.new
-
 def with_scenario(name, keep = [] of String, &)
-  Log.setup(:debug)  # Helps for coverage
+  logs = IO::Memory.new
+  Log.setup(:debug, Log::IOBackend.new(io: logs))  # Helps for coverage
   # ::logs = IO::Memory.new
   # Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
@@ -219,6 +218,15 @@ describe Hace do
         expect_raises(Exception, "Command failed: exit 1 when running /bin/false") do
           HaceFile.run
         end
+      end
+    end
+
+    it "should not run later tasks if a dependency fails" do
+      with_scenario("failed-chain") do
+        expect_raises(Exception, "Command failed: exit 1 when running /bin/false") do
+          HaceFile.run
+        end
+        File.exists?("foo").should be_false
       end
     end
 
