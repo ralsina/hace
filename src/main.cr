@@ -14,10 +14,15 @@ cli = Commander::Command.new do |cmd|
   end
 
   cmd.run do |options, arguments|
+    begin
     Hace::HaceFile.run(
       arguments,
       run_all: options.@bool["run_all"]
     )
+    rescue ex
+      STDERR << "Error: #{ex.message}"
+      exit(1)
+    end
   end
 end
 
