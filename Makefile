@@ -9,7 +9,7 @@ bin/crytic:
 	shards install
 mutation: bin/crytic
 	bin/crytic test -s src/hace.cr
-coverage/index.html: bin/run_tests
+coverage/index.html: bin/run_tests spec/*cr spec/testcases/*/Hacefile.yml
 	rm -rf coverage/
 	kcov --clean --include-path=./src coverage ./bin/run_tests
 	xdg-open coverage/index.html
