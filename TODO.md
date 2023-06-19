@@ -14,8 +14,8 @@
 * Something like pattern rules:
 
   `%o : %c`
-* Shell selection
 * Add -B --always-make option like make
+* Mark some tasks as "default" which run when no task is specified
 
 * ~~Environment variables~~
 * ~~Templated tasks~~
@@ -30,3 +30,12 @@
   make does things like automatically use `$(CC)` to build `.c` files.
   this is both confusing (runs random unconfigured commands)
   and of limited usefulness (if you want make, use make)
+
+* Shell selection
+
+  Apparently `Process.run()` uses `/bin/sh` on linux and `cmd.exe` on
+  windows and changing it while supporting things like redirection and
+  whatnot is not trivial.
+
+  Since `/bin/sh` is the standard shell, I'll just use that. It's a feature
+  now.

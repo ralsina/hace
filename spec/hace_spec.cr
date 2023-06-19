@@ -3,6 +3,7 @@ include Hace
 
 def with_scenario(name, &)
   Dir.cd("spec/testcases/#{name}") do
+    File.delete?(".croupier")
     Dir.glob("*").each do |f|
       File.delete?(f) unless f == "Hacefile.yml"
     end
@@ -78,6 +79,40 @@ describe Hace do
         HaceFile.run(arguments: ["foo"])
         File.exists?("foo").should be_true
         File.exists?("bat").should be_false
+      end
+    end
+
+    it "should do nothing when running a second time" do
+      with_scenario("run_all") do
+        File.open("bar", "w") do |io|
+          io << "1111"
+        end
+        HaceFile.run # This should put "1111" in "foo"
+        TaskManager.tasks.values.select(&.stale?).empty?.should be_true
+        File.read("foo").should eq "1111"
+        # This should NOT put "2222" in "foo" because the tasks have ran
+        File.open("bar", "w") do |io|
+          io << "2222"
+        end
+        HaceFile.run
+        File.read("foo").should eq "1111"
+      end
+    end
+
+    it "should run normally when running a second time with run_all=true" do
+      with_scenario("run_all") do
+        File.open("bar", "w") do |io|
+          io << "1111"
+        end
+        HaceFile.run # This should put "1111" in "foo"
+        TaskManager.tasks.values.select(&.stale?).empty?.should be_true
+        File.read("foo").should eq "1111"
+        # This should put "2222" in "foo" because of run_all
+        File.open("bar", "w") do |io|
+          io << "2222"
+        end
+        HaceFile.run(run_all: true)
+        File.read("foo").should eq "2222"
       end
     end
 

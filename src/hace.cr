@@ -16,15 +16,15 @@ module Hace
     property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
     property env : Process::Env = {} of String => String
 
-    def self.run(options = [] of String, arguments = [] of String)
+    def self.run(arguments = [] of String, run_all : Bool = false)
       if !File.exists?("Hacefile.yml")
         raise "No Hacefile.yml found"
       end
       Hace::HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
       if arguments.empty?
-        TaskManager.run_tasks
+        TaskManager.run_tasks(run_all: run_all)
       else
-        TaskManager.run_tasks(arguments)
+        TaskManager.run_tasks(arguments, run_all: run_all)
       end
     end
 

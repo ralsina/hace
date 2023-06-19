@@ -1,0 +1,4 @@
+tasks:
+  foo:
+    commands: |
+      cat bar > foo
