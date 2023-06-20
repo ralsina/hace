@@ -9,3 +9,9 @@ tasks:
       - foo
     commands: |
       echo "test" > bar
+  bat:
+    default: true
+    dependencies:
+      - foo
+    commands: |
+      echo "test" > bat

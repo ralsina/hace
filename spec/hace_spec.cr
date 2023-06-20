@@ -237,6 +237,8 @@ describe Hace do
           HaceFile.run
         end
         File.exists?("foo").should be_false
+        File.exists?("bar").should be_false
+        File.exists?("bat").should be_false
       end
     end
 
