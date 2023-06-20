@@ -13,6 +13,7 @@
 * Added `-n` option to do a dry run.
 * Added `always_run` flag for tasks which causes them to always
   run even if their dependencies are unchanged.
+* Implemented `--question` flag to ask if a task should be run.
 
 ## Version v0.1.1
 

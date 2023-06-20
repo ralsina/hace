@@ -65,6 +65,14 @@ cli = Commander::Command.new do |cmd|
     flag.persistent = true
   end
 
+  cmd.flags.add do |flag|
+    flag.name = "question"
+    flag.long = "--question"
+    flag.description = "Don't run anything, exit 0 if all tasks are up to date, 1 otherwise"
+    flag.default = false
+    flag.persistent = true
+  end
+
   cmd.run do |options, arguments|
     begin
       if options.@bool["quiet"]
@@ -84,11 +92,14 @@ cli = Commander::Command.new do |cmd|
         Log::IOBackend.new(io: STDERR, formatter: LogFormat)
       )
 
-      Hace::HaceFile.run(
-        filename: options.@string["file"],
-        arguments: arguments,
-        run_all: options.@bool["run_all"],
-        dry_run: options.@bool["dry_run"],
+      exit(
+        Hace::HaceFile.run(
+          filename: options.@string["file"],
+          arguments: arguments,
+          run_all: options.@bool["run_all"],
+          dry_run: options.@bool["dry_run"],
+          question: options.@bool["question"],
+        )
       )
     rescue ex
       Log.error { ex.message }

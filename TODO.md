@@ -18,10 +18,10 @@ Not ordered in any particular way.
 
 * Something like pattern rules: `%o : %c`
 * Add equivalent of make's `-i` and `-k` options to
-  ignore errors
+  ignore errors (Requires Croupier support)
 * Support merging multiple Hacefiles from the CLI
-* Implement make's `--question` option
 
+* ~~Implement make's `--question` option~~
 * ~~Tasks that always run~~
 * ~~Implement dry run~~
 * ~~Make default tasks opt-in instead of opt-out~~

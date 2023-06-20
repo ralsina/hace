@@ -43,8 +43,8 @@ At some point I'll provide binaries but not yet.
 You can use the `hace` command to run tasks from a `Hacefile.yml` in the current
 directory.
 
-```sh
-> ./bin/hace --help
+```console
+$ ./bin/hace --help
   hace - hace makes things, like make
 
   Usage:
@@ -57,6 +57,8 @@ directory.
     -n, --dry-run      Don't actually run any commands
     -f, --file         Read the file named as a Hacefile default: 'Hacefile.yml'
     -h, --help         Help for this command.
+        --question     Don't run anything, exit 0 if all tasks are up to
+        date, 1 otherwise
     -q, --quiet        Don't log anything
     -B, --always-make  Unconditionally run all tasks.
     -v, --verbosity    Control the logging verbosity, 0 to 5  default: 2

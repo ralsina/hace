@@ -22,6 +22,7 @@ module Hace
       filename = "Hacefile.yml",
       run_all : Bool = false,
       dry_run : Bool = false,
+      question : Bool = false
     )
       begin
         if !File.exists?(filename)
@@ -32,6 +33,18 @@ module Hace
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
       f.gen_tasks
+
+      # FIXME: see if this works when given `arguments`
+      if question
+        stale_tasks = TaskManager.tasks.values.select(&.stale?)
+        if stale_tasks.empty?
+          Log.info { "No stale tasks found" }
+          return 0
+        end
+        Log.info { "Stale tasks found:" }
+        return 1
+      end
+
       # If no tasks are specified, run only default tasks
       if arguments.empty?
         f.tasks.each do |name, task|
@@ -44,6 +57,7 @@ module Hace
       Log.info { "Running tasks: #{arguments.join(", ")}" }
       TaskManager.run_tasks(arguments, run_all: run_all, dry_run: dry_run)
       Log.info { "Finished" }
+      0
     end
 
     def gen_tasks

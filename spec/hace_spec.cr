@@ -245,9 +245,17 @@ describe Hace do
     it "should run with a named file" do
       with_scenario("filename", keep: ["foobar"]) do
         expect_raises(Exception) do
-          HaceFile.run
+          HaceFile.run.should eq 0
         end
         HaceFile.run(filename: "foobar")
+      end
+    end
+
+    it "should not run anything on question mode" do
+      with_scenario("no-deps") do
+        HaceFile.run(question: true).should eq 1
+        # Should not have actually ran
+        File.exists?("foo").should be_false
       end
     end
   end
