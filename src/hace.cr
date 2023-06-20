@@ -99,7 +99,7 @@ module Hace
 
       Task.new(
         name: name,
-        output: @outputs,
+        outputs: @outputs,
         inputs: @dependencies,
         no_save: true,
         always_run: @always_run,
