@@ -11,6 +11,7 @@ Its functionality is mostly derived from using
 [![News about Hace](https://img.shields.io/badge/News-About%20Hace-blue)](https://ralsina.me/categories/hace.html)
 
 [![Tests](https://github.com/ralsina/hace/actions/workflows/ci.yml/badge.svg)](https://github.com/ralsina/hace/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ralsina/hace/branch/main/graph/badge.svg?token=YW23EDL5T5)](https://codecov.io/gh/ralsina/hace)
 [![Mutation Tests](https://github.com/ralsina/hace/actions/workflows/mutation.yml/badge.svg)](https://github.com/ralsina/hace/actions/workflows/mutation.yml)
 
 ## ⚠️⚠️WARNING⚠️⚠️
