@@ -13,3 +13,5 @@
 # These are files used in test cases
 /spec/testcases/**/???
 /spec/testcases/**/counter
+/spec/testcases/**/input
+/spec/testcases/**/input2
