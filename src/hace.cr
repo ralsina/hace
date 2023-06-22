@@ -58,7 +58,7 @@ module Hace
       Log.info { "Running tasks: #{arguments.join(", ")}" }
       TaskManager.run_tasks(arguments, run_all: run_all, dry_run: dry_run)
       Log.info { "Finished" }
-      0  # exit code
+      0 # exit code
     end
 
     def gen_tasks
