@@ -54,6 +54,7 @@ module Hace
           end
         end
       end
+
       Log.info { "Running tasks: #{arguments.join(", ")}" }
       TaskManager.run_tasks(arguments, run_all: run_all, dry_run: dry_run)
       Log.info { "Finished" }

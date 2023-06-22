@@ -1,5 +1,7 @@
 tasks:
   foo:
     default: true
+    dependencies:
+      - bar
     commands: |
       cat bar > foo
