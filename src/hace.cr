@@ -99,7 +99,6 @@ module Hace
       context = {"self" => self.to_hash}.merge variables
 
       Task.new(
-        name: name,
         outputs: @outputs,
         inputs: @dependencies,
         no_save: true,
