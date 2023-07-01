@@ -106,6 +106,20 @@ cli = Commander::Command.new do |cmd|
       exit(1)
     end
   end
+
+  cmd.commands.add do |cmd|
+    cmd.use = "auto"
+    cmd.short = "Run in auto mode"
+    cmd.long = "Run in auto mode, monitoring files for changes"
+    cmd.run do |options, arguments|
+      Hace::HaceFile.auto(
+        filename: options.@string["file"],
+        run_all: options.@bool["run_all"],
+        dry_run: options.@bool["dry_run"],
+        question: options.@bool["question"],
+      )
+    end
+  end
 end
 
 Commander.run(cli, ARGV)

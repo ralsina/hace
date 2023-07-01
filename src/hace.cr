@@ -66,6 +66,14 @@ module Hace
         task.gen_task(name, variables, env)
       end
     end
+
+    def self.auto(
+      filename = "Hacefile.yml",
+      run_all : Bool = false,
+      dry_run : Bool = false,
+      question : Bool = false
+    )
+    end
   end
 
   class CommandTask

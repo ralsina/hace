@@ -20,6 +20,7 @@ Not ordered in any particular way.
 * Add equivalent of make's `-i` and `-k` options to
   ignore errors (Requires Croupier support)
 * Support merging multiple Hacefiles from the CLI
+* Use croupier's "auto mode"
 
 * ~~Implement make's `--question` option~~
 * ~~Tasks that always run~~
