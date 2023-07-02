@@ -17,13 +17,7 @@ module Hace
     property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
     property env : Process::Env = {} of String => String
 
-    def self.run(
-      arguments = [] of String,
-      filename = "Hacefile.yml",
-      run_all : Bool = false,
-      dry_run : Bool = false,
-      question : Bool = false
-    )
+    def self.load_file(filename)
       begin
         if !File.exists?(filename)
           raise "No Hacefile '#{filename}' found"
@@ -32,6 +26,17 @@ module Hace
       rescue ex
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
+      f
+    end
+
+    def self.run(
+      arguments = [] of String,
+      filename = "Hacefile.yml",
+      run_all : Bool = false,
+      dry_run : Bool = false,
+      question : Bool = false
+    )
+      f = load_file(filename)
       f.gen_tasks
 
       # FIXME: see if this works when given `arguments`
@@ -68,11 +73,16 @@ module Hace
     end
 
     def self.auto(
+      arguments = [] of String,
       filename = "Hacefile.yml",
       run_all : Bool = false,
-      dry_run : Bool = false,
       question : Bool = false
     )
+      # TODO: implement the other flags and arguments
+      f = load_file(filename)
+      f.gen_tasks
+      # TODO: to make this work, we need to be able to run
+      # only selected targets in croupier's auto mode
     end
   end
 

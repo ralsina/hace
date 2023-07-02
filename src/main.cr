@@ -62,7 +62,7 @@ cli = Commander::Command.new do |cmd|
     flag.long = "--dry-run"
     flag.description = "Don't actually run any commands"
     flag.default = false
-    flag.persistent = true
+    flag.persistent = false
   end
 
   cmd.flags.add do |flag|
@@ -70,10 +70,11 @@ cli = Commander::Command.new do |cmd|
     flag.long = "--question"
     flag.description = "Don't run anything, exit 0 if all tasks are up to date, 1 otherwise"
     flag.default = false
-    flag.persistent = true
+    flag.persistent = false
   end
 
   cmd.run do |options, arguments|
+    # FIXME refactor verbosity out of here
     begin
       if options.@bool["quiet"]
         verbosity = Log::Severity::Fatal
@@ -107,12 +108,13 @@ cli = Commander::Command.new do |cmd|
     end
   end
 
-  cmd.commands.add do |cmd|
-    cmd.use = "auto"
-    cmd.short = "Run in auto mode"
-    cmd.long = "Run in auto mode, monitoring files for changes"
-    cmd.run do |options, arguments|
+  cmd.commands.add do |command|
+    command.use = "auto"
+    command.short = "Run in auto mode"
+    command.long = "Run in auto mode, monitoring files for changes"
+    command.run do |options, arguments|
       Hace::HaceFile.auto(
+        arguments: arguments,
         filename: options.@string["file"],
         run_all: options.@bool["run_all"],
         dry_run: options.@bool["dry_run"],
