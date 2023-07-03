@@ -74,15 +74,22 @@ module Hace
 
     def self.auto(
       arguments = [] of String,
-      filename = "Hacefile.yml",
-      run_all : Bool = false,
-      question : Bool = false
+      filename = "Hacefile.yml"
     )
       # TODO: implement the other flags and arguments
       f = load_file(filename)
       f.gen_tasks
-      # TODO: to make this work, we need to be able to run
-      # only selected targets in croupier's auto mode
+      begin
+        Log.info { "Running tasks: #{arguments.join(", ")}" }
+        TaskManager.auto_run(arguments)
+      rescue ex
+        Log.error { ex }
+        return 1
+      end
+      Log.info { "Running in auto mode, press Ctrl+C to stop" }
+      loop do
+        sleep 1
+      end
     end
   end
 

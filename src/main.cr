@@ -14,6 +14,25 @@ struct LogFormat < Log::StaticFormatter
   def run
     string "[#{Time.local}] #{@entry.severity.label}: #{@entry.message}".colorize(@@colors[@entry.severity.label])
   end
+
+  def self.setup(quiet : Bool, verbosity)
+    if quiet
+      _verbosity = Log::Severity::Fatal
+    else
+      _verbosity = [
+        Log::Severity::Fatal,
+        Log::Severity::Error,
+        Log::Severity::Warn,
+        Log::Severity::Info,
+        Log::Severity::Debug,
+        Log::Severity::Trace,
+      ][[verbosity, 5].min]
+    end
+    Log.setup(
+      _verbosity,
+      Log::IOBackend.new(io: STDERR, formatter: LogFormat)
+    )
+  end
 end
 
 cli = Commander::Command.new do |cmd|
@@ -26,7 +45,7 @@ cli = Commander::Command.new do |cmd|
     flag.long = "--always-make"
     flag.description = "Unconditionally run all tasks."
     flag.default = false
-    flag.persistent = true
+    flag.persistent = false
   end
 
   cmd.flags.add do |flag|
@@ -74,25 +93,8 @@ cli = Commander::Command.new do |cmd|
   end
 
   cmd.run do |options, arguments|
-    # FIXME refactor verbosity out of here
     begin
-      if options.@bool["quiet"]
-        verbosity = Log::Severity::Fatal
-      else
-        verbosity = [
-          Log::Severity::Fatal,
-          Log::Severity::Error,
-          Log::Severity::Warn,
-          Log::Severity::Info,
-          Log::Severity::Debug,
-          Log::Severity::Trace,
-        ][[options.@int["verbosity"], 5].min]
-      end
-      Log.setup(
-        verbosity,
-        Log::IOBackend.new(io: STDERR, formatter: LogFormat)
-      )
-
+      LogFormat.setup(options.@bool["quiet"], options.@int["verbosity"])
       exit(
         Hace::HaceFile.run(
           filename: options.@string["file"],
@@ -113,12 +115,10 @@ cli = Commander::Command.new do |cmd|
     command.short = "Run in auto mode"
     command.long = "Run in auto mode, monitoring files for changes"
     command.run do |options, arguments|
+      LogFormat.setup(options.@bool["quiet"], options.@int["verbosity"])
       Hace::HaceFile.auto(
         arguments: arguments,
         filename: options.@string["file"],
-        run_all: options.@bool["run_all"],
-        dry_run: options.@bool["dry_run"],
-        question: options.@bool["question"],
       )
     end
   end
