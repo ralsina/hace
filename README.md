@@ -49,20 +49,21 @@ $ ./bin/hace --help
   hace - hace makes things, like make
 
   Usage:
-    hace [flags] [arguments]
+    hace [command] [flags] [arguments]
 
   Commands:
+    auto            Run in auto mode
     help [command]  Help about any command.
 
   Flags:
     -n, --dry-run      Don't actually run any commands
     -f, --file         Read the file named as a Hacefile default: 'Hacefile.yml'
     -h, --help         Help for this command.
-        --question     Don't run anything, exit 0 if all tasks are up to
-        date, 1 otherwise
+        --question     Don't run anything, exit 0 if all tasks are up to date, 1
+                       otherwise
     -q, --quiet        Don't log anything
     -B, --always-make  Unconditionally run all tasks.
-    -v, --verbosity    Control the logging verbosity, 0 to 5  default: 2
+    -v, --verbosity    Control the logging verbosity, 0 to 5  default: 3
 ```
 
 The arguments are task names, and if you don't specify any, the default
@@ -213,9 +214,12 @@ env:
 
 ## Variables
 
-You can declare variables in the `vars` top key. They are
+You can declare variables in the `variables` top level key. They are
 available to all tasks, which can use them in their commands
 using a [Jinja](https://github.com/straight-shoota/crinja) template language syntax.
+
+A special variable is `self` which is the task itself, so you can
+use the task itself to define parts of the commands it contains.
 
 **⚠️⚠️WARNING⚠️⚠️** These are *not* [environment variables](#environment-variables).
 
@@ -234,9 +238,6 @@ tasks:
       echo "make foo out of {{ foo['bar'] }} at {{ i }}" > foo
       cat {{ self["dependencies"][0] }} >> foo
 ```
-
-A special variable is `self` which is the task itself, so you can
-use the task itself to define parts of the commands it contains.
 
 In that example, it's doing `cat bar >> foo` because that's in
 `self["dependencies"]`. This may look a bit confusing but I expect
