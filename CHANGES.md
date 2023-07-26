@@ -1,5 +1,9 @@
 # Changelog
 
+## Main Branch
+
+* Switched to croupier main
+
 ## Version v0.1.2
 
 * Make tasks not be `default` by default. This means that if you
