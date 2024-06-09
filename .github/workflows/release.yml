@@ -5,6 +5,9 @@ on:
     tags:
     - '*'
 
+permissions:
+    contents: write
+
 name: Build Release
 jobs:
   generate:
