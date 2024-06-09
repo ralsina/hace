@@ -1,7 +1,9 @@
 on:
   release:
     types: [created]
-  workflow_dispatch:
+  push:
+    tags:
+    - '*'
 
 name: Build Release
 jobs:
@@ -25,3 +27,7 @@ jobs:
           file: bin/hace
           asset_name: hace-linux-amd64
           tag: ${{ github.ref }}
+          prerelease: true
+          draft: true
+          make_latest: true
+          overwrite: true
