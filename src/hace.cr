@@ -9,6 +9,7 @@ include Croupier
 module Hace
   VERSION = "0.1.1"
 
+  # Parser for Hacefile.yml
   class HaceFile
     include YAML::Serializable
     include YAML::Serializable::Strict
@@ -93,6 +94,7 @@ module Hace
     end
   end
 
+  # A task that runs a shell command
   class CommandTask
     include YAML::Serializable
     include YAML::Serializable::Strict

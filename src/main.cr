@@ -1,6 +1,7 @@
 require "./hace"
 require "colorize"
 
+# Log formatter for Hace
 struct LogFormat < Log::StaticFormatter
   @@colors = {
     "FATAL" => :red,

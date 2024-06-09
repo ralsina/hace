@@ -11,16 +11,16 @@ targets:
 dependencies:
   croupier:
     github: ralsina/croupier
-    branch: main
   commander:
     github: mrrooijen/commander
   crinja:
     github: straight-shoota/crinja
 
-      #development_dependencies:
-      #crytic:
-      #:wq
-      #github: hanneskaeufler/crytic
+development_dependencies:
+  crytic:
+    github: hanneskaeufler/crytic
+  ameba:
+    github: crystal-ameba/ameba
 
 crystal: 1.8.2
 

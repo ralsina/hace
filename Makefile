@@ -20,7 +20,8 @@ clean:
 	rm -rf lib/ bin/ coverage/
 	git clean -f
 lint:
-	ameba --all --fix
+	crystal tool format src/*.cr spec/*.cr
+	bin/ameba --all --fix
 docs:   src/*.cr *.md
 	crystal docs
 .PHONY: clean coverage mutation test all
