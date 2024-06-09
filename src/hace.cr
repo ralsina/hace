@@ -52,6 +52,15 @@ module Hace
         return 1
       end
 
+      real_arguments = process_arguments(f, arguments)
+
+      Log.info { "Running tasks: #{arguments.join(", ")}" }
+      TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going)
+      Log.info { "Finished" }
+      0 # exit code
+    end
+
+    def self.process_arguments(f, arguments : Array(String))
       # If no tasks are specified, run only default tasks
       if arguments.empty?
         f.tasks.each do |name, task|
@@ -69,11 +78,7 @@ module Hace
           real_arguments << name if task.@phony
         end
       end
-
-      Log.info { "Running tasks: #{arguments.join(", ")}" }
-      TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going)
-      Log.info { "Finished" }
-      0 # exit code
+      real_arguments
     end
 
     def gen_tasks
@@ -90,8 +95,9 @@ module Hace
       f = load_file(filename)
       f.gen_tasks
       begin
+        real_arguments = process_arguments(f, arguments)
         Log.info { "Running tasks: #{arguments.join(", ")}" }
-        TaskManager.auto_run(arguments)
+        TaskManager.auto_run(real_arguments)
       rescue ex
         Log.error { ex }
         return 1
