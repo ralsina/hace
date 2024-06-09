@@ -10,12 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@master
-      - name: Generate the artifacts
-        uses: skx/github-action-build@master
-    #   - name: Upload the artifacts
-    #     uses: skx/github-action-publish-binaries@master
-    #     env:
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     with:
-    #       args: 'example-*'
+        uses: actions/checkout@v4
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+      - name: Build release artifacts
+        run: |
+          shards install
+          crystal spec -v --error-trace
+          shards build --release
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/hace
+          asset_name: hace-linux-amd64
+          tag: ${{ github.ref }}
