@@ -4,6 +4,7 @@
 
 * Tasks with common outputs are problematic (hey, also in Makefiles)
 * Tests are broken (probably harness)
+* auto mode doesn't really work
 * ~~Command output is not visible in the log~~
 * ~~Tasks with outputs fail with "ERROR: Unknown output <taskname>"~~
 
