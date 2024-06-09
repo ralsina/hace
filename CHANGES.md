@@ -8,6 +8,7 @@
 * Switched to croupier main, supports depending on directories
 * Automatically build binaries for release
 * General housekeeping
+* Build itself using a Hacefile instead of a Makefile
 
 Bugs Fixed:
 

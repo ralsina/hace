@@ -1,4 +1,4 @@
-# TODO
+# TODO, Bugs and stuff
 
 ## Bugs
 
@@ -17,6 +17,7 @@ case they will take a little longer.
 
 Not ordered in any particular way.
 
+* Set variables from the command line
 * Have empty `outputs` be phony rather than defaulting to task name?
 * Makefile parser when there is no Hacefile
 * Tasks with wildcard targets / dependencies
