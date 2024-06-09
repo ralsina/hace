@@ -1,5 +1,8 @@
 all: test coverage
 
+build: bin/hace
+bin/hace:
+	shards build
 test:
 	shards install
 	crystal spec -v --error-trace
