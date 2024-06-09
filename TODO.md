@@ -5,6 +5,8 @@
 * Tasks with common outputs are problematic (hey, also in Makefiles)
 * Tests are broken (probably harness)
 * auto mode doesn't really work
+* Make dry-run more interesting (show commands that would run)
+* There is some autosave somewhere causing targets to be replaced with a file containing "0" :-D 
 * ~~Command output is not visible in the log~~
 * ~~Tasks with outputs fail with "ERROR: Unknown output <taskname>"~~
 
