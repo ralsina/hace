@@ -146,7 +146,7 @@ module Hace
         # Marking task as not mergeable until we have a way to
         # handle tasks that share an output correctly
         mergeable: false,
-        no_save: false,
+        no_save: true,
         always_run: @always_run,
         proc: TaskProc.new {
           commands.map do |command|
