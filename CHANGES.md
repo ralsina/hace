@@ -9,6 +9,7 @@
 * Automatically build binaries for release
 * General housekeeping
 * Build itself using a Hacefile instead of a Makefile
+* Reject if two tasks share outputs (limitation of croupier for now) 
 
 Bugs Fixed:
 
