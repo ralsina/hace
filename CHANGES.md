@@ -2,7 +2,17 @@
 
 ## Main Branch
 
-* Switched to croupier main
+## Version v0.1.3
+
+* New `-k` option to keep going after errors. 
+* Switched to croupier main, supports depending on directories
+* Automatically build binaries for release
+* General housekeeping
+
+Bugs Fixed:
+
+* Tasks with outputs passed wrong target to croupier
+* Command output was not visible in the log.
 
 ## Version v0.1.2
 

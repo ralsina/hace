@@ -1,5 +1,12 @@
 # TODO
 
+## Bugs
+
+* Tasks with common outputs are problematic (hey, also in Makefiles)
+* Tests are broken (probably harness)
+* ~~Command output is not visible in the log~~
+* ~~Tasks with outputs fail with "ERROR: Unknown output <taskname>"~~
+
 ## Things that may be a good idea to add
 
 Note that some of these may not be possible to implement,
@@ -10,6 +17,7 @@ case they will take a little longer.
 
 Not ordered in any particular way.
 
+* Have empty `outputs` be phony rather than defaulting to task name?
 * Makefile parser when there is no Hacefile
 * Tasks with wildcard targets / dependencies
 * Something equivalent to static patterns:
@@ -17,11 +25,12 @@ Not ordered in any particular way.
   `$(objects): %o: %c`
 
 * Something like pattern rules: `%o : %c`
-* Add equivalent of make's `-i` and `-k` options to
+* Add equivalent of make's `-i` option to
   ignore errors (Requires Croupier support)
 * Support merging multiple Hacefiles from the CLI
 * Embed JS in tasks using duktape.cr
 
+* ~~Implemented -k to keep going after errors~~
 * ~~Use croupier's "auto mode"~~
 * ~~Implement make's `--question` option~~
 * ~~Tasks that always run~~

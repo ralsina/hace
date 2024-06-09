@@ -152,7 +152,7 @@ describe Hace do
       end
     end
 
-    # FIXME: have not figured out how to assrt on the logs
+    # FIXME: have not figured out how to assert on the logs
     # it "should warn of phony tasks with outputs" do
     #   with_scenario("basic") do
     #     HaceFile.run(arguments: ["phony"])

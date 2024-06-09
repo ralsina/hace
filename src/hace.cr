@@ -35,7 +35,8 @@ module Hace
       filename = "Hacefile.yml",
       run_all : Bool = false,
       dry_run : Bool = false,
-      question : Bool = false
+      question : Bool = false,
+      keep_going : Bool = false
     )
       f = load_file(filename)
       f.gen_tasks
@@ -55,14 +56,22 @@ module Hace
       if arguments.empty?
         f.tasks.each do |name, task|
           if task.@default
-            arguments += task.@outputs
-            arguments << name if task.@phony
+            arguments << name
           end
         end
       end
 
+      # For non-phony tasks, use the outputs as arguments
+      real_arguments = [] of String
+      f.tasks.each do |name, task|
+        if arguments.includes? name
+          real_arguments += task.@outputs
+          real_arguments << name if task.@phony
+        end
+      end
+
       Log.info { "Running tasks: #{arguments.join(", ")}" }
-      TaskManager.run_tasks(arguments, run_all: run_all, dry_run: dry_run)
+      TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going)
       Log.info { "Finished" }
       0 # exit code
     end
@@ -128,7 +137,10 @@ module Hace
       Task.new(
         outputs: @outputs,
         inputs: @dependencies,
-        no_save: true,
+        # Marking task as not mergeable until we have a way to
+        # handle tasks that share an output correctly
+        mergeable: false,
+        no_save: false,
         always_run: @always_run,
         proc: TaskProc.new {
           commands.map do |command|
@@ -138,12 +150,15 @@ module Hace
               command: command,
               shell: true,
               env: env,
+              input: Process::Redirect::Inherit,
+              output: Process::Redirect::Inherit,
+              error: Process::Redirect::Inherit,
             )
             raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
             status.to_s
           end
         },
-        id: @phony ? name : nil,
+        id: name,
       )
     end
   end

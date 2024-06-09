@@ -93,6 +93,15 @@ cli = Commander::Command.new do |cmd|
     flag.persistent = false
   end
 
+  cmd.flags.add do |flag|
+    flag.name = "keep_going"
+    flag.long = "--keep-going"
+    flag.short = "-k"
+    flag.description = "Continue as much as possible after an error."
+    flag.default = false
+    flag.persistent = false
+  end
+
   cmd.run do |options, arguments|
     begin
       LogFormat.setup(options.@bool["quiet"], options.@int["verbosity"])
@@ -103,6 +112,7 @@ cli = Commander::Command.new do |cmd|
           run_all: options.@bool["run_all"],
           dry_run: options.@bool["dry_run"],
           question: options.@bool["question"],
+          keep_going: options.@bool["keep_going"],
         )
       )
     rescue ex

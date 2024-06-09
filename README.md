@@ -14,18 +14,6 @@ Its functionality is mostly derived from using
 [![codecov](https://codecov.io/gh/ralsina/hace/branch/main/graph/badge.svg?token=YW23EDL5T5)](https://codecov.io/gh/ralsina/hace)
 [![Mutation Tests](https://github.com/ralsina/hace/actions/workflows/mutation.yml/badge.svg)](https://github.com/ralsina/hace/actions/workflows/mutation.yml)
 
-## ⚠️⚠️WARNING⚠️⚠️
-
-This tool is **very** alpha. It's not meant for serious usage anywhere
-under any circumstances. It's not even used to build itself yet, it
-uses a Makefile.
-
-On the other hand, what's there seems to be pretty solid, so give it a
-spin if you want and let me know how it looks to you.😄
-
-Finally, this README is for the code in git's main branch, not for the
-latest release, so YMMV.
-
 ## Installation
 
 If you have `crystal` and `shards` installed, you can do:
@@ -37,7 +25,7 @@ shards build --release
 cp bin/hace ~/.local/bin  # or wherever you want it
 ```
 
-At some point I'll provide binaries but not yet.
+Binaries for Linux in amd64 are available in [the releases page](https://github.com/ralsina/hace/releases).
 
 ## Usage
 
@@ -59,8 +47,8 @@ $ ./bin/hace --help
     -n, --dry-run      Don't actually run any commands
     -f, --file         Read the file named as a Hacefile default: 'Hacefile.yml'
     -h, --help         Help for this command.
-        --question     Don't run anything, exit 0 if all tasks are up to date, 1
-                       otherwise
+    -k, --keep-going   Continue as much as possible after an error.
+        --question     Don't run anything, exit 0 if all tasks are up to date, 1 otherwise
     -q, --quiet        Don't log anything
     -B, --always-make  Unconditionally run all tasks.
     -v, --verbosity    Control the logging verbosity, 0 to 5  default: 3
@@ -166,10 +154,12 @@ task3:
 
 This task is **called** `task3` but it generates two files, `baz` and `bat`.
 
-**⚠️⚠️WARNING⚠️⚠️:** You can have two tasks with the same output, but you can't
-have two tasks with the same name. If there are two tasks with the same
-output, Hacé will try to do the right thing but it's going to be tricky
-so consider this warning.
+**⚠️WARNING:** You can have two tasks with the same output, but you can't
+have two tasks with the same name.
+
+**⚠Warning:** If there are two tasks with the same
+output, Hacé will run them both, and the second one will overwrite the
+first. This is a bug, and will be fixed.
 
 ### Dependencies
 

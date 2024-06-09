@@ -1,0 +1,86 @@
+tasks:
+  build:
+    default: true
+    dependencies:
+      - src/
+      - shard.lock
+      - shard.yml
+    outputs:
+      - bin/hace
+    commands: |
+      shards build
+
+  # FIXME: disabled because of buggy behaviour with tasks sharing targets
+  # release:
+  #   default: false
+  #   dependencies:
+  #     - src/
+  #     - shard.lock
+  #     - shard.yml
+  #   outputs:
+  #     - bin/hace
+  #   commands: |
+  #     shards build --release -o bin/hace
+
+  test:
+    default: false
+    dependencies:
+      - src/
+      - spec/
+      - shard.lock
+      - shard.yml
+    commands: |
+      crystal spec -v --error-trace
+    phony: true
+    always_run: true
+
+  mutation:
+    default: false
+    dependencies:
+      - src/
+      - spec/
+      - shard.lock
+      - shard.yml
+    commands: |
+      bin/crytic test -s src/hace.cr
+    phony: true
+
+  coverage:
+    default: false
+    dependencies:
+      - src/
+      - spec/
+      - shard.lock
+      - shard.yml
+    commands: |
+      shards install
+      crystal build -o bin/run_tests src/run_tests.cr
+      rm -rf coverage/
+      mkdir coverage
+      kcov --clean --include-path=./src coverage ./bin/run_tests
+    outputs:
+      - coverage/index.html
+
+  lint:
+    default: false
+    dependencies:
+      - src/
+      - spec/
+      - shard.lock
+      - shard.yml
+    commands: |
+      crystal tool format src/*.cr spec/*.cr
+      bin/ameba --all --fix
+    always_run: true
+    phony: true
+
+  docs:
+    dependencies:
+      - src/
+      - shard.lock
+      - shard.yml
+      - README.md
+    commands: |
+      crystal docs
+    outputs:
+      - docs/index.html
