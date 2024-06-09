@@ -6,6 +6,7 @@
 * Tests are broken (probably harness)
 * auto mode doesn't really work
 * Make dry-run more interesting (show commands that would run)
+* Doesn't complain when an unknown task is requested
 * ~~Command output is not visible in the log~~
 * ~~Tasks with outputs fail with "ERROR: Unknown output <taskname>"~~
 
@@ -19,6 +20,7 @@ case they will take a little longer.
 
 Not ordered in any particular way.
 
+* Handle using both task names and targets in CLI
 * Set variables from the command line
 * Have empty `outputs` be phony rather than defaulting to task name?
 * Makefile parser when there is no Hacefile
