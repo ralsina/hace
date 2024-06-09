@@ -23,9 +23,11 @@ jobs:
           shards install
           crystal spec -v --error-trace
           shards build --release
+          strip bin/hace
+          mv bin/hace bin/hace-linux-amd64
       - name: Upload binaries to release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: |
-            bin/hace
+            bin/hace-linux-amd64
