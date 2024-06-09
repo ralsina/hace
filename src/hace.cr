@@ -49,6 +49,9 @@ module Hace
           return 0
         end
         Log.info { "Stale tasks found:" }
+        stale_tasks.each do |task|
+          Log.info { "  #{task.id}" }
+        end
         return 1
       end
 

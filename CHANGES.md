@@ -4,6 +4,7 @@
 
 ## Version v0.1.3
 
+* Made `--question` more verbose
 * New `-k` option to keep going after errors. 
 * Switched to croupier main, supports depending on directories
 * Automatically build binaries for release
