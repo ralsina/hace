@@ -39,7 +39,9 @@ module Hace
       keep_going : Bool = false
     )
       f = load_file(filename)
-      f.gen_tasks
+      if TaskManager.tasks.empty?
+        f.gen_tasks
+      end
 
       # FIXME: see if this works when given `arguments`
       if question
@@ -56,6 +58,15 @@ module Hace
       end
 
       real_arguments = process_arguments(f, arguments)
+
+      # FIXME: show errors if SOME arguments are bogus
+      if real_arguments.empty?
+        # If there are arguments, they are all bogus
+        raise "Unknown target(s): #{arguments.join(", ")}" if !arguments.empty?
+        # Or there are no requested and no default tasks
+        Log.info { "No tasks to run" }
+        return 0
+      end
 
       Log.info { "Running tasks: #{arguments.join(", ")}" }
       TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going)

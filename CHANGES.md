@@ -4,6 +4,7 @@
 
 ## Version v0.1.3
 
+* Handle bogus arguments better
 * Made `--question` more verbose
 * New `-k` option to keep going after errors. 
 * Switched to croupier main, supports depending on directories
