@@ -36,8 +36,8 @@ tasks:
   mutation:
     default: false
     dependencies:
-      - src/
-      - spec/
+      - src
+      - spec
       - shard.lock
       - shard.yml
     commands: |
@@ -47,8 +47,8 @@ tasks:
   coverage:
     default: false
     dependencies:
-      - src/
-      - spec/
+      - src
+      - spec
       - shard.lock
       - shard.yml
     commands: |
@@ -63,8 +63,8 @@ tasks:
   lint:
     default: false
     dependencies:
-      - src/
-      - spec/
+      - src
+      - spec
       - shard.lock
       - shard.yml
     commands: |
@@ -75,7 +75,7 @@ tasks:
 
   docs:
     dependencies:
-      - src/
+      - src
       - shard.lock
       - shard.yml
       - README.md
