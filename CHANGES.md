@@ -9,7 +9,7 @@
 * Auto mode works better
 * Handle bogus arguments better
 * Made `--question` more verbose, and only report stale tasks matching arguments
-* New `-k` option to keep going after errors. 
+* New `-k` option to keep going after errors.
 * Switched to croupier main, supports depending on directories
 * Automatically build binaries for release
 * General housekeeping

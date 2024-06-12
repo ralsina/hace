@@ -244,7 +244,7 @@ Currently the available members of `self` are:
 You can also set variables from the command line. This example sets `VAR` to `VALUE`:
 
 ```sh
-$ hace foo VAR=VALUE
+hace foo VAR=VALUE
 ```
 
 ## Development
