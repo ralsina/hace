@@ -241,6 +241,12 @@ Currently the available members of `self` are:
 * default: boolean
 * outputs: all outputs, as an array
 
+You can also set variables from the command line. This example sets `VAR` to `VALUE`:
+
+```sh
+$ hace foo VAR=VALUE
+```
+
 ## Development
 
 See [TODO.md](TODO.md) for a list of things that are not done yet,

@@ -21,7 +21,7 @@ case they will take a little longer.
 
 Not ordered in any particular way.
 
-* Set variables from the command line
+* Allow for parallel task execution?
 * Have empty `outputs` be phony rather than defaulting to task name?
 * Very basic Makefile parser when there is no Hacefile
 * Tasks with wildcard targets / dependencies
@@ -35,6 +35,7 @@ Not ordered in any particular way.
 * Support merging multiple Hacefiles from the CLI
 * Embed JS in tasks using duktape.cr
 
+* ~~Set variables from the command line~~
 * ~~Handle using both task names an~ targets in CLI~~
 * ~~Implemented -k to keep going after errors~~
 * ~~Use croupier's "auto mode"~~

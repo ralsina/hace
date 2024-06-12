@@ -4,6 +4,7 @@
 
 ## Version v0.1.3
 
+* Set variables from the command line
 * Allow passing output files as arguments
 * Auto mode works better
 * Handle bogus arguments better

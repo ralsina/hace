@@ -1,3 +1,6 @@
+variables:
+  FLAGS: "-d -Dpreview_mt"
+
 tasks:
   build:
     default: true
@@ -5,22 +8,18 @@ tasks:
       - src
       - shard.lock
       - shard.yml
+      - Hacefile.yml
     outputs:
       - bin/hace
     commands: |
-      shards build
+      shards build {{FLAGS}}
 
-  # FIXME: disabled because of buggy behaviour with tasks sharing targets
-  # release:
-  #   default: false
-  #   dependencies:
-  #     - src/
-  #     - shard.lock
-  #     - shard.yml
-  #   outputs:
-  #     - bin/hace
-  #   commands: |
-  #     shards build --release -o bin/hace
+  build-release:
+    phony: true
+    always_run: true
+    default: false
+    commands: |
+      hace build -B FLAGS="--release"
 
   test:
     default: false

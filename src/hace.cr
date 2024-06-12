@@ -39,6 +39,17 @@ module Hace
       keep_going : Bool = false
     )
       f = load_file(filename)
+
+      # Extract variable assignments from arguments
+      vars = arguments.select { |arg| arg =~ /^(\w+)=(.*)$/ }
+      arguments -= vars
+
+      # Set variables in hacefile
+      vars.map do |var|
+        key, value = var.split("=", 2)
+        f.variables[key] = YAML::Any.new(value)
+      end
+
       if TaskManager.tasks.empty?
         f.gen_tasks
       end
