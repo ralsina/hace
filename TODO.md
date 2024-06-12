@@ -3,10 +3,11 @@
 ## Bugs
 
 * Tasks with common outputs are problematic (hey, also in Makefiles)
-* Tests are broken (probably harness)
-* auto mode doesn't really work
 * Make dry-run more interesting (show commands that would run)
-* Doesn't complain when an unknown task is requested
+* `question` mode is not well tested
+* ~~Doesn't complain when an unknown task is requested~~
+* ~~Tests are broken (probably harness)~~
+* ~~auto mode doesn't really work~~
 * ~~Command output is not visible in the log~~
 * ~~Tasks with outputs fail with "ERROR: Unknown output <taskname>"~~
 
