@@ -21,10 +21,9 @@ case they will take a little longer.
 
 Not ordered in any particular way.
 
-* Handle using both task names and targets in CLI
 * Set variables from the command line
 * Have empty `outputs` be phony rather than defaulting to task name?
-* Makefile parser when there is no Hacefile
+* Very basic Makefile parser when there is no Hacefile
 * Tasks with wildcard targets / dependencies
 * Something equivalent to static patterns:
 
@@ -36,6 +35,7 @@ Not ordered in any particular way.
 * Support merging multiple Hacefiles from the CLI
 * Embed JS in tasks using duktape.cr
 
+* ~~Handle using both task names an~ targets in CLI~~
 * ~~Implemented -k to keep going after errors~~
 * ~~Use croupier's "auto mode"~~
 * ~~Implement make's `--question` option~~
