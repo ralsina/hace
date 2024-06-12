@@ -43,32 +43,32 @@ module Hace
         f.gen_tasks
       end
 
+      Log.debug { "Requested tasks: #{arguments.join(", ")}" }
+      real_arguments = process_arguments(f, arguments)
+      Log.info { "Running tasks with targets: #{real_arguments.join(", ")}" }
+
+      if real_arguments.empty?
+        # There are no requested, non-bogus or default tasks
+        Log.info { "No tasks to run" }
+        return 0
+      end
+
       # FIXME: see if this works when given `arguments`
       if question
-        stale_tasks = TaskManager.tasks.values.select(&.stale?)
+        stale_tasks = TaskManager.tasks.values.select(&.stale?).select { |task|
+          (real_arguments.includes? task.id) || (!(real_arguments & task.outputs).empty?)
+        }
         if stale_tasks.empty?
           Log.info { "No stale tasks found" }
           return 0
         end
         Log.info { "Stale tasks found:" }
         stale_tasks.each do |task|
-          Log.info { "  #{task.id}" }
+          Log.info { "👉 #{task.id}" }
         end
         return 1
       end
 
-      real_arguments = process_arguments(f, arguments)
-
-      # FIXME: show errors if SOME arguments are bogus
-      if real_arguments.empty?
-        # If there are arguments, they are all bogus
-        raise "Unknown target(s): #{arguments.join(", ")}" if !arguments.empty?
-        # Or there are no requested and no default tasks
-        Log.info { "No tasks to run" }
-        return 0
-      end
-      Log.debug { "Requested tasks: #{arguments.join(", ")}" }
-      Log.info { "Running tasks for: #{real_arguments.join(", ")}" }
       TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going)
       Log.info { "Finished" }
       0 # exit code

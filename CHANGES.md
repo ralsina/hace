@@ -4,9 +4,10 @@
 
 ## Version v0.1.3
 
+* Allow passing output files as arguments
 * Auto mode works better
 * Handle bogus arguments better
-* Made `--question` more verbose
+* Made `--question` more verbose, and only report stale tasks matching arguments
 * New `-k` option to keep going after errors. 
 * Switched to croupier main, supports depending on directories
 * Automatically build binaries for release
