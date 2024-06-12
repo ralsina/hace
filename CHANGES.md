@@ -4,6 +4,7 @@
 
 ## Version v0.1.3
 
+* Auto mode works better
 * Handle bogus arguments better
 * Made `--question` more verbose
 * New `-k` option to keep going after errors. 
@@ -11,10 +12,11 @@
 * Automatically build binaries for release
 * General housekeeping
 * Build itself using a Hacefile instead of a Makefile
-* Reject if two tasks share outputs (limitation of croupier for now) 
+* Reject if two tasks share outputs (limitation of croupier for now)
 
 Bugs Fixed:
 
+* Warn about unknown tasks used in command line
 * Tasks with outputs passed wrong target to croupier
 * Command output was not visible in the log.
 

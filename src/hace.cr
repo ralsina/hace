@@ -67,8 +67,8 @@ module Hace
         Log.info { "No tasks to run" }
         return 0
       end
-
-      Log.info { "Running tasks: #{arguments.join(", ")}" }
+      Log.debug { "Requested tasks: #{arguments.join(", ")}" }
+      Log.info { "Running tasks for: #{real_arguments.join(", ")}" }
       TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going)
       Log.info { "Finished" }
       0 # exit code
@@ -77,6 +77,7 @@ module Hace
     def self.process_arguments(f, arguments : Array(String))
       # If no tasks are specified, run only default tasks
       if arguments.empty?
+        Log.info { "Using default tasks" }
         f.tasks.each do |name, task|
           if task.@default
             arguments << name
@@ -84,15 +85,28 @@ module Hace
         end
       end
 
-      # For non-phony tasks, use the outputs as arguments
       real_arguments = [] of String
-      f.tasks.each do |name, task|
-        if arguments.includes? name
-          real_arguments += task.@outputs
-          real_arguments << name if task.@phony
+
+      arguments.each do |arg|
+        p_args = [] of String
+        f.tasks.each do |name, task|
+          if arg == name
+            # For non-phony tasks, use the outputs as arguments
+            p_args += task.@outputs
+            # For phony tasks (no outputs) use the task name as argument
+            p_args << name if task.@phony
+            # If the argument is an output of a task, add the argument
+          elsif task.@outputs.includes?(arg)
+            p_args << arg
+          end
         end
+        # Tasks that generate no argument don't exist
+        if p_args.empty?
+          Log.warn { "Task #{arg} not found" }
+        end
+        real_arguments += p_args
       end
-      real_arguments
+      real_arguments = Set.new(real_arguments).to_a
     end
 
     def gen_tasks
