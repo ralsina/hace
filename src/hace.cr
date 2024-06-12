@@ -38,7 +38,7 @@ module Hace
       question : Bool = false,
       keep_going : Bool = false
     )
-      f = load_file(filename)
+      hacefile = load_file(filename)
 
       # Extract variable assignments from arguments
       vars = arguments.select { |arg| arg =~ /^(\w+)=(.*)$/ }
@@ -47,15 +47,15 @@ module Hace
       # Set variables in hacefile
       vars.map do |var|
         key, value = var.split("=", 2)
-        f.variables[key] = YAML::Any.new(value)
+        hacefile.variables[key] = YAML::Any.new(value)
       end
 
       if TaskManager.tasks.empty?
-        f.gen_tasks
+        hacefile.gen_tasks
       end
 
       Log.debug { "Requested tasks: #{arguments.join(", ")}" }
-      real_arguments = process_arguments(f, arguments)
+      real_arguments = process_arguments(hacefile, arguments)
       Log.info { "Running tasks with targets: #{real_arguments.join(", ")}" }
 
       if real_arguments.empty?
@@ -85,11 +85,11 @@ module Hace
       0 # exit code
     end
 
-    def self.process_arguments(f, arguments : Array(String))
+    def self.process_arguments(hacefile, arguments : Array(String))
       # If no tasks are specified, run only default tasks
       if arguments.empty?
         Log.info { "Using default tasks" }
-        f.tasks.each do |name, task|
+        hacefile.tasks.each do |name, task|
           if task.@default
             arguments << name
           end
@@ -100,7 +100,7 @@ module Hace
 
       arguments.each do |arg|
         p_args = [] of String
-        f.tasks.each do |name, task|
+        hacefile.tasks.each do |name, task|
           if arg == name
             # For non-phony tasks, use the outputs as arguments
             p_args += task.@outputs
@@ -132,7 +132,7 @@ module Hace
     )
       # TODO: implement the other flags and arguments
       f = load_file(filename)
-      f.gen_tasks
+      hacefile.gen_tasks
       begin
         real_arguments = process_arguments(f, arguments)
         Log.info { "Running tasks: #{arguments.join(", ")}" }
