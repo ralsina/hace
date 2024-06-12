@@ -163,6 +163,7 @@ module Hace
         no_save: true,
         always_run: @always_run,
         proc: TaskProc.new {
+          Log.info { "Started task: #{name}" }
           commands.map do |command|
             command = Crinja.render(command, context)
             Log.info { "Running command: #{command}" }
@@ -177,6 +178,7 @@ module Hace
             raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
             status.to_s
           end
+          Log.info { "Finished task: #{name}" }
         },
         id: name,
       )

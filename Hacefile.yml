@@ -2,7 +2,7 @@ tasks:
   build:
     default: true
     dependencies:
-      - src/
+      - src
       - shard.lock
       - shard.yml
     outputs:
@@ -25,8 +25,8 @@ tasks:
   test:
     default: false
     dependencies:
-      - src/
-      - spec/
+      - src
+      - spec
       - shard.lock
       - shard.yml
     commands: |

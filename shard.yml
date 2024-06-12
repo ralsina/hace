@@ -11,6 +11,7 @@ targets:
 dependencies:
   croupier:
     github: ralsina/croupier
+    branch: main
   commander:
     github: mrrooijen/commander
   crinja:
