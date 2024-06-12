@@ -4,7 +4,8 @@
 
 * Tasks with common outputs are problematic (hey, also in Makefiles)
 * Make dry-run more interesting (show commands that would run)
-* ~~`question` mode is not well tested~~
+* Mutation test fails because question mode is not tested
+* ~~`question` mode doesn't work~~
 * ~~Doesn't complain when an unknown task is requested~~
 * ~~Tests are broken (probably harness)~~
 * ~~auto mode doesn't really work~~
