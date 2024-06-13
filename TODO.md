@@ -2,9 +2,10 @@
 
 ## Bugs
 
+* Need to refactor/cleanup `run()` which is getting a bit long
 * Tasks with common outputs are problematic (hey, also in Makefiles)
 * Make dry-run more interesting (show commands that would run)
-* Mutation test fails because question mode is not tested
+* ~~Mutation test fails becaus question mode is not tested~~
 * ~~`question` mode doesn't work~~
 * ~~Doesn't complain when an unknown task is requested~~
 * ~~Tests are broken (probably harness)~~
