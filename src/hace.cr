@@ -131,10 +131,10 @@ module Hace
       filename = "Hacefile.yml"
     )
       # TODO: implement the other flags and arguments
-      f = load_file(filename)
+      hacefile = load_file(filename)
       hacefile.gen_tasks
       begin
-        real_arguments = process_arguments(f, arguments)
+        real_arguments = process_arguments(hacefile, arguments)
         Log.info { "Running tasks: #{arguments.join(", ")}" }
         TaskManager.auto_run(real_arguments)
       rescue ex
