@@ -1,11 +1,10 @@
 require "./spec_helper"
 include Hace
 
-def with_scenario(name, keep = [] of String, &)
-  logs = IO::Memory.new
-  Log.setup(:debug, Log::IOBackend.new(io: logs)) # Helps for coverage
-  # ::logs = IO::Memory.new
-  # Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
+def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new, &)
+  # logs = IO::Memory.new
+  # Log.setup(:debug, Log::IOBackend.new(io: logs)) # Helps for coverage
+  Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
     File.delete?(".croupier") unless keep.includes? ".croupier"
     Dir.glob("*").each do |f|
@@ -138,12 +137,13 @@ describe Hace do
     end
 
     # FIXME: have not figured out how to assert on the logs
-    # it "should warn of phony tasks with outputs" do
-    #   with_scenario("basic") do
-    #     HaceFile.run(arguments: ["phony"])
-    #     logs.to_s.includes?("phony task 'phony' has outputs").should be_true
-    #   end
-    # end
+    it "should warn of phony tasks with outputs" do
+      logs = IO::Memory.new
+      with_scenario("basic", logs: logs) do
+        HaceFile.run(arguments: ["phony"])
+        logs.to_s.includes?("Task phony is phony but has outputs").should be_true
+      end
+    end
 
     it "should expand variables in commands" do
       with_scenario("variables") do
