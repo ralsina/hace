@@ -2,8 +2,6 @@ require "./spec_helper"
 include Hace
 
 def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new, &)
-  # logs = IO::Memory.new
-  # Log.setup(:debug, Log::IOBackend.new(io: logs)) # Helps for coverage
   Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
     File.delete?(".croupier") unless keep.includes? ".croupier"
@@ -68,6 +66,34 @@ describe Hace do
     end
   end
 
+  describe "question" do
+    it "without arguments, reports stale default task" do
+      logs = IO::Memory.new
+      with_scenario("basic", logs: logs) do
+        File.open("bar", "w") do |io|
+          io << "quux\n"
+        end
+        HaceFile.run(question: true)
+        Fiber.yield
+        logs.to_s.includes?("👉 foo").should be_true
+        logs.to_s.includes?("👉 phony").should be_true
+      end
+    end
+
+    it "with arguments, reports stale named task only" do
+      logs = IO::Memory.new
+      with_scenario("basic", logs: logs) do
+        File.open("bar", "w") do |io|
+          io << "quux\n"
+        end
+        HaceFile.run(arguments: ["phony"], question: true)
+        Fiber.yield
+        logs.to_s.includes?("👉 foo").should be_false
+        logs.to_s.includes?("👉 phony").should be_true
+      end
+    end
+  end
+
   describe "run" do
     it "fails without a Hacefile.yml" do
       Dir.cd("spec/testcases/") do
@@ -88,12 +114,12 @@ describe Hace do
       end
     end
 
-    # This no longer raises an exception
-    pending "should fail with unknown target" do
-      with_scenario("basic") do
-        expect_raises(Exception, "sarasa") do
-          HaceFile.run(arguments: ["sarasa"])
-        end
+    it "should fail with unknown target" do
+      logs = IO::Memory.new
+      with_scenario("basic", logs: logs) do
+        HaceFile.run(arguments: ["sarasa"])
+        Fiber.yield
+        logs.to_s.includes?("Task sarasa not found").should be_true
       end
     end
 
