@@ -1,5 +1,7 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
 ## Version v0.1.3
 
 * Set variables from the command line

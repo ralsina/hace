@@ -48,7 +48,8 @@ $ ./bin/hace --help
     -f, --file         Read the file named as a Hacefile default: 'Hacefile.yml'
     -h, --help         Help for this command.
     -k, --keep-going   Continue as much as possible after an error.
-        --question     Don't run anything, exit 0 if all tasks are up to date, 1 otherwise
+        --question     Don't run anything, exit 0 if all tasks are up to date, 1
+                       otherwise
     -q, --quiet        Don't log anything
     -B, --always-make  Unconditionally run all tasks.
     -v, --verbosity    Control the logging verbosity, 0 to 5  default: 3

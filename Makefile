@@ -27,4 +27,4 @@ lint:
 	bin/ameba --all --fix
 docs:   src/*.cr *.md
 	crystal docs
-.PHONY: clean coverage mutation test all
+.PHONY: clean coverage mutation test all build

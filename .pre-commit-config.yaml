@@ -1,5 +1,6 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v4.4.0
@@ -14,11 +15,21 @@ repos:
       hooks:
           - id: shellcheck
           - id: markdownlint
+            exclude: '^content'
     - repo: https://github.com/mrtazz/checkmake
       rev: 0.2.2
       hooks:
           - id: checkmake
+            exclude: lexers/makefile.xml
     - repo: https://github.com/python-jsonschema/check-jsonschema
       rev: 0.23.2
       hooks:
           - id: check-github-workflows
+    - repo: https://github.com/commitizen-tools/commitizen
+      rev: v3.29.0 # automatically updated by Commitizen
+      hooks:
+        - id: commitizen
+        - id: commitizen-branch
+          stages:
+            - post-commit
+            - push
