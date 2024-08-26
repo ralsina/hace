@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+* Added pre-commit hooks and git-cliff
+
 ## Version v0.1.3
 
 * Set variables from the command line
