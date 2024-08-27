@@ -7,8 +7,8 @@ require "yaml"
 include Croupier
 
 module Hace
-  VERSION = "0.1.1"
-
+  VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
+  
   # Parser for Hacefile.yml
   class HaceFile
     include YAML::Serializable
@@ -24,7 +24,7 @@ module Hace
           raise "No Hacefile '#{filename}' found"
         end
         f = Hace::HaceFile.from_yaml(File.read(filename))
-        ENV.each { |k,v| f.env[k] = v.to_s }
+        ENV.each { |k, v| f.env[k] = v.to_s }
       rescue ex
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end

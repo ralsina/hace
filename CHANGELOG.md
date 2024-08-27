@@ -4,9 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### 🚀 Features
+
+* Improved envvar handling
+
 ### ⚙️ Miscellaneous Tasks
 
 * Added pre-commit hooks and git-cliff
+* Updated changelog
+* Integrated old changelog into cliff
+* Updated hooks
+* Lint
+
+### Build
+
+* Added changelog target to makefile
 
 ## Version v0.1.3
 
@@ -30,20 +42,13 @@ Bugs Fixed:
 
 ## Version v0.1.2
 
-* Make tasks not be `default` by default. This means that if you
-  don't specify a task when invoking `hace`, nothing will happen.
-
-  **This is a breaking change.**
-* Added `self` to exposed variables in tasks. This can be used
-  to achieve what you would use $@ or other automatic variables
-  in Makefiles.
+* Make tasks not be `default` by default. This means that if you don't specify a task when invoking `hace`, nothing will happen. **This is a breaking change.**
+* Added `self` to exposed variables in tasks. This can be used to achieve what you would use $@ or other automatic variables in Makefiles.
 * Added `-f` option to specify a Hacefile to use.
 * Added `-n` option to do a dry run.
-* Added `always_run` flag for tasks which causes them to always
-  run even if their dependencies are unchanged.
+* Added `always_run` flag for tasks which causes them to always run even if their dependencies are unchanged.
 * Implemented `--question` flag to ask if a task should be run.
-* Implemented `auto` command, which continuously rebuilds as needed
-  reacting to filesystem changes.
+* Implemented `auto` command, which continuously rebuilds as needed reacting to filesystem changes.
 
 ## Version v0.1.1
 

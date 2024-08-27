@@ -1,7 +1,5 @@
 variables:
   FLAGS: "-d --error-trace"
-env:
-  HOME: "/home/ralsina"
 
 tasks:
   build:
@@ -22,6 +20,7 @@ tasks:
     default: false
     commands: |
       hace build FLAGS="--release"
+
   install:
     default: false
     phony: true
@@ -31,6 +30,15 @@ tasks:
     commands: |
       rm ${HOME}/.local/bin/hace
       cp bin/hace ${HOME}/.local/bin/hace
+
+  static:
+    default: false
+    outputs:
+      - bin/hace-static-linux-amd64
+      - bin/hace-static-linux-arm64
+    commands: |
+      hace clean
+      ./build_static.sh
 
   test:
     default: false
@@ -80,7 +88,7 @@ tasks:
       - shard.yml
     commands: |
       crystal tool format src/*.cr spec/*.cr
-      bin/ameba --all --fix
+      ameba --fix
     always_run: true
     phony: true
 
@@ -94,3 +102,15 @@ tasks:
       crystal docs
     outputs:
       - docs/index.html
+
+  pre-commit:
+    phony: true
+    commands: |
+      pre-commit install --hook-type commit-msg
+      pre-commit install
+
+  clean:
+    phony: true
+    always_run: true
+    commands: |
+      rm -rf shard.lock bin lib

@@ -16,8 +16,6 @@ dependencies:
     github: mrrooijen/commander
   crinja:
     github: straight-shoota/crinja
-  cr-wren:
-    github: ralsina/cr-wren
 
 development_dependencies:
   crytic:
@@ -25,6 +23,6 @@ development_dependencies:
   ameba:
     github: crystal-ameba/ameba
 
-crystal: 1.8.2
+crystal: 1.13.0
 
 license: MIT
