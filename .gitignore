@@ -8,6 +8,7 @@
 # Dependencies will be locked in applications that use them
 /shard.lock
 .croupier
+.crystal
 /coverage/
 
 # These are files used in test cases

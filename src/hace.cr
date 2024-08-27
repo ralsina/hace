@@ -8,7 +8,7 @@ include Croupier
 
 module Hace
   VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
-  
+
   # Parser for Hacefile.yml
   class HaceFile
     include YAML::Serializable
@@ -16,7 +16,7 @@ module Hace
 
     property tasks : Hash(String, CommandTask) = {} of String => CommandTask
     property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
-    property env = {} of String => String
+    property env = {} of String => String?
 
     def self.load_file(filename)
       begin
@@ -24,7 +24,7 @@ module Hace
           raise "No Hacefile '#{filename}' found"
         end
         f = Hace::HaceFile.from_yaml(File.read(filename))
-        ENV.each { |k, v| f.env[k] = v.to_s }
+        ENV.each { |k, v| f.env[k] = v }
       rescue ex
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
