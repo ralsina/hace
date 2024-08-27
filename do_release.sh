@@ -4,7 +4,7 @@ set e
 PKGNAME=$(basename "$PWD")
 VERSION=$(git cliff --bumped-version |cut -dv -f2)
 
-sed s/^version:.*$/version: "$VERSION"/ -i shard.yml
+sed "s/^version:.*$/version: $VERSION/g" -i shard.yml
 git add shard.yml
 hace lint test
 git cliff --bump -o
