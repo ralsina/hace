@@ -18,7 +18,7 @@ tasks:
     default: false
     dependencies:
       - shard.yml
-    outputs: 
+    outputs:
       - shard.lock
     commands: |
       shards install
@@ -113,7 +113,10 @@ tasks:
       - docs/index.html
 
   pre-commit:
-    phony: true
+    default: true
+    outputs:
+      - .git/hooks/commit-msg
+      - .git/hooks/pre-commit
     commands: |
       pre-commit install --hook-type commit-msg
       pre-commit install
