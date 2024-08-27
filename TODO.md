@@ -23,6 +23,7 @@ case they will take a little longer.
 
 Not ordered in any particular way.
 
+* Support variables in more values, not only commands
 * Allow for parallel task execution?
 * Have empty `outputs` be phony rather than defaulting to task name?
 * Very basic Makefile parser when there is no Hacefile
