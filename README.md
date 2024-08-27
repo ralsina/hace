@@ -164,8 +164,9 @@ first. This is a bug, and will be fixed.
 
 ### Dependencies
 
-Dependencies are files. Hacefile will try to run tasks only if a dependency
-has changed since the last time the task was run.
+Dependencies are files or task names. Hacefile will try to run tasks only
+if a dependency file has changed since the last time the task was run or
+if a task dependency itself would run.
 
 If a dependency is the output of another task, then that task will run
 first (if needed).
@@ -193,7 +194,8 @@ Just an ordinary map of environment variables in the `env` top
 key. The variables will be available to all tasks and you can
 expand them using in commands with `${PATH}`
 
-Any variables in the environment when the Hacefile is loaded will also be in the environment.
+Any variables in the environment when the Hacefile is loaded will
+also be in the environment.
 
 If you want to *unset* a variable, set it to `null`. If you want
 it set to an empty value, use `""`.
