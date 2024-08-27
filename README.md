@@ -190,8 +190,9 @@ not out of date. This is useful for tasks that don't have outputs.
 
 Just an ordinary map of environment variables in the `env` top
 key. The variables will be available to all tasks and you can
-expand them using in commands with `${PATH}` or any other usual
-shell mechanism.
+expand them using in commands with `${PATH}`
+
+Any variables in the environment when the Hacefile is loaded will also be in the environment.
 
 If you want to *unset* a variable, set it to `null`. If you want
 it set to an empty value, use `""`.

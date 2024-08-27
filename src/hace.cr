@@ -16,7 +16,7 @@ module Hace
 
     property tasks : Hash(String, CommandTask) = {} of String => CommandTask
     property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
-    property env : Process::Env = {} of String => String
+    property env = {} of String => String
 
     def self.load_file(filename)
       begin
@@ -24,6 +24,7 @@ module Hace
           raise "No Hacefile '#{filename}' found"
         end
         f = Hace::HaceFile.from_yaml(File.read(filename))
+        ENV.each { |k,v| f.env[k] = v.to_s }
       rescue ex
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
@@ -190,7 +191,13 @@ module Hace
         proc: TaskProc.new {
           Log.info { "Started task: #{name}" }
           commands.map do |command|
+            # Expand variables
             command = Crinja.render(command, context)
+            # Expand environment variables
+            command = command.gsub(/\$\{?(\w+)\}?/) do |match|
+              env_key = $1
+              env.fetch(env_key) { match }
+            end
             Log.info { "Running command: #{command}" }
             status = Process.run(
               command: command,

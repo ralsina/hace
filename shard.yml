@@ -16,6 +16,8 @@ dependencies:
     github: mrrooijen/commander
   crinja:
     github: straight-shoota/crinja
+  cr-wren:
+    github: ralsina/cr-wren
 
 development_dependencies:
   crytic:

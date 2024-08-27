@@ -1,5 +1,7 @@
 variables:
-  FLAGS: "-d -Dpreview_mt"
+  FLAGS: "-d --error-trace"
+env:
+  HOME: "/home/ralsina"
 
 tasks:
   build:
@@ -19,7 +21,16 @@ tasks:
     always_run: true
     default: false
     commands: |
-      hace build -B FLAGS="--release"
+      hace build FLAGS="--release"
+  install:
+    default: false
+    phony: true
+    always_run: true
+    dependencies:
+      - bin/hace
+    commands: |
+      rm ${HOME}/.local/bin/hace
+      cp bin/hace ${HOME}/.local/bin/hace
 
   test:
     default: false
