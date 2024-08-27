@@ -14,6 +14,15 @@ tasks:
     commands: |
       shards build {{FLAGS}}
 
+  get-deps:
+    default: false
+    dependencies:
+      - shard.yml
+    outputs: 
+      - shard.lock
+    commands: |
+      shards install
+
   build-release:
     phony: true
     always_run: true
@@ -88,7 +97,7 @@ tasks:
       - shard.yml
     commands: |
       crystal tool format src/*.cr spec/*.cr
-      ameba --fix
+      bin/ameba --fix
     always_run: true
     phony: true
 
