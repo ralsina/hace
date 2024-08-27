@@ -31,6 +31,10 @@ All notable changes to this project will be documented in this file.
 * Handle missing shard.lock
 * Improving the build system in general
 
+### Bump
+
+* Release v0.2.0
+
 ## Version v0.1.3
 
 * Set variables from the command line
