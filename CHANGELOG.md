@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+* Fix gitignore
+
 ## [0.2.0] - 2024-08-27
 
 ### 🚀 Features
@@ -14,6 +20,17 @@ All notable changes to this project will be documented in this file.
 * Quotes in command
 * Support nil envvars
 
+### 🖐️ Bump
+
+* Release v0.2.0
+* Release v0.2.0
+
+### 🏛️ Build
+
+* Make pre-commit hooks set automatically
+* Handle missing shard.lock
+* Improving the build system in general
+
 ### 📚 Documentation
 
 * Clarify dependencies
@@ -24,16 +41,6 @@ All notable changes to this project will be documented in this file.
 * Removed default options in Hacefile
 * Updated changelog
 * Added pre-commit hooks and git-cliff
-
-### Build
-
-* Make pre-commit hooks set automatically
-* Handle missing shard.lock
-* Improving the build system in general
-
-### Bump
-
-* Release v0.2.0
 
 ## Version v0.1.3
 

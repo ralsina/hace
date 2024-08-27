@@ -106,6 +106,8 @@ commit_parsers = [
   { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
   { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
   { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+  { message = "^bump", group = "<!-- 10 -->🖐️ Bump" },
+  { message = "^build", group = "<!-- 11 -->🏛️ Build" },
 ]
 # filter out the commits that are not matched by commit parsers
 filter_commits = false
