@@ -5,13 +5,13 @@
 * Need to refactor/cleanup `run()` which is getting a bit long
 * Tasks with common outputs are problematic (hey, also in Makefiles)
 * Make dry-run more interesting (show commands that would run)
-* ~~Mutation test fails becaus question mode is not tested~~
-* ~~`question` mode doesn't work~~
-* ~~Doesn't complain when an unknown task is requested~~
-* ~~Tests are broken (probably harness)~~
-* ~~auto mode doesn't really work~~
-* ~~Command output is not visible in the log~~
-* ~~Tasks with outputs fail with "ERROR: Unknown output taskname"~~
+* ✅ Mutation test fails becaus question mode is not tested
+* ✅ `question` mode doesn't work
+* ✅ Doesn't complain when an unknown task is requested
+* ✅ Tests are broken (probably harness)
+* ✅ auto mode doesn't really work
+* ✅ Command output is not visible in the log
+* ✅ Tasks with outputs fail with "ERROR: Unknown output taskname"
 
 ## Things that may be a good idea to add
 
@@ -23,7 +23,7 @@ case they will take a little longer.
 
 Not ordered in any particular way.
 
-* Support variables in more values, not only commands
+* ✅ Support variables in more values, not only commands
 * Allow for parallel task execution?
 * Have empty `outputs` be phony rather than defaulting to task name?
 * Very basic Makefile parser when there is no Hacefile
@@ -38,25 +38,25 @@ Not ordered in any particular way.
 * Support merging multiple Hacefiles from the CLI
 * Embed JS in tasks using duktape.cr
 
-* ~~Set variables from the command line~~
-* ~~Handle using both task names an~ targets in CLI~~
-* ~~Implemented -k to keep going after errors~~
-* ~~Use croupier's "auto mode"~~
-* ~~Implement make's `--question` option~~
-* ~~Tasks that always run~~
-* ~~Implement dry run~~
-* ~~Make default tasks opt-in instead of opt-out~~
-* ~~Add equivalent of make's `-f` option~~
-* ~~Automatic variables (like make's `$@`)~~
-* ~~Logging / Verbosity management~~
-* ~~Multiple outputs~~
-* ~~Mark some tasks as "default" which run when no task is specified~~
-* ~~Add -B --always-make option like make~~
-* ~~Environment variables~~
-* ~~Templated tasks~~
-* ~~Real command line interface~~
-* ~~The equivalent of PHONY tasks~~
-* ~~Variables~~
+* ✅ Set variables from the command line
+* ✅ Handle using both task names and targets in CLI
+* ✅ Implemented -k to keep going after errors
+* ✅ Use croupier's "auto mode"
+* ✅ Implement make's `--question` option
+* ✅ Tasks that always run
+* ✅ Implement dry run
+* ✅ Make default tasks opt-in instead of opt-out
+* ✅ Add equivalent of make's `-f` option
+* ✅ Automatic variables (like make's `$@`)
+* ✅ Logging / Verbosity management
+* ✅ Multiple outputs
+* ✅ Mark some tasks as "default" which run when no task is specified
+* ✅ Add -B --always-make option like make
+* ✅ Environment variables
+* ✅ Templated tasks~
+* ✅ Real command line interface
+* ✅ The equivalent of PHONY tasks
+* ✅ Variables
 
 ## Things that look like bad ideas and why
 

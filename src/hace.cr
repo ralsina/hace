@@ -7,7 +7,11 @@ require "yaml"
 include Croupier
 
 module Hace
-  VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
+  VERSION     = {{ `shards version #{__DIR__}`.chomp.stringify }}
+  VARIABLES   = {} of String => YAML::Any
+  ENVIRONMENT = {} of String => String
+
+  extend self
 
   # Parser for Hacefile.yml
   class HaceFile
@@ -24,7 +28,22 @@ module Hace
           raise "No Hacefile '#{filename}' found"
         end
         f = Hace::HaceFile.from_yaml(File.read(filename))
-        ENV.each { |k, v| f.env[k] = v }
+        ENV.each { |k, v| Hace::ENVIRONMENT[k] = v }
+        f.env.each { |k, v|
+          if v.nil?
+            Hace::ENVIRONMENT.delete(k)
+          else
+            Hace::ENVIRONMENT[k] = v
+          end
+        }
+
+        # Variables support ENV variable expansion
+        f.variables.each { |k, v|
+          VARIABLES[k] = YAML.parse(Hace.expand_string(v.to_yaml))
+        }
+
+        # Tasks support expansion
+        f.tasks.each { |_, task| task.expand }
       rescue ex
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
@@ -123,7 +142,7 @@ module Hace
 
     def gen_tasks
       @tasks.each do |name, task|
-        task.gen_task(name, variables, env)
+        task.gen_task(name)
       end
     end
 
@@ -164,10 +183,21 @@ module Hace
     def to_hash
       # Yes, not pretty but this gives me the right types for merging
       # with variables, so I can use it in Crinja.render
-      YAML.parse(self.to_yaml)
+      YAML.parse(self.to_yaml).as_h
     end
 
-    def gen_task(name, variables, env)
+    # We want to support variables and environment variables also in things
+    # like dependencies, outputs, etc. so we need to do some post-processing
+    #
+    # Besides the global VARIABLES, they also have access to self
+    def expand
+      variables = {"self" => self.to_hash}.merge Hace::VARIABLES
+      @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, variables) }
+      @outputs = @outputs.map { |outp| Hace.expand_string(outp, variables) }
+      @commands = Hace.expand_string(@commands, variables)
+    end
+
+    def gen_task(name)
       # phony tasks have no outputs.
       # tasks where outputs are not specified have only one output, the task name
 
@@ -176,9 +206,7 @@ module Hace
         @outputs = [] of String
       end
       @outputs = @phony ? [] of String : [name] if @outputs.empty?
-
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
-      context = {"self" => self.to_hash}.merge variables
 
       Task.new(
         outputs: @outputs,
@@ -191,18 +219,11 @@ module Hace
         proc: TaskProc.new {
           Log.info { "Started task: #{name}" }
           commands.map do |command|
-            # Expand variables
-            command = Crinja.render(command, context)
-            # Expand environment variables
-            command = command.gsub(/\$\{?(\w+)\}?/) do |match|
-              env_key = $1
-              env.fetch(env_key) { match }
-            end
             Log.info { "Running command: #{command}" }
             status = Process.run(
               command: command,
               shell: true,
-              env: env,
+              env: Hace::ENVIRONMENT,
               input: Process::Redirect::Inherit,
               output: Process::Redirect::Inherit,
               error: Process::Redirect::Inherit,
@@ -214,6 +235,16 @@ module Hace
         },
         id: name,
       )
+    end
+  end
+
+  def self.expand_string(str : String, variables = Hace::VARIABLES) : String
+    # Expand variables
+    str = Crinja.render(str, variables)
+    # Expand environment variables
+    str = str.gsub(/\$\{?(\w+)\}?/) do |match|
+      env_key = $1
+      ENV.fetch(env_key) { match }
     end
   end
 end

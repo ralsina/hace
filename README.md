@@ -162,6 +162,8 @@ have two tasks with the same name.
 output, Hacé will run them both, and the second one will overwrite the
 first. This is a bug, and will be fixed.
 
+Outputs can interpolate variables and environment variables.
+
 ### Dependencies
 
 Dependencies are files or task names. Hacefile will try to run tasks only
@@ -176,6 +178,8 @@ generate it, the task is not ready to run, and there will be an error.
 
 Tasks without dependencies are always considered "out of date" and
 will always run if you ask for them.
+
+Dependencies can interpolate variables and environment variables.
 
 ### Default tasks
 
@@ -192,7 +196,7 @@ not out of date. This is useful for tasks that don't have outputs.
 
 Just an ordinary map of environment variables in the `env` top
 key. The variables will be available to all tasks and you can
-expand them using in commands with `${PATH}`
+expand them using in commands, dependencies and outputs with `${PATH}`
 
 Any variables in the environment when the Hacefile is loaded will
 also be in the environment.
@@ -249,6 +253,13 @@ You can also set variables from the command line. This example sets `VAR` to `VA
 
 ```sh
 hace foo VAR=VALUE
+```
+
+Variables can interpolate environment variables:
+
+```yaml
+variables:
+  dest_dir: "${HOME}/.local/bin"
 ```
 
 ## Development
