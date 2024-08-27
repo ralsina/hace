@@ -2,23 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.2.0] - 2024-08-27
 
 ### 🚀 Features
 
+* Expand variables in outputs and dependencies, not just commands
 * Improved envvar handling
+
+### 🐛 Bug Fixes
+
+* Quotes in command
+* Support nil envvars
+
+### 📚 Documentation
+
+* Clarify dependencies
+* More TODO
 
 ### ⚙️ Miscellaneous Tasks
 
-* Added pre-commit hooks and git-cliff
+* Removed default options in Hacefile
 * Updated changelog
-* Integrated old changelog into cliff
-* Updated hooks
-* Lint
+* Added pre-commit hooks and git-cliff
 
 ### Build
 
-* Added changelog target to makefile
+* Make pre-commit hooks set automatically
+* Handle missing shard.lock
+* Improving the build system in general
 
 ## Version v0.1.3
 
