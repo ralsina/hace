@@ -27,6 +27,13 @@ describe Hace do
       end
     end
 
+    it "should expand globs in dependencies" do
+      with_scenario("glob", keep: ["thing_a.c", "thing_b.c"]) do
+        f = HaceFile.load_file("Hacefile.yml")
+        f.tasks["foo"].@dependencies.sort.should eq ["thing_a.c", "thing_b.c"]
+      end
+    end
+
     it "should create tasks for all tasks" do
       with_scenario("basic") do
         HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks

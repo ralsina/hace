@@ -181,6 +181,8 @@ will always run if you ask for them.
 
 Dependencies can interpolate variables and environment variables.
 
+Dependencies will expand "globs", such as "*", "**" and "?"
+
 ### Default tasks
 
 If a task has `default` set to `true`, it will run when no task is

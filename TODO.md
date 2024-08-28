@@ -27,7 +27,7 @@ Not ordered in any particular way.
 * Allow for parallel task execution?
 * Have empty `outputs` be phony rather than defaulting to task name?
 * Very basic Makefile parser when there is no Hacefile
-* Tasks with wildcard targets / dependencies
+* ✅ Tasks with wildcard dependencies
 * Something equivalent to static patterns:
 
   `$(objects): %o: %c`

@@ -192,9 +192,12 @@ module Hace
     # Besides the global VARIABLES, they also have access to self
     def expand
       variables = {"self" => self.to_hash}.merge Hace::VARIABLES
-      @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, variables) }
-      @outputs = @outputs.map { |outp| Hace.expand_string(outp, variables) }
       @commands = Hace.expand_string(@commands, variables)
+      @outputs = @outputs.map { |outp| Hace.expand_string(outp, variables) }
+
+      # Dependencies expand both variables and globs
+      @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, variables) }
+      @dependencies = @dependencies.flat_map { |dep| Hace.expand_glob(dep) }
     end
 
     def gen_task(name)
@@ -246,5 +249,11 @@ module Hace
       env_key = $1
       ENV.fetch(env_key) { match }
     end
+  end
+
+  def self.expand_glob(str : String) : Array(String)
+    expanded = Dir.glob(str).to_a
+    return expanded unless expanded.empty?
+    [str]
   end
 end
