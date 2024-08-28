@@ -2,10 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.3.0] - 2024-08-28
+
+### 🚀 Features
+
+* Expand globs on dependencies
 
 ### ⚙️ Miscellaneous Tasks
 
+* Nicer changelog
 * Fix gitignore
 
 ## [0.2.0] - 2024-08-27
