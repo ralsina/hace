@@ -13,6 +13,12 @@ module Hace
 
   extend self
 
+  # This parses only env and variables, not tasks
+  class PartialHaceFile
+    include YAML::Serializable
+    property variables : Hash(String, YAML::Any) = {} of String => (YAML::Any)
+  end
+
   # Parser for Hacefile.yml
   class HaceFile
     include YAML::Serializable
@@ -27,7 +33,21 @@ module Hace
         if !File.exists?(filename)
           raise "No Hacefile '#{filename}' found"
         end
-        f = Hace::HaceFile.from_yaml(File.read(filename))
+
+        # The PartialFile contains data needed to render the file
+        # which is actually a template
+        data = File.read(filename)
+        p = Hace::PartialHaceFile.from_yaml(data)
+
+        rendered_data = data.split("\n").map do |line|
+          begin
+            Crinja.render(line, p.variables)
+          rescue
+            line
+          end
+        end.join("\n")
+
+        f = Hace::HaceFile.from_yaml(rendered_data)
         ENV.each { |k, v| Hace::ENVIRONMENT[k] = v }
         f.env.each { |k, v|
           if v.nil?
@@ -44,8 +64,8 @@ module Hace
 
         # Tasks support expansion
         f.tasks.each { |_, task| task.expand }
-      rescue ex
-        raise "Error parsing Hacefile '#{filename}': #{ex}"
+        # rescue ex
+        #   raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
       f
     end

@@ -34,6 +34,13 @@ describe Hace do
       end
     end
 
+    it "should expand arrays correctly" do
+      with_scenario("expand-arrays") do
+        f = HaceFile.load_file("Hacefile.yml")
+        f.tasks["build"].@outputs.sort.should eq ["bar", "foo"]
+      end
+    end
+
     it "should create tasks for all tasks" do
       with_scenario("basic") do
         HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
@@ -50,7 +57,7 @@ describe Hace do
         f.variables.keys.should eq ["i", "s", "foo"]
         f.variables["i"].should eq 3
         f.variables["s"].should eq "string"
-        f.variables["foo"].as_h.should eq({"bar" => "bat", "foo" => 86})
+        f.variables["foo"].as(YAML::Any).as_h.should eq({"bar" => "bat", "foo" => 86})
       end
     end
 

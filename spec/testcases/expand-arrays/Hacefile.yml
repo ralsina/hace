@@ -1,0 +1,10 @@
+variables:
+  NAMES:
+    - "foo"
+    - "bar"
+
+tasks:
+  build:
+    outputs: {{NAMES}}
+    commands: |
+      /bin/true

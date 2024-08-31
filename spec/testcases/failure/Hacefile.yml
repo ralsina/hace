@@ -2,5 +2,4 @@ tasks:
   foo:
     default: true
     commands: |
-      echo "test"
       /bin/false

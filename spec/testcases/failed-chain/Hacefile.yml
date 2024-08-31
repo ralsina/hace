@@ -1,7 +1,6 @@
 tasks:
   foo:
     commands: |
-      echo "test"
       /bin/false
   bar:
     default: true
