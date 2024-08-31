@@ -34,7 +34,22 @@ Not ordered in any particular way.
 
   You can do this with a [task that has a variable as `outputs`.](https://github.com/ralsina/hace/blob/main/spec/testcases/expand-arrays/Hacefile.yml)
 
-* Something like pattern rules: `%o : %c`
+* ✅ Something like pattern rules: `%o : %c`
+
+  You can do this by having wildcards as source and iterating:
+
+  ```yaml
+  tasks:
+    foo:
+      default: true
+      outputs:
+        - foo
+      dependencies:
+        - "*.c"
+      commands: |
+        {% for dep in self["dependencies"] %} gcc -c {{dep}} {% endfor %}
+  ```
+
 * Add equivalent of make's `-i` option to
   ignore errors (Requires Croupier support)
 * Support merging multiple Hacefiles from the CLI
