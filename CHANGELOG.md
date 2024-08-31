@@ -2,11 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2024-08-31
+
+### 🐛 Bug Fixes
+
+* Support iterating over dependencies created from a wildcard or a variable
+* Expand variables with array values correctly
+
+### 🧪 Testing
+
+* Fix coverage check
+
+### ⚙️ Miscellaneous Tasks
+
+* Marked task as done
+* Mark a task as done
+
 ## [0.3.0] - 2024-08-28
 
 ### 🚀 Features
 
 * Expand globs on dependencies
+
+### 🖐️ Bump
+
+* Release v0.3.0
 
 ### ⚙️ Miscellaneous Tasks
 
