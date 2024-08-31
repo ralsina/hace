@@ -28,9 +28,11 @@ Not ordered in any particular way.
 * Have empty `outputs` be phony rather than defaulting to task name?
 * Very basic Makefile parser when there is no Hacefile
 * ✅ Tasks with wildcard dependencies
-* Something equivalent to static patterns:
+* ✅ Something equivalent to static patterns:
 
   `$(objects): %o: %c`
+
+  You can do this with a [task that has a variable as `outputs`.](https://github.com/ralsina/hace/blob/main/spec/testcases/expand-arrays/Hacefile.yml)
 
 * Something like pattern rules: `%o : %c`
 * Add equivalent of make's `-i` option to
