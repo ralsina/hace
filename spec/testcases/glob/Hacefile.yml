@@ -1,5 +1,9 @@
 tasks:
   foo:
+    default: true
+    outputs:
+      - foo
     dependencies:
       - "*.c"
-    commands: /bin/true
+    commands: |
+      echo {{self["dependencies"]}} > {{self["outputs"][0]}}

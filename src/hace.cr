@@ -64,8 +64,8 @@ module Hace
 
         # Tasks support expansion
         f.tasks.each { |_, task| task.expand }
-        # rescue ex
-        #   raise "Error parsing Hacefile '#{filename}': #{ex}"
+      rescue ex
+        raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
       f
     end
@@ -212,12 +212,14 @@ module Hace
     # Besides the global VARIABLES, they also have access to self
     def expand
       variables = {"self" => self.to_hash}.merge Hace::VARIABLES
-      @commands = Hace.expand_string(@commands, variables)
       @outputs = @outputs.map { |outp| Hace.expand_string(outp, variables) }
+      variables = {"self" => self.to_hash}.merge Hace::VARIABLES
 
       # Dependencies expand both variables and globs
       @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, variables) }
       @dependencies = @dependencies.flat_map { |dep| Hace.expand_glob(dep) }
+      variables = {"self" => self.to_hash}.merge Hace::VARIABLES
+      @commands = Hace.expand_string(@commands, variables)
     end
 
     def gen_task(name)

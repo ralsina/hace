@@ -264,6 +264,21 @@ variables:
   dest_dir: "${HOME}/.local/bin"
 ```
 
+Because we are using [templates](https://github.com/straight-shoota/crinja/blob/master/TEMPLATE_SYNTAX.md)
+you can even do things like this:
+
+```yaml
+tasks:
+  foo:
+    default: true
+    outputs:
+      - foo
+    dependencies:
+      - "*.c"
+    commands: |
+      {% for dep in self["dependencies"] %} gcc -c {{dep}} {% endfor %}
+```
+
 ## Development
 
 See [TODO.md](TODO.md) for a list of things that are not done yet,

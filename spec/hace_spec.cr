@@ -195,6 +195,13 @@ describe Hace do
       end
     end
 
+    it "variable expansion should expand globs in dependencies" do
+      with_scenario("glob", keep: ["thing_a.c", "thing_b.c"]) do
+        HaceFile.run
+        File.read("foo").should eq %([thing_a.c, thing_b.c]\n)
+      end
+    end
+
     it "should expand environment variables in commands" do
       with_scenario("env") do
         File.open("bar", "w") do |io|

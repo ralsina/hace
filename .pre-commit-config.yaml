@@ -8,6 +8,8 @@ repos:
           - id: trailing-whitespace
           - id: end-of-file-fixer
           - id: check-yaml
+            # This is not technically valid YAML
+            exclude: spec/testcases/expand-arrays/Hacefile.yml
           - id: check-added-large-files
           - id: check-merge-conflict
     - repo: https://github.com/jumanjihouse/pre-commit-hooks
