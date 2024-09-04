@@ -199,6 +199,7 @@ module Hace
     @default : Bool = false
     @outputs : Array(String) = [] of String
     @always_run : Bool = false
+    @cwd : String? = nil
 
     def to_hash
       # Yes, not pretty but this gives me the right types for merging
@@ -243,18 +244,21 @@ module Hace
         always_run: @always_run,
         proc: TaskProc.new {
           Log.info { "Started task: #{name}" }
-          commands.map do |command|
-            Log.info { "Running command: #{command}" }
-            status = Process.run(
-              command: command,
-              shell: true,
-              env: Hace::ENVIRONMENT,
-              input: Process::Redirect::Inherit,
-              output: Process::Redirect::Inherit,
-              error: Process::Redirect::Inherit,
-            )
-            raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
-            status.to_s
+          cwd = @cwd.nil? ? Dir.current : @cwd.as(String)
+          Dir.cd cwd do
+            commands.map do |command|
+              Log.info { "Running command: #{command}" }
+              status = Process.run(
+                command: command,
+                shell: true,
+                env: Hace::ENVIRONMENT,
+                input: Process::Redirect::Inherit,
+                output: Process::Redirect::Inherit,
+                error: Process::Redirect::Inherit,
+              )
+              raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
+              status.to_s
+            end
           end
           Log.info { "Finished task: #{name}" }
         },

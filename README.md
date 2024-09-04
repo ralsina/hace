@@ -92,6 +92,7 @@ under the `tasks` toplevel key. For example:
 tasks:
   foo:
     default: true
+    cwd: /tmp
     dependencies:
       - bar
     commands: |
@@ -103,6 +104,8 @@ This defines a task named `foo` that depends on `bar` and runs two commands.
 
 Because it's marked as `default` it will be run if you don't specify any
 tasks on the command line.
+
+The optional `cwd` key sets the current working directory for the task.
 
 ### Commands
 
