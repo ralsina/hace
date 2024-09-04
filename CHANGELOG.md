@@ -13,8 +13,13 @@ All notable changes to this project will be documented in this file.
 * Support iterating over dependencies created from a wildcard or a variable
 * Expand variables with array values correctly
 
+### 🖐️ Bump
+
+* Release v0.4.0
+
 ### 🧪 Testing
 
+* Fix a test
 * Fix coverage check
 
 ### ⚙️ Miscellaneous Tasks
