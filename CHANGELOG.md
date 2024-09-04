@@ -2,11 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2024-09-04
+
+### 🚀 Features
+
+* New optional cwd key in tasks
+
+### 🐛 Bug Fixes
+
+* Support iterating over dependencies created from a wildcard or a variable
+* Expand variables with array values correctly
+
+### 🧪 Testing
+
+* Fix coverage check
+
+### ⚙️ Miscellaneous Tasks
+
+* Deleted random files
+* Marked task as done
+* Mark a task as done
+
 ## [0.3.0] - 2024-08-28
 
 ### 🚀 Features
 
 * Expand globs on dependencies
+
+### 🖐️ Bump
+
+* Release v0.3.0
 
 ### ⚙️ Miscellaneous Tasks
 
