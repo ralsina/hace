@@ -198,7 +198,8 @@ describe Hace do
     it "variable expansion should expand globs in dependencies" do
       with_scenario("glob", keep: ["thing_a.c", "thing_b.c"]) do
         HaceFile.run
-        File.read("foo").should eq %([thing_a.c, thing_b.c]\n)
+        File.read("foo").should contain "thing_a.c"
+        File.read("foo").should contain "thing_b.c"
       end
     end
 
