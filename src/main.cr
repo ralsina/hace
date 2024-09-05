@@ -133,6 +133,14 @@ cli = Commander::Command.new do |cmd|
       )
     end
   end
+
+  cmd.commands.add do |command|
+    command.use = "version"
+    command.short = "Prints version of Hacé"
+    command.run do |_, _|
+      puts "Hacé version #{Hace::VERSION}"
+    end
+  end
 end
 
 Commander.run(cli, ARGV)
