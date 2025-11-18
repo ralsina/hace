@@ -183,7 +183,7 @@ module Hace
       end
       Log.info { "Running in auto mode, press Ctrl+C to stop" }
       loop do
-        sleep 1
+        ::sleep 1.seconds
       end
     end
   end
