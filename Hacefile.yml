@@ -4,6 +4,7 @@ variables:
 
 tasks:
   build:
+    description: "Build the hace binary in debug mode"
     default: true
     dependencies:
       - src
@@ -16,6 +17,7 @@ tasks:
       shards build {{FLAGS}}
 
   get-deps:
+    description: "Install Crystal dependencies using shards"
     dependencies:
       - shard.yml
     outputs:
@@ -24,12 +26,14 @@ tasks:
       shards install
 
   build-release:
+    description: "Build hace binary in release mode with optimizations"
     phony: true
     always_run: true
     commands: |
       hace build FLAGS="--release"
 
   install:
+    description: "Install hace binary to user's local bin directory"
     phony: true
     always_run: true
     dependencies:
@@ -39,6 +43,7 @@ tasks:
       cp bin/hace ${HOME}/.local/bin/hace
 
   static:
+    description: "Build statically linked binaries for Linux (amd64 and arm64)"
     outputs:
       - bin/hace-static-linux-amd64
       - bin/hace-static-linux-arm64
@@ -47,6 +52,7 @@ tasks:
       ./build_static.sh
 
   test:
+    description: "Run the test suite with Crystal spec"
     dependencies:
       - src
       - spec
@@ -58,6 +64,7 @@ tasks:
     always_run: true
 
   mutation:
+    description: "Run mutation testing using Crytic to verify code quality"
     always_run: true
     dependencies:
       - src
@@ -69,6 +76,7 @@ tasks:
     phony: true
 
   coverage:
+    description: "Generate test coverage report using kcov"
     dependencies:
       - src
       - spec
@@ -84,6 +92,7 @@ tasks:
       - coverage/index.html
 
   lint:
+    description: "Format code and run Ameba linter with auto-fix"
     dependencies:
       - src
       - spec
@@ -96,6 +105,7 @@ tasks:
     phony: true
 
   docs:
+    description: "Generate API documentation using Crystal docs"
     dependencies:
       - src
       - shard.lock
@@ -107,6 +117,7 @@ tasks:
       - docs/index.html
 
   pre-commit:
+    description: "Install git pre-commit hooks for code quality checks"
     default: true
     outputs:
       - .git/hooks/commit-msg
@@ -118,6 +129,7 @@ tasks:
       pre-commit install
 
   clean:
+    description: "Remove all build artifacts and generated files"
     phony: true
     always_run: true
     commands: |

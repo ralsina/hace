@@ -1,4 +1,3 @@
-require "commander"
 require "crinja"
 require "croupier"
 require "log"
@@ -76,7 +75,7 @@ module Hace
       run_all : Bool = false,
       dry_run : Bool = false,
       question : Bool = false,
-      keep_going : Bool = false
+      keep_going : Bool = false,
     )
       hacefile = load_file(filename)
 
@@ -168,7 +167,7 @@ module Hace
 
     def self.auto(
       arguments = [] of String,
-      filename = "Hacefile.yml"
+      filename = "Hacefile.yml",
     )
       # TODO: implement the other flags and arguments
       hacefile = load_file(filename)
@@ -200,6 +199,7 @@ module Hace
     @outputs : Array(String) = [] of String
     @always_run : Bool = false
     @cwd : String? = nil
+    @description : String? = nil
 
     def to_hash
       # Yes, not pretty but this gives me the right types for merging

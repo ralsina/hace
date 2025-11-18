@@ -12,8 +12,8 @@ dependencies:
   croupier:
     github: ralsina/croupier
     branch: main
-  commander:
-    github: mrrooijen/commander
+  docopt:
+    github: ralsina/docopt.cr
   crinja:
     github: straight-shoota/crinja
 
