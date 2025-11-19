@@ -155,6 +155,15 @@ tasks:
       pre-commit install --hook-type commit-msg
       pre-commit install
 
+  release:
+    description: "Create a new GitHub release with version bump and assets"
+    phony: true
+    always_run: true
+    dependencies:
+      - do_release.sh
+    commands: |
+      ./do_release.sh
+
   clean:
     description: "Remove all build artifacts and generated files"
     phony: true
