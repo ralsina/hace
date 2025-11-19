@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2025-11-19
+
+### 🚀 Features
+
+* Implement shell selection and combined script execution
+
+### 🐛 Bug Fixes
+
+* Improve static build script for proper release process
+
+### 📚 Documentation
+
+* Update TODO.md with current project status
+
+### ⚙️ Miscellaneous Tasks
+
+* Gitignore
+
 ## [0.6.0] - 2025-11-19
 
 ### 🚀 Features
@@ -22,6 +40,7 @@ All notable changes to this project will be documented in this file.
 
 ### 🖐️ Bump
 
+* Release v0.6.0
 * Release v0.5.1
 
 ### 🚜 Refactor
