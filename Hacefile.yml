@@ -104,7 +104,7 @@ tasks:
     always_run: true
     phony: true
 
-  user-docs:
+  docs:
     description: "Build user documentation using mdbook"
     dependencies:
       - docs/src
@@ -117,7 +117,7 @@ tasks:
     outputs:
       - docs/book/index.html
 
-  user-docs-serve:
+  docs-serve:
     description: "Serve user documentation locally with live reload"
     dependencies:
       - docs/src
