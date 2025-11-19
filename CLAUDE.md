@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Hacé serves as a build automation and task runner that:
 - Executes shell commands in a task-based workflow
-- Manages file dependencies and rebuilds only when necessary  
+- Manages file dependencies and rebuilds only when necessary
 - Supports template variables using Jinja syntax
 - Handles environment variables and custom variables
 - Provides intelligent task scheduling based on file modification times
@@ -30,7 +30,7 @@ Hacé serves as a build automation and task runner that:
 ### External Dependencies
 
 - **Croupier**: Dataflow library for task dependency management
-- **Commander**: CLI parsing and command handling  
+- **Commander**: CLI parsing and command handling
 - **Crinja**: Jinja template engine for variable expansion
 - **Log**: Crystal's logging library with custom color formatting
 - **YAML**: YAML parsing for Hacefile.yml
@@ -116,12 +116,12 @@ tasks:
     commands: |
       mkdir -p {{ build_dir }}
       crystal build {{ source_dir }}/main.cr -- {{ build_dir }}/app
-  
+
   clean:
     phony: true
     commands: |
       rm -rf {{ build_dir }}/*
-  
+
   test:
     phony: true
     dependencies:
