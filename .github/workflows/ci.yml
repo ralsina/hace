@@ -15,6 +15,7 @@ jobs:
         uses: crystal-lang/install-crystal@v1
       - name: Run tests
         run: |
-          shards install --without-development
+          shards install
           crystal tool format --check
+          shards build
           crystal spec -v
