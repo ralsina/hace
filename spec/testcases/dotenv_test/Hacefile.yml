@@ -1,0 +1,7 @@
+tasks:
+  test-env:
+    phony: true
+    commands: |
+      echo "APP_NAME: ${APP_NAME}"
+      echo "VERSION: ${VERSION}"
+      echo "DEBUG: ${DEBUG}"

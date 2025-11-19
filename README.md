@@ -206,6 +206,10 @@ expand them using in commands, dependencies and outputs with `${PATH}`
 Any variables in the environment when the Hacefile is loaded will
 also be in the environment.
 
+Hacé also supports automatic loading of environment variables from
+`.env` files. See the [Environment Variables Documentation](docs/src/environment.md)
+for detailed information about dotenv support.
+
 If you want to *unset* a variable, set it to `null`. If you want
 it set to an empty value, use `""`.
 

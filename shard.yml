@@ -17,6 +17,8 @@ dependencies:
     version: "~> 0.3.0"
   crinja:
     github: straight-shoota/crinja
+  dotenv:
+    github: gdotdesign/cr-dotenv
 
 development_dependencies:
   crytic:

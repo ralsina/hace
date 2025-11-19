@@ -2,6 +2,7 @@ require "crinja"
 require "croupier"
 require "log"
 require "yaml"
+require "dotenv"
 
 include Croupier
 
@@ -32,6 +33,9 @@ module Hace
         if !File.exists?(filename)
           raise "No Hacefile '#{filename}' found"
         end
+
+        # Load .env file if it exists
+        Hace.load_dotenv
 
         # The PartialFile contains data needed to render the file
         # which is actually a template
@@ -407,5 +411,24 @@ module Hace
     expanded = Dir.glob(str).to_a
     return expanded unless expanded.empty?
     [str]
+  end
+
+  def self.load_dotenv(dotenv_file = nil)
+    if dotenv_file
+      # Load specified dotenv file
+      if File.exists?(dotenv_file)
+        Log.info { "Loading environment from: #{dotenv_file}" }
+        Dotenv.load(dotenv_file)
+      else
+        Log.warn { "Dotenv file not found: #{dotenv_file}" }
+      end
+    else
+      # Look for .env file in current directory
+      default_env = File.join(Dir.current, ".env")
+      if File.exists?(default_env)
+        Log.info { "Loading environment from: #{default_env}" }
+        Dotenv.load(default_env)
+      end
+    end
   end
 end
