@@ -1,0 +1,55 @@
+variables:
+  results_dir: "results"
+
+tasks:
+  parallel_test:
+    default: true
+    dependencies:
+      - results/task1_output.txt
+      - results/task2_output.txt
+      - results/task3_output.txt
+    commands: |
+      echo "All parallel tasks completed!"
+      cat results/*.txt
+
+  task1:
+    outputs:
+      - results/task1_output.txt
+    commands: |
+      mkdir -p {{ results_dir }}
+      echo "Task 1 started at $(date)" >> results/timing.log
+      sleep 0.5
+      echo "Task 1 result" > results/task1_output.txt
+      echo "Task 1 completed at $(date)" >> results/timing.log
+
+  task2:
+    outputs:
+      - results/task2_output.txt
+    commands: |
+      mkdir -p {{ results_dir }}
+      echo "Task 2 started at $(date)" >> results/timing.log
+      sleep 0.5
+      echo "Task 2 result" > results/task2_output.txt
+      echo "Task 2 completed at $(date)" >> results/timing.log
+
+  task3:
+    outputs:
+      - results/task3_output.txt
+    commands: |
+      mkdir -p {{ results_dir }}
+      echo "Task 3 started at $(date)" >> results/timing.log
+      sleep 0.5
+      echo "Task 3 result" > results/task3_output.txt
+      echo "Task 3 completed at $(date)" >> results/timing.log
+
+  clean:
+    phony: true
+    commands: |
+      rm -rf {{ results_dir }} || true
+
+  independent_task:
+    outputs:
+      - results/independent.txt
+    commands: |
+      mkdir -p {{ results_dir }}
+      echo "Independent task result" > results/independent.txt

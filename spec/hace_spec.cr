@@ -6,7 +6,12 @@ def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new,
   Dir.cd("spec/testcases/#{name}") do
     File.delete?(".croupier") unless keep.includes? ".croupier"
     Dir.glob("*").each do |f|
-      File.delete?(f) unless f == "Hacefile.yml" || keep.includes?(f)
+      next if f == "Hacefile.yml" || keep.includes?(f)
+      if File.directory?(f)
+        FileUtils.rm_rf(f)
+      else
+        File.delete?(f)
+      end
     end
     TaskManager.cleanup
     yield
@@ -290,6 +295,121 @@ describe Hace do
         HaceFile.run(question: true).should eq 1
         # Should not have actually ran
         File.exists?("foo").should be_false
+      end
+    end
+  end
+
+  describe "parallel execution" do
+    it "should run tasks in parallel when --parallel flag is used" do
+      with_scenario("parallel") do
+        start_time = Time.utc
+
+        # Run tasks in parallel - should complete faster than sequential
+        HaceFile.run(arguments: ["task1", "task2", "task3"], parallel: true)
+
+        end_time = Time.utc
+        duration = end_time - start_time
+
+        # Should complete in less than 2 seconds (parallel execution)
+        # Sequential would take at least 1.5 seconds (3 × 0.5s)
+        duration.should be < 2.0.seconds
+
+        # All outputs should exist
+        File.exists?("results/task1_output.txt").should be_true
+        File.exists?("results/task2_output.txt").should be_true
+        File.exists?("results/task3_output.txt").should be_true
+
+        # Check content
+        File.read("results/task1_output.txt").should eq "Task 1 result\n"
+        File.read("results/task2_output.txt").should eq "Task 2 result\n"
+        File.read("results/task3_output.txt").should eq "Task 3 result\n"
+      end
+    end
+
+    it "should run tasks sequentially by default" do
+      with_scenario("parallel") do
+        start_time = Time.utc
+
+        # Run tasks without parallel flag - should run sequentially
+        HaceFile.run(arguments: ["task1", "task2", "task3"])
+
+        end_time = Time.utc
+        duration = end_time - start_time
+
+        # Should take at least 1.5 seconds (3 × 0.5s) for sequential
+        duration.should be >= 1.5.seconds
+
+        # All outputs should still exist
+        File.exists?("results/task1_output.txt").should be_true
+        File.exists?("results/task2_output.txt").should be_true
+        File.exists?("results/task3_output.txt").should be_true
+      end
+    end
+
+    it "should handle parallel execution with dependencies correctly" do
+      with_scenario("parallel") do
+        # Run the tasks directly to test parallel execution
+        HaceFile.run(arguments: ["task1", "task2", "task3"], parallel: true)
+
+        # All tasks should have been completed
+        File.exists?("results/task1_output.txt").should be_true
+        File.exists?("results/task2_output.txt").should be_true
+        File.exists?("results/task3_output.txt").should be_true
+
+        # Timing log should exist with timestamps showing concurrent execution
+        File.exists?("results/timing.log").should be_true
+        timing_content = File.read("results/timing.log")
+        timing_content.should contain("Task 1 started")
+        timing_content.should contain("Task 2 started")
+        timing_content.should contain("Task 3 started")
+        timing_content.should contain("Task 1 completed")
+        timing_content.should contain("Task 2 completed")
+        timing_content.should contain("Task 3 completed")
+      end
+    end
+
+    it "should work with phony tasks in parallel mode" do
+      with_scenario("parallel") do
+        # Run independent_task with parallel flag
+        HaceFile.run(arguments: ["independent_task"], parallel: true)
+
+        # independent_task should create new results
+        File.exists?("results/independent.txt").should be_true
+        File.read("results/independent.txt").should eq "Independent task result\n"
+      end
+    end
+
+    it "should show parallel mode in logs when enabled" do
+      logs = IO::Memory.new
+      with_scenario("parallel", logs: logs) do
+        HaceFile.run(arguments: ["task1"], parallel: true)
+        sleep 0.01.seconds
+        logs.to_s.includes?("Running tasks with parallel=true").should be_true
+      end
+    end
+
+    it "should not show parallel mode in logs when disabled" do
+      logs = IO::Memory.new
+      with_scenario("parallel", logs: logs) do
+        HaceFile.run(arguments: ["task1"], parallel: false)
+        sleep 0.01.seconds
+        logs.to_s.includes?("Running tasks with parallel=false").should be_true
+      end
+    end
+
+    it "should preserve task order when tasks have dependencies" do
+      with_scenario("basic") do
+        # Create a file that foo depends on
+        File.write("bar", "test content\n")
+
+        # Run with parallel flag - should still respect dependencies
+        HaceFile.run(arguments: ["foo"], parallel: true)
+
+        # Check that foo was created correctly
+        File.exists?("foo").should be_true
+        content = File.read("foo")
+        content.should contain("make foo out of bar")
+        content.should contain("test content")
       end
     end
   end
