@@ -69,6 +69,75 @@ module Hace
       f
     end
 
+    # Configuration structure for task execution
+    private struct ExecutionSetup
+      def initialize(
+        @hacefile : HaceFile,
+        @arguments : Array(String),
+        @filename : String,
+        @run_all : Bool,
+        @dry_run : Bool,
+        @question : Bool,
+        @keep_going : Bool,
+        @parallel : Bool
+      )
+      end
+
+      getter hacefile : HaceFile
+      getter arguments : Array(String)
+      getter filename : String
+      getter? run_all : Bool
+      getter? dry_run : Bool
+      getter? question : Bool
+      getter? keep_going : Bool
+      getter? parallel : Bool
+
+      def self.from_arguments(
+        arguments : Array(String),
+        filename : String,
+        run_all : Bool,
+        dry_run : Bool,
+        question : Bool,
+        keep_going : Bool,
+        parallel : Bool,
+      )
+        hacefile = HaceFile.load_file(filename)
+
+        # Extract and apply variable assignments from arguments
+        arguments, hacefile = extract_and_apply_variables(arguments, hacefile)
+
+        # Generate tasks if not already done
+        if TaskManager.tasks.empty?
+          hacefile.gen_tasks
+        end
+
+        new(
+          hacefile: hacefile,
+          arguments: arguments,
+          filename: filename,
+          run_all: run_all,
+          dry_run: dry_run,
+          question: question,
+          keep_going: keep_going,
+          parallel: parallel
+        )
+      end
+
+      private def self.extract_and_apply_variables(arguments : Array(String), hacefile : HaceFile)
+        # Extract variable assignments from arguments (format: KEY=value)
+        vars = arguments.select { |arg| arg =~ /^(\w+)=(.*)$/ }
+        clean_arguments = arguments - vars
+
+        # Apply variables to hacefile
+        vars.each do |var|
+          key, value = var.split("=", 2)
+          hacefile.variables[key] = YAML::Any.new(value)
+        end
+
+        {clean_arguments, hacefile}
+      end
+    end
+
     def self.run(
       arguments = [] of String,
       filename = "Hacefile.yml",
@@ -78,52 +147,83 @@ module Hace
       keep_going : Bool = false,
       parallel : Bool = false,
     )
-      hacefile = load_file(filename)
+      setup = ExecutionSetup.from_arguments(
+        arguments: arguments,
+        filename: filename,
+        run_all: run_all,
+        dry_run: dry_run,
+        question: question,
+        keep_going: keep_going,
+        parallel: parallel
+      )
 
-      # Extract variable assignments from arguments
-      vars = arguments.select { |arg| arg =~ /^(\w+)=(.*)$/ }
-      arguments -= vars
+      # Handle question mode early since it has different execution path
+      return handle_question_mode(setup) if setup.question?
 
-      # Set variables in hacefile
-      vars.map do |var|
-        key, value = var.split("=", 2)
-        hacefile.variables[key] = YAML::Any.new(value)
-      end
+      # Resolve targets and handle empty case
+      targets = resolve_targets(setup)
+      return handle_no_targets(setup) if targets.empty?
 
-      if TaskManager.tasks.empty?
-        hacefile.gen_tasks
-      end
+      # Execute the tasks
+      execute_tasks(targets, setup)
+    end
 
-      Log.debug { "Requested tasks: #{arguments.join(", ")}" }
-      real_arguments = process_arguments(hacefile, arguments)
+    private def self.resolve_targets(setup : ExecutionSetup)
+      Log.debug { "Requested tasks: #{setup.arguments.join(", ")}" }
+
+      # Process arguments to resolve task targets (handles default task logic internally)
+      real_arguments = process_arguments(setup.hacefile, setup.arguments)
       Log.info { "Running tasks with targets: #{real_arguments.join(", ")}" }
 
-      if real_arguments.empty?
-        # There are no requested, non-bogus or default tasks
-        Log.info { "No tasks to run" }
+      Set.new(real_arguments).to_a
+    end
+
+    private def self.handle_question_mode(setup : ExecutionSetup)
+      targets = resolve_targets(setup)
+
+      if targets.empty?
+        Log.info { "No tasks to check" }
         return 0
       end
 
-      # FIXME: see if this works when given `arguments`
-      if question
-        stale_tasks = TaskManager.tasks.values.select(&.stale?).select { |task|
-          (real_arguments.includes? task.id) || (!(real_arguments & task.outputs).empty?)
-        }
-        if stale_tasks.empty?
-          Log.info { "No stale tasks found" }
-          return 0
-        end
-        Log.info { "Stale tasks found:" }
-        stale_tasks.each do |task|
-          Log.info { "👉 #{task.id}" }
-        end
-        return 1
+      stale_tasks = find_stale_tasks(targets)
+
+      if stale_tasks.empty?
+        Log.info { "No stale tasks found" }
+        return 0
       end
 
-      Log.info { "Running tasks with parallel=#{parallel}" }
-      TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going, parallel: parallel)
+      Log.info { "Stale tasks found:" }
+      stale_tasks.each do |task|
+        Log.info { "👉 #{task.id}" }
+      end
+      1
+    end
+
+    private def self.handle_no_targets(setup : ExecutionSetup)
+      Log.info { "No tasks to run" }
+      0
+    end
+
+    private def self.execute_tasks(targets : Array(String), setup : ExecutionSetup)
+      Log.info { "Running tasks with parallel=#{setup.parallel?}" }
+      TaskManager.run_tasks(
+        targets,
+        run_all: setup.run_all?,
+        dry_run: setup.dry_run?,
+        keep_going: setup.keep_going?,
+        parallel: setup.parallel?
+      )
       Log.info { "Finished" }
-      0 # exit code
+      0
+    end
+
+    private def self.find_stale_tasks(targets : Array(String))
+      TaskManager.tasks.values
+        .select(&.stale?)
+        .select { |task|
+          (targets.includes? task.id) || (!(targets & task.outputs).empty?)
+        }
     end
 
     def self.process_arguments(hacefile, arguments : Array(String))
