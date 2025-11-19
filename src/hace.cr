@@ -381,22 +381,45 @@ module Hace
             else
               # Determine which shell to use
               task_shell = @shell || hacefile.shell || "/bin/sh"
+              Log.debug { "Using shell: #{task_shell}" }
 
-              # Build combined shell script with set -e for fail-fast behavior
-              combined_script = "set -e\n"
-              commands.each do |command|
-                combined_script += command + "\n"
-              end
+              # Build combined shell script
+              combined_script = commands.join("\n")
 
               # Log individual commands for debugging
               commands.each do |command|
                 Log.info { "Running command: #{command}" }
               end
 
-              # Execute combined script in single shell process
+              # Parse shell and arguments (user is responsible for proper shell configuration)
+              shell_parts = task_shell.split(" ")
+              shell_cmd = shell_parts[0]
+              shell_args = shell_parts.size > 1 ? shell_parts[1..-1] : [] of String
+
+              # Add the script arguments
+              if shell_args.empty?
+                # If using default shell (/bin/sh), add -e for fail-fast, otherwise just -c
+                if task_shell == "/bin/sh"
+                  shell_args = ["-e", "-c", combined_script]
+                else
+                  shell_args = ["-c", combined_script]
+                end
+              else
+                # User provided shell with args - add -c and script if not present
+                c_index = shell_args.index("-c")
+                if c_index
+                  # Replace the -c with -c and the script as next argument
+                  shell_args.insert(c_index + 1, combined_script)
+                else
+                  # No -c found, add it
+                  shell_args << "-c" << combined_script
+                end
+              end
+
+              # Execute combined script in shell process
               status = Process.run(
-                command: task_shell,
-                args: ["-c", combined_script],
+                command: shell_cmd,
+                args: shell_args,
                 env: Hace::ENVIRONMENT,
                 input: Process::Redirect::Inherit,
                 output: Process::Redirect::Inherit,

@@ -2,7 +2,7 @@
 
 **Hacé** is a task automation tool similar to `make` but with different syntax and semantics. It reads YAML configuration from `Hacefile.yml` files and executes shell commands based on file dependencies and build requirements.
 
-## What is Hacé?
+## What is Hacé
 
 Hacé serves as a build automation and task runner that:
 
@@ -13,7 +13,7 @@ Hacé serves as a build automation and task runner that:
 - Provides intelligent task scheduling based on file modification times
 - Supports both regular tasks (with file outputs) and phony tasks (actions without outputs)
 
-## Why use Hacé?
+## Why use Hacé
 
 If you've ever found yourself writing complex shell scripts to automate your build process, or if you need a more modern alternative to `make` with better dependency management and templating capabilities, Hacé might be exactly what you need.
 
@@ -25,6 +25,8 @@ If you've ever found yourself writing complex shell scripts to automate your bui
 - **Cross-Platform**: Works on Linux, macOS, and Windows
 - **Flexible Tasks**: Supports both file-based and action-based tasks
 - **Environment Management**: Easy control over environment variables
+- **Shell Selection**: Choose any shell or interpreter (bash, zsh, python, etc.)
+- **Combined Execution**: All task commands run in a single shell process for state persistence
 - **Auto-Monitoring**: Watch for file changes and rebuild automatically
 
 ## A Simple Example
@@ -32,6 +34,9 @@ If you've ever found yourself writing complex shell scripts to automate your bui
 Here's a basic Hacefile.yml to build a Crystal project:
 
 ```yaml
+# Global shell configuration (optional)
+shell: "bash -e -c"  # Use bash with fail-fast behavior
+
 variables:
   source_dir: "src"
   build_dir: "build"
@@ -46,6 +51,13 @@ tasks:
     commands: |
       mkdir -p {{ build_dir }}
       crystal build {{ source_dir }}/main.cr -o {{ build_dir }}/myapp
+
+  test:
+    shell: "sh -c"  # Override: continue testing even if some tests fail
+    phony: true
+    commands: |
+      {{ build_dir }}/myapp --test
+      crystal spec
 
   clean:
     phony: true

@@ -16,6 +16,9 @@ variables:
   build_dir: "build"
   version: "1.0.0"
 
+# Global shell configuration (optional)
+shell: "bash -e"
+
 # Task definitions
 tasks:
   task_name:
@@ -52,6 +55,23 @@ variables:
   project_name: "myapp"
   full_name: "{{ author }}/{{ project_name }}"
 ```
+
+### Global Shell Configuration
+
+```yaml
+# Default shell for all tasks
+shell: "bash -e -c"
+
+# You can use any shell
+shell: "sh -c"           # Standard POSIX shell
+shell: "bash -e -c"       # Bash with fail-fast
+shell: "zsh -e -c"        # Zsh with fail-fast
+shell: "python -c"        # Python for scripts
+shell: "cmd.exe /c"       # Windows Command Prompt
+shell: "powershell -c"    # PowerShell
+```
+
+> **Note**: Users are responsible for providing correct shell arguments. Hacé adds the script to the shell arguments (after any existing `-c` flag or at the end).
 
 ## Task Properties
 
@@ -171,6 +191,34 @@ tasks:
       echo "Publishing version {{ version }}"
 ```
 
+### shell
+
+**Optional**: Shell for executing this task's commands. Overrides global shell configuration. Defaults to global shell or `/bin/sh -e -c`.
+
+```yaml
+tasks:
+  build_with_fail_fast:
+    shell: "bash -e -c"
+    commands: |
+      echo "Building with fail-fast..."
+      make
+      echo "Build completed!"
+
+  build_continue_on_error:
+    shell: "sh -c"
+    commands: |
+      echo "Building without fail-fast..."
+      make  # might fail, but execution continues
+      echo "Build attempted!"
+
+  python_script:
+    shell: "python -c"
+    commands: |
+      import os
+      print("Python script executing...")
+      os.system("make")
+```
+
 ### cwd
 
 **Optional**: Working directory for this task's commands. Defaults to current directory.
@@ -187,6 +235,7 @@ tasks:
 ## Complete Example
 
 ```yaml
+# Global configuration
 env:
   NODE_ENV: "production"
   API_KEY: null
@@ -195,6 +244,9 @@ variables:
   source_dir: "src"
   build_dir: "build"
   version: "2.1.0"
+
+# Default shell with fail-fast behavior
+shell: "bash -e -c"
 
 tasks:
   install_deps:
@@ -216,13 +268,15 @@ tasks:
       crystal build {{ source_dir }}/main.cr -o {{ build_dir }}/myapp
 
   test:
+    shell: "sh -c"  # Continue testing even if some specs fail
     dependencies:
       - build
       - "spec/**/*.cr"
     phony: true
     commands: |
-      {{ build_dir }}/myapp --test
-      crystal spec
+      echo "Running tests..."
+      {{ build_dir }}/myapp --test || echo "Some tests failed, but continuing..."
+      crystal spec || echo "Spec suite had issues"
 
   package:
     dependencies:
@@ -265,6 +319,82 @@ You can specify a custom file with `-f` or `--file`:
 ```bash
 hace -f custom-build.yml
 ```
+
+## Shell Execution Model
+
+Hacé uses **combined script execution** which means:
+
+1. **All commands in a task run in a single shell process**
+2. **Environment variables persist across commands** within the same task
+3. **Shell state is maintained** (working directory, variables, functions)
+4. **Better performance** than spawning separate shells for each command
+
+```yaml
+tasks:
+  setup:
+    commands: |
+      export BUILD_ID=$(date +%s)
+      echo "Build ID: $BUILD_ID"     # Environment variable persists
+      cd {{ build_dir }}              # Working directory change persists
+      echo "Current dir: $(pwd)"       # Shows the changed directory
+      make -j$(nproc)                 # Uses the same shell state
+```
+
+### Fail-Fast Behavior
+
+- **Default shell** (`/bin/sh`): Automatically uses `-e` flag for fail-fast
+- **User-specified shells**: No automatic fail-fast, user controls behavior
+- **Task override**: Task-specific shell overrides global shell configuration
+
+```yaml
+# Global fail-fast (recommended for builds)
+shell: "bash -e -c"
+
+tasks:
+  build:
+    # Inherits fail-fast behavior from global shell
+    commands: |
+      make           # If this fails, execution stops
+      make test       # Won't run if make failed
+
+  test:
+    shell: "sh -c"       # Override: no fail-fast
+    commands: |
+      make test || echo "Some tests failed, but continuing..."
+      make coverage   # Will run even if tests failed
+```
+
+### Cross-Platform Shell Support
+
+Users can specify any shell or interpreter:
+
+```yaml
+tasks:
+  unix_task:
+    shell: "bash -e -c"
+    commands: |
+      echo "Unix-specific commands"
+
+  windows_task:
+    shell: "cmd.exe /c"
+    commands: |
+      echo Windows batch commands
+
+  python_script:
+    shell: "python -c"
+    commands: |
+      import subprocess
+      print("Python script running")
+      subprocess.run(["make", "test"])
+
+  ruby_script:
+    shell: "ruby -e"
+    commands: |
+      puts "Ruby script executing"
+      system("make", "build")
+```
+
+> **Important**: Users are responsible for providing correct shell syntax and arguments. Hacé passes the combined script to the specified shell and lets it handle execution.
 
 ## Validation
 
