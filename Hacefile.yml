@@ -154,9 +154,74 @@ tasks:
     phony: true
     always_run: true
     dependencies:
+      - bin/hace
       - do_release.sh
     commands: |
       ./do_release.sh
+
+  release-check:
+    description: "Check if the environment is ready for release"
+    phony: true
+    always_run: true
+    commands: |
+      echo "Checking release environment..."
+
+      # Check required tools
+      command -v git >/dev/null 2>&1 || { echo "❌ git is required but not installed."; exit 1; }
+      command -v gh >/dev/null 2>&1 || { echo "❌ gh CLI is required but not installed."; exit 1; }
+      command -v git-cliff >/dev/null 2>&1 || { echo "❌ git-cliff is required but not installed."; exit 1; }
+
+      # Check git repo status
+      if ! git rev-parse --git-dir > /dev/null 2>&1; then
+        echo "❌ Error: Not in a git repository"
+        exit 1
+      fi
+
+      if ! git diff-index --quiet HEAD --; then
+        echo "❌ Error: Working directory is not clean. Please commit or stash changes."
+        exit 1
+      fi
+
+      # Check hace binary
+      if [ ! -f "bin/hace" ]; then
+        echo "❌ Error: bin/hace not found. Please run 'hace build' first."
+        exit 1
+      fi
+
+      echo "✅ Release environment is ready!"
+      echo "Next version will be: $(git cliff --bumped-version |cut -dv -f2)"
+
+  release-dry-run:
+    description: "Test release process without actually publishing"
+    phony: true
+    always_run: true
+    dependencies:
+      - bin/hace
+      - release-check
+    commands: |
+      echo "Running release dry-run..."
+
+      PKGNAME=$(basename "$PWD")
+      VERSION=$(git cliff --bumped-version |cut -dv -f2)
+
+      echo "Would release: $PKGNAME v$VERSION"
+      echo "Would update shard.yml version to: $VERSION"
+      echo "Would run: bin/hace lint test"
+      echo "Would create changelog with git-cliff"
+      echo "Would commit: bump: Release v$VERSION"
+      echo "Would create tag: v$VERSION"
+      echo "Would build static binaries for amd64 and arm64"
+      echo "Would create GitHub release with assets"
+
+      if [ -f "./do_aur.sh" ]; then
+        echo "Would update AUR package"
+      else
+        echo "Would skip AUR update (do_aur.sh not found)"
+      fi
+
+      echo "Would deploy documentation"
+      echo ""
+      echo "✅ Dry-run completed successfully!"
 
   clean:
     description: "Remove all build artifacts and generated files"
