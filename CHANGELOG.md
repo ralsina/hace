@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2025-11-19
+
+### 🚀 Features
+
+* Add release task for GitHub releases
+* Add comprehensive documentation deployment workflow
+
+### 🐛 Bug Fixes
+
+* Make static binaries really static
+* Added version command
+
+### 🚜 Refactor
+
+* Migrate from Commander to docopt and enhance CLI
+
+### 📚 Documentation
+
+* Update command-line documentation with --list and current CLI
+
+### ⚙️ Miscellaneous Tasks
+
+* Clean up repository and fix formatting
+* Deprecation
+* Todo management
+
 ## [0.4.0] - 2024-09-04
 
 ### 🚀 Features
@@ -15,6 +41,7 @@ All notable changes to this project will be documented in this file.
 
 ### 🖐️ Bump
 
+* Release v0.4.0
 * Release v0.4.0
 
 ### 🧪 Testing
@@ -76,6 +103,8 @@ All notable changes to this project will be documented in this file.
 * Removed default options in Hacefile
 * Updated changelog
 * Added pre-commit hooks and git-cliff
+
+## [0.1.0] - 2023-06-19
 
 ## Version v0.1.3
 
