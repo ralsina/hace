@@ -1,0 +1,10 @@
+variables:
+  VERSION: "1.2.3"
+
+tasks:
+  build:
+    outputs:
+      - app-{{VERSION}}
+    commands: |
+      echo "Building version {{VERSION}}"
+      echo "crystal build --release -o app-{{VERSION}}" > app-{{VERSION}}

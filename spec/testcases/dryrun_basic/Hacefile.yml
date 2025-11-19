@@ -1,0 +1,4 @@
+tasks:
+  simple_task:
+    phony: true
+    commands: echo "Hello World"

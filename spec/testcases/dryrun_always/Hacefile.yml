@@ -1,0 +1,5 @@
+tasks:
+  always_task:
+    phony: true
+    always_run: true
+    commands: echo "This always runs"

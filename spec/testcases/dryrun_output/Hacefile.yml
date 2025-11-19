@@ -1,0 +1,6 @@
+tasks:
+  output_task:
+    outputs:
+      - test.txt
+    commands: |
+      echo "Hello World" > test.txt

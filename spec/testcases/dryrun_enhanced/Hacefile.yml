@@ -1,0 +1,14 @@
+tasks:
+  test:
+    phony: true
+    commands: |
+      echo "Starting tests"
+      crystal spec --error-trace
+      echo "Tests completed\!"
+  build:
+    phony: true
+    dependencies:
+      - test
+    commands: |
+      echo "Building project"
+      echo "Build successful\!"

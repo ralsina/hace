@@ -1,0 +1,10 @@
+tasks:
+  task1:
+    phony: true
+    commands: echo "Task 1 running"
+  task2:
+    phony: true
+    commands: echo "Task 2 running"
+  task3:
+    phony: true
+    commands: echo "Task 3 running"

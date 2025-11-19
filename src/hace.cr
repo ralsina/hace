@@ -79,7 +79,7 @@ module Hace
         @dry_run : Bool,
         @question : Bool,
         @keep_going : Bool,
-        @parallel : Bool
+        @parallel : Bool,
       )
       end
 
@@ -108,7 +108,7 @@ module Hace
 
         # Generate tasks if not already done
         if TaskManager.tasks.empty?
-          hacefile.gen_tasks
+          hacefile.gen_tasks(dry_run)
         end
 
         new(
@@ -207,6 +207,7 @@ module Hace
 
     private def self.execute_tasks(targets : Array(String), setup : ExecutionSetup)
       Log.info { "Running tasks with parallel=#{setup.parallel?}" }
+
       TaskManager.run_tasks(
         targets,
         run_all: setup.run_all?,
@@ -214,6 +215,7 @@ module Hace
         keep_going: setup.keep_going?,
         parallel: setup.parallel?
       )
+
       Log.info { "Finished" }
       0
     end
@@ -261,9 +263,9 @@ module Hace
       real_arguments = Set.new(real_arguments).to_a
     end
 
-    def gen_tasks
+    def gen_tasks(dry_run : Bool = false)
       @tasks.each do |name, task|
-        task.gen_task(name)
+        task.gen_task(name, dry_run)
       end
     end
 
@@ -325,7 +327,7 @@ module Hace
       @commands = Hace.expand_string(@commands, variables)
     end
 
-    def gen_task(name)
+    def gen_task(name, dry_run : Bool = false)
       # phony tasks have no outputs.
       # tasks where outputs are not specified have only one output, the task name
 
@@ -335,6 +337,21 @@ module Hace
       end
       @outputs = @phony ? [] of String : [name] if @outputs.empty?
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
+
+      # In dry-run mode, show what would be executed before creating the task
+      if dry_run
+        puts "\n🔍 Task: #{name}".colorize(:cyan)
+        puts "   Working Directory: #{@cwd || "current"}"
+        puts "   Commands to execute:"
+        commands.each_with_index do |command, i|
+          puts "     #{i + 1}. #{command}".colorize(:yellow)
+        end
+        puts "   Dependencies: #{@dependencies.empty? ? "none" : @dependencies.join(", ")}"
+        puts "   Outputs: #{@outputs.empty? ? "none" : @outputs.join(", ")}"
+        puts "   Phony: #{@phony ? "yes" : "no"}"
+        puts "   Always Run: #{@always_run ? "yes" : "no"}"
+        puts ""
+      end
 
       Task.new(
         outputs: @outputs,
@@ -348,17 +365,25 @@ module Hace
           cwd = @cwd.nil? ? Dir.current : @cwd.as(String)
           Dir.cd cwd do
             commands.map do |command|
-              Log.info { "Running command: #{command}" }
-              status = Process.run(
-                command: command,
-                shell: true,
-                env: Hace::ENVIRONMENT,
-                input: Process::Redirect::Inherit,
-                output: Process::Redirect::Inherit,
-                error: Process::Redirect::Inherit,
-              )
-              raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
-              status.to_s
+              if dry_run
+                # In dry-run mode, show the command that would be executed
+                puts "Would run: #{command}".colorize(:yellow)
+                Log.info { "DRY-RUN: Would run command: #{command}" }
+                "dry_run_success"
+              else
+                # Normal execution
+                Log.info { "Running command: #{command}" }
+                status = Process.run(
+                  command: command,
+                  shell: true,
+                  env: Hace::ENVIRONMENT,
+                  input: Process::Redirect::Inherit,
+                  output: Process::Redirect::Inherit,
+                  error: Process::Redirect::Inherit,
+                )
+                raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
+                status.to_s
+              end
             end
           end
           Log.info { "Finished task: #{name}" }

@@ -1,0 +1,7 @@
+tasks:
+  cwd_task:
+    phony: true
+    cwd: "/tmp"
+    commands: |
+      pwd
+      echo "Running in /tmp"
