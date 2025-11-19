@@ -104,23 +104,14 @@ tasks:
     always_run: true
     phony: true
 
-  docs:
-    description: "Generate API documentation using Crystal docs"
-    dependencies:
-      - src
-      - shard.lock
-      - shard.yml
-      - README.md
-    commands: |
-      crystal docs
-    outputs:
-      - docs/index.html
-
   user-docs:
     description: "Build user documentation using mdbook"
     dependencies:
       - docs/src
+      - docs/src/*.md
+      - docs/src/**/*.md
       - docs/book.toml
+      - README.md
     commands: |
       cd docs && mdbook build
     outputs:
@@ -130,6 +121,8 @@ tasks:
     description: "Serve user documentation locally with live reload"
     dependencies:
       - docs/src
+      - docs/src/*.md
+      - docs/src/**/*.md
       - docs/book.toml
     commands: |
       cd docs && mdbook serve
