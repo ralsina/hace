@@ -215,31 +215,37 @@ tasks:
     description: "Test release process without actually publishing"
     phony: true
     always_run: true
-    dependencies:
-      - bin/hace
-      - release-check
     commands: |
       echo "Running release dry-run..."
+
+      # First check release environment
+      if ! ./bin/hace release-check; then
+        echo "❌ Release environment check failed"
+        exit 1
+      fi
 
       PKGNAME=$(basename "$PWD")
       VERSION=$(git cliff --bumped-version |cut -dv -f2)
 
-      echo "Would release: $PKGNAME v$VERSION"
-      echo "Would update shard.yml version to: $VERSION"
-      echo "Would run: bin/hace lint test"
-      echo "Would create changelog with git-cliff"
-      echo "Would commit: bump: Release v$VERSION"
-      echo "Would create tag: v$VERSION"
-      echo "Would build static binaries for amd64 and arm64"
-      echo "Would create GitHub release with assets"
+      echo ""
+      echo "📋 Release Plan for $PKGNAME v$VERSION:"
+      echo "   ✅ Update shard.yml version to: $VERSION"
+      echo "   ✅ Run: bin/hace lint test"
+      echo "   ✅ Create changelog with git-cliff"
+      echo "   ✅ Commit: bump: Release v$VERSION"
+      echo "   ✅ Create tag: v$VERSION"
+      echo "   ✅ Build static binaries for amd64 and arm64"
+      echo "   ✅ Create GitHub release with assets"
 
       if [ -f "./do_aur.sh" ]; then
-        echo "Would update AUR package"
+        echo "   ✅ Update AUR package"
       else
-        echo "Would skip AUR update (do_aur.sh not found)"
+        echo "   ⚠️  Skip AUR update (do_aur.sh not found)"
       fi
 
-      echo "Would deploy documentation"
+      echo "   ✅ Deploy documentation"
+      echo ""
+      echo "🎯 Ready to run: ./bin/hace release"
       echo ""
       echo "✅ Dry-run completed successfully!"
 
