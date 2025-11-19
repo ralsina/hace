@@ -21,7 +21,6 @@ def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new,
 end
 
 describe "Shell Execution Enhancements" do
-
   describe "environment variable persistence" do
     it "should persist environment variables across commands in the same task" do
       with_scenario("shell_execution") do
