@@ -85,6 +85,21 @@ Continue as much as possible after an error.
 hace --keep-going build test deploy
 ```
 
+### `--parallel`
+
+Run independent tasks in parallel when possible. This can significantly speed up
+builds when you have multiple tasks that don't depend on each other.
+
+```bash
+hace --parallel build test
+```
+
+**Note:** For best results with parallel execution:
+
+- Tasks should have distinct outputs (no file conflicts)
+- Tasks should be independent (no shared dependencies)
+- Hacé is built with multithreading support by default (`-Dpreview_mt`)
+
 ### `-v <level>, --verbosity <LEVEL>`
 
 Control output verbosity (0-5).
@@ -177,6 +192,19 @@ hace clean
 
 # Full rebuild
 hace --always-make clean build test
+```
+
+### Parallel Builds
+
+```bash
+# Run multiple independent tasks in parallel
+hace --parallel build test lint
+
+# Faster CI/CD pipelines
+hace --parallel --always-make test build package
+
+# Combined with other options
+hace --parallel --verbosity 4 build test docs
 ```
 
 ### Continuous Integration

@@ -76,6 +76,7 @@ module Hace
       dry_run : Bool = false,
       question : Bool = false,
       keep_going : Bool = false,
+      parallel : Bool = false,
     )
       hacefile = load_file(filename)
 
@@ -119,7 +120,8 @@ module Hace
         return 1
       end
 
-      TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going)
+      Log.info { "Running tasks with parallel=#{parallel}" }
+      TaskManager.run_tasks(real_arguments, run_all: run_all, dry_run: dry_run, keep_going: keep_going, parallel: parallel)
       Log.info { "Finished" }
       0 # exit code
     end
@@ -237,9 +239,8 @@ module Hace
       Task.new(
         outputs: @outputs,
         inputs: @dependencies,
-        # Marking task as not mergeable until we have a way to
-        # handle tasks that share an output correctly
-        mergeable: false,
+        # Tasks with different outputs can be merged for parallel execution
+        mergeable: true,
         no_save: true,
         always_run: @always_run,
         proc: TaskProc.new {

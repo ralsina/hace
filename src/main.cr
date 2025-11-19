@@ -16,6 +16,7 @@ Options:
   -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5 [default: 3]
   -B, --always-make            Unconditionally run all tasks
   -k, --keep-going             Continue as much as possible after an error
+  --parallel                   Run tasks in parallel when possible
   --question                   Don't run anything, exit 0 if all tasks are up to date, 1 otherwise
   --list                       List available tasks
   --auto                       Run in auto mode, watching for file changes
@@ -69,6 +70,7 @@ begin
   dry_run = args["--dry-run"].as?(Bool) || false
   always_make = args["--always-make"].as?(Bool) || false
   keep_going = args["--keep-going"].as?(Bool) || false
+  parallel = args["--parallel"].as?(Bool) || false
   question = args["--question"].as?(Bool) || false
   list = args["--list"].as?(Bool) || false
   auto = args["--auto"].as?(Bool) || false
@@ -146,6 +148,7 @@ begin
       dry_run: dry_run,
       question: question,
       keep_going: keep_going,
+      parallel: parallel,
     )
   )
 rescue ex

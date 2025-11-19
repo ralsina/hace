@@ -1,5 +1,5 @@
 variables:
-  FLAGS: "-d --error-trace"
+  FLAGS: "-d --error-trace -Dpreview_mt"
   NAME: "hace"
 
 tasks:

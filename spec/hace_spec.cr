@@ -133,6 +133,7 @@ describe Hace do
       with_scenario("basic", logs: logs) do
         HaceFile.run(arguments: ["sarasa"])
         Fiber.yield
+        sleep 0.01.seconds
         logs.to_s.includes?("Task sarasa not found").should be_true
       end
     end

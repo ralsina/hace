@@ -7,7 +7,10 @@
       "Bash(git checkout:*)",
       "Bash(hace build:*)",
       "Bash(./bin/hace:*)",
-      "Read(//dev/**)"
+      "Read(//dev/**)",
+      "Bash(time:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
