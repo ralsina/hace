@@ -207,6 +207,48 @@ hace --parallel --always-make test build package
 hace --parallel --verbosity 4 build test docs
 ```
 
+### Shell Completion
+
+```bash
+# Generate completion script for your shell
+hace --completion=bash   # For bash
+hace --completion=fish   # For fish
+hace --completion=zsh    # For zsh
+```
+
+**Installation Instructions:**
+
+#### Bash
+
+```bash
+# Add to ~/.bashrc or ~/.bash_completion.d/hace
+hace --completion=bash >> ~/.bash_completion.d/hace
+source ~/.bash_completion.d/hace
+```
+
+#### Fish
+
+```bash
+# Save to fish completions directory
+hace --completion=fish > ~/.config/fish/completions/hace.fish
+```
+
+#### Zsh
+
+```bash
+# Save to zsh completions directory
+hace --completion=zsh > ~/.local/share/zsh/site-functions/_hace
+compinit
+```
+
+**Completion Features:**
+
+- **Task names**: Tab-complete available tasks from your Hacefile
+- **Options**: Complete CLI flags and arguments
+- **File paths**: Complete file names for `-f/--file` option
+- **Verbosity levels**: Complete numbers 0-5 for `-v/--verbosity`
+- **Dynamic**: Updates automatically when you modify your Hacefile
+
 ### Continuous Integration
 
 ```bash

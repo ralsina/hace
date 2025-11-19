@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.17.1">
+<meta name="crystal_docs.project_version" content="main-dev">
+<meta name="crystal_docs.project_name" content="hace">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="hace">
+  <title>Hace::HaceFile - hace main-dev</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill="currentColor" fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          hace
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main-dev
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+
+  <li class=" " data-id="hace/toplevel" data-name="top level namespace">
+      <a href="../toplevel.html">Top Level Namespace</a>
+
+    </li>
+
+  <li class="parent open current" data-id="hace/Hace" data-name="hace">
+      <a href="../Hace.html">Hace</a>
+
+        <ul>
+
+  <li class=" " data-id="hace/Hace/CommandTask" data-name="hace::commandtask">
+      <a href="../Hace/CommandTask.html">CommandTask</a>
+
+    </li>
+
+  <li class=" current" data-id="hace/Hace/HaceFile" data-name="hace::hacefile">
+      <a href="../Hace/HaceFile.html">HaceFile</a>
+
+    </li>
+
+  <li class=" " data-id="hace/Hace/PartialHaceFile" data-name="hace::partialhacefile">
+      <a href="../Hace/PartialHaceFile.html">PartialHaceFile</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
+  <li class=" " data-id="hace/LogFormat" data-name="logformat">
+      <a href="../LogFormat.html">LogFormat</a>
+
+    </li>
+
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">
+    class
+  </span> Hace::<wbr>HaceFile
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Hace/HaceFile.html">Hace::HaceFile</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>Parser for Hacefile.yml</p>
+
+
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+
+      <li class="other-type">YAML::Serializable</li>
+
+      <li class="other-type">YAML::Serializable::Strict</li>
+
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+
+
+      hace.cr
+
+    <br/>
+
+
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#new%28ctx%3AYAML%3A%3AParseContext%2Cnode%3AYAML%3A%3ANodes%3A%3ANode%29-class-method" class="signature"><strong>.new</strong>(ctx : YAML::ParseContext, node : YAML::Nodes::Node)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#new%28%2A%2C__context_for_yaml_serializablectx%3AYAML%3A%3AParseContext%2C__node_for_yaml_serializablenode%3AYAML%3A%3ANodes%3A%3ANode%29-class-method" class="signature"><strong>.new</strong>(*, __context_for_yaml_serializable ctx : YAML::ParseContext, __node_for_yaml_serializable node : YAML::Nodes::Node)</a>
+
+      </li>
+
+  </ul>
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#auto%28arguments%3D%5B%5DofString%2Cfilename%3D%22Hacefile.yml%22%29-class-method" class="signature"><strong>.auto</strong>(arguments = <span class="o">[]</span> <span class="k">of</span> <span class="t">String</span>, filename = <span class="s">&quot;Hacefile.yml&quot;</span>)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#load_file%28filename%29-class-method" class="signature"><strong>.load_file</strong>(filename)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#process_arguments%28hacefile%2Carguments%3AArray%28String%29%29-class-method" class="signature"><strong>.process_arguments</strong>(hacefile, arguments : Array(String))</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#run%28arguments%3D%5B%5DofString%2Cfilename%3D%22Hacefile.yml%22%2Crun_all%3ABool%3Dfalse%2Cdry_run%3ABool%3Dfalse%2Cquestion%3ABool%3Dfalse%2Ckeep_going%3ABool%3Dfalse%2Cparallel%3ABool%3Dfalse%29-class-method" class="signature"><strong>.run</strong>(arguments = <span class="o">[]</span> <span class="k">of</span> <span class="t">String</span>, filename = <span class="s">&quot;Hacefile.yml&quot;</span>, run_all : Bool = <span class="n">false</span>, dry_run : Bool = <span class="n">false</span>, question : Bool = <span class="n">false</span>, keep_going : Bool = <span class="n">false</span>, parallel : Bool = <span class="n">false</span>)</a>
+
+      </li>
+
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+
+      <li class="entry-summary">
+        <a href="#env%3AHash%28String%2CString%3F%29-instance-method" class="signature"><strong>#env</strong> : Hash(String, String?)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#env%3D%28env%3AHash%28String%2CNil%7CString%29%29-instance-method" class="signature"><strong>#env=</strong>(env : Hash(String, Nil | String))</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#gen_tasks-instance-method" class="signature"><strong>#gen_tasks</strong></a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#tasks%3AHash%28String%2CCommandTask%29-instance-method" class="signature"><strong>#tasks</strong> : Hash(String, CommandTask)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#tasks%3D%28tasks%3AHash%28String%2CCommandTask%29%29-instance-method" class="signature"><strong>#tasks=</strong>(tasks : Hash(String, CommandTask))</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#variables%3AHash%28String%2CYAML%3A%3AAny%29-instance-method" class="signature"><strong>#variables</strong> : Hash(String, YAML::Any)</a>
+
+      </li>
+
+      <li class="entry-summary">
+        <a href="#variables%3D%28variables%3AHash%28String%2CYAML%3A%3AAny%29%29-instance-method" class="signature"><strong>#variables=</strong>(variables : Hash(String, YAML::Any))</a>
+
+      </li>
+
+  </ul>
+
+
+
+  <div class="methods-inherited">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+
+    <div class="entry-detail" id="new(ctx:YAML::ParseContext,node:YAML::Nodes::Node)-class-method">
+      <div class="signature">
+
+        def self.<strong>new</strong>(ctx : YAML::ParseContext, node : YAML::Nodes::Node)
+
+        <a class="method-permalink" href="#new%28ctx%3AYAML%3A%3AParseContext%2Cnode%3AYAML%3A%3ANodes%3A%3ANode%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="new(*,__context_for_yaml_serializablectx:YAML::ParseContext,__node_for_yaml_serializablenode:YAML::Nodes::Node)-class-method">
+      <div class="signature">
+
+        def self.<strong>new</strong>(*, __context_for_yaml_serializable ctx : YAML::ParseContext, __node_for_yaml_serializable node : YAML::Nodes::Node)
+
+        <a class="method-permalink" href="#new%28%2A%2C__context_for_yaml_serializablectx%3AYAML%3A%3AParseContext%2C__node_for_yaml_serializablenode%3AYAML%3A%3ANodes%3A%3ANode%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+
+    <div class="entry-detail" id="auto(arguments=[]ofString,filename=&quot;Hacefile.yml&quot;)-class-method">
+      <div class="signature">
+
+        def self.<strong>auto</strong>(arguments = <span class="o">[]</span> <span class="k">of</span> <span class="t">String</span>, filename = <span class="s">&quot;Hacefile.yml&quot;</span>)
+
+        <a class="method-permalink" href="#auto%28arguments%3D%5B%5DofString%2Cfilename%3D%22Hacefile.yml%22%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="load_file(filename)-class-method">
+      <div class="signature">
+
+        def self.<strong>load_file</strong>(filename)
+
+        <a class="method-permalink" href="#load_file%28filename%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="process_arguments(hacefile,arguments:Array(String))-class-method">
+      <div class="signature">
+
+        def self.<strong>process_arguments</strong>(hacefile, arguments : Array(String))
+
+        <a class="method-permalink" href="#process_arguments%28hacefile%2Carguments%3AArray%28String%29%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="run(arguments=[]ofString,filename=&quot;Hacefile.yml&quot;,run_all:Bool=false,dry_run:Bool=false,question:Bool=false,keep_going:Bool=false,parallel:Bool=false)-class-method">
+      <div class="signature">
+
+        def self.<strong>run</strong>(arguments = <span class="o">[]</span> <span class="k">of</span> <span class="t">String</span>, filename = <span class="s">&quot;Hacefile.yml&quot;</span>, run_all : Bool = <span class="n">false</span>, dry_run : Bool = <span class="n">false</span>, question : Bool = <span class="n">false</span>, keep_going : Bool = <span class="n">false</span>, parallel : Bool = <span class="n">false</span>)
+
+        <a class="method-permalink" href="#run%28arguments%3D%5B%5DofString%2Cfilename%3D%22Hacefile.yml%22%2Crun_all%3ABool%3Dfalse%2Cdry_run%3ABool%3Dfalse%2Cquestion%3ABool%3Dfalse%2Ckeep_going%3ABool%3Dfalse%2Cparallel%3ABool%3Dfalse%29-class-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+
+    <div class="entry-detail" id="env:Hash(String,String?)-instance-method">
+      <div class="signature">
+
+        def <strong>env</strong> : Hash(String, String?)
+
+        <a class="method-permalink" href="#env%3AHash%28String%2CString%3F%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="env=(env:Hash(String,Nil|String))-instance-method">
+      <div class="signature">
+
+        def <strong>env=</strong>(env : Hash(String, Nil | String))
+
+        <a class="method-permalink" href="#env%3D%28env%3AHash%28String%2CNil%7CString%29%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="gen_tasks-instance-method">
+      <div class="signature">
+
+        def <strong>gen_tasks</strong>
+
+        <a class="method-permalink" href="#gen_tasks-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="tasks:Hash(String,CommandTask)-instance-method">
+      <div class="signature">
+
+        def <strong>tasks</strong> : Hash(String, <a href="../Hace/CommandTask.html">CommandTask</a>)
+
+        <a class="method-permalink" href="#tasks%3AHash%28String%2CCommandTask%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="tasks=(tasks:Hash(String,CommandTask))-instance-method">
+      <div class="signature">
+
+        def <strong>tasks=</strong>(tasks : Hash(String, <a href="../Hace/CommandTask.html">CommandTask</a>))
+
+        <a class="method-permalink" href="#tasks%3D%28tasks%3AHash%28String%2CCommandTask%29%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="variables:Hash(String,YAML::Any)-instance-method">
+      <div class="signature">
+
+        def <strong>variables</strong> : Hash(String, YAML::Any)
+
+        <a class="method-permalink" href="#variables%3AHash%28String%2CYAML%3A%3AAny%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+    <div class="entry-detail" id="variables=(variables:Hash(String,YAML::Any))-instance-method">
+      <div class="signature">
+
+        def <strong>variables=</strong>(variables : Hash(String, YAML::Any))
+
+        <a class="method-permalink" href="#variables%3D%28variables%3AHash%28String%2CYAML%3A%3AAny%29%29-instance-method">#</a>
+      </div>
+
+      <br/>
+      <div>
+
+      </div>
+    </div>
+
+
+
+
+</div>
+
+</body>
+</html>

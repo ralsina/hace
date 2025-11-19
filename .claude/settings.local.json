@@ -15,7 +15,8 @@
       "Read(//tmp/hace_parallel_test/**)",
       "Bash(/home/ralsina/code/hace/bin/hace:*)",
       "Bash(cat:*)",
-      "Bash(crystal build:*)"
+      "Bash(crystal build:*)",
+      "Bash(ameba:*)"
     ],
     "deny": [],
     "ask": []

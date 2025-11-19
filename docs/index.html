@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.17.1">
+<meta name="crystal_docs.project_version" content="main-dev">
+<meta name="crystal_docs.project_name" content="hace">
+
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/doc.js"></script>
+
+  <meta name="repository-name" content="hace">
+  <title>hace main-dev</title>
+  <script type="text/javascript">
+  CrystalDocs.base_path = "";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill="currentColor" fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="index.html">
+          hace
+        </a>
+      </h1>
+
+      <span class="project-version">
+        main-dev
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+
+  <li class=" " data-id="hace/toplevel" data-name="top level namespace">
+      <a href="toplevel.html">Top Level Namespace</a>
+
+    </li>
+
+  <li class="parent " data-id="hace/Hace" data-name="hace">
+      <a href="Hace.html">Hace</a>
+
+        <ul>
+
+  <li class=" " data-id="hace/Hace/CommandTask" data-name="hace::commandtask">
+      <a href="Hace/CommandTask.html">CommandTask</a>
+
+    </li>
+
+  <li class=" " data-id="hace/Hace/HaceFile" data-name="hace::hacefile">
+      <a href="Hace/HaceFile.html">HaceFile</a>
+
+    </li>
+
+  <li class=" " data-id="hace/Hace/PartialHaceFile" data-name="hace::partialhacefile">
+      <a href="Hace/PartialHaceFile.html">PartialHaceFile</a>
+
+    </li>
+
+</ul>
+
+
+    </li>
+
+  <li class=" " data-id="hace/LogFormat" data-name="logformat">
+      <a href="LogFormat.html">LogFormat</a>
+
+    </li>
+
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1><a id="hacé" class="anchor" href="#hacé">  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Hacé</h1>
+<p>Hacé makes things like make, but not the same.</p>
+<p>Its functionality is mostly derived from using
+<a href="https://github.com/ralsina/croupier">Croupier</a>, a dataflow library.</p>
+<p><a href="https://ralsina.github.io/hace/"><img src="https://github.com/ralsina/hace/actions/workflows/static.yml/badge.svg" alt="Docs" /></a>
+<a href="https://github.com/ralsina/hace/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green" alt="License" /></a>
+<a href="https://GitHub.com/ralsina/hace/releases/"><img src="https://img.shields.io/github/release/ralsina/hace.svg" alt="Release" /></a>
+<a href="https://ralsina.me/categories/hace.html"><img src="https://img.shields.io/badge/News-About%20Hace-blue" alt="News about Hace" /></a></p>
+<p><a href="https://github.com/ralsina/hace/actions/workflows/ci.yml"><img src="https://github.com/ralsina/hace/actions/workflows/ci.yml/badge.svg" alt="Tests" /></a>
+<a href="https://codecov.io/gh/ralsina/hace"><img src="https://codecov.io/gh/ralsina/hace/branch/main/graph/badge.svg?token=YW23EDL5T5" alt="codecov" /></a>
+<a href="https://github.com/ralsina/hace/actions/workflows/mutation.yml"><img src="https://github.com/ralsina/hace/actions/workflows/mutation.yml/badge.svg" alt="Mutation Tests" /></a></p>
+<h2><a id="installation" class="anchor" href="#installation">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Installation</h2>
+<p>If you have <code>crystal</code> and <code>shards</code> installed, you can do:</p>
+<pre><code class="language-sh">git clone git@github.com:ralsina/hace.git
+cd hace
+shards build --release
+cp bin/hace ~/.local/bin  # or wherever you want it</code></pre>
+<p>Binaries for Linux in amd64 are available in <a href="https://github.com/ralsina/hace/releases">the releases page</a>.</p>
+<h2><a id="usage" class="anchor" href="#usage">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Usage</h2>
+<p>You can use the <code>hace</code> command to run tasks from a <code>Hacefile.yml</code> in the current
+directory.</p>
+<pre><code class="language-console">$ ./bin/hace --help
+  hace - hace makes things, like make
+
+  Usage:
+    hace [command] [flags] [arguments]
+
+  Commands:
+    auto            Run in auto mode
+    help [command]  Help about any command.
+
+  Flags:
+    -n, --dry-run      Don't actually run any commands
+    -f, --file         Read the file named as a Hacefile default: 'Hacefile.yml'
+    -h, --help         Help for this command.
+    -k, --keep-going   Continue as much as possible after an error.
+        --question     Don't run anything, exit 0 if all tasks are up to date, 1
+                       otherwise
+    -q, --quiet        Don't log anything
+    -B, --always-make  Unconditionally run all tasks.
+    -v, --verbosity    Control the logging verbosity, 0 to 5  default: 3</code></pre>
+<p>The arguments are task names, and if you don't specify any, the default
+tasks will execute.</p>
+<p>That's easy, right? Well, that's because the complicated bit is the Hacefile 😃</p>
+<h2><a id="the-hacefile" class="anchor" href="#the-hacefile">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>The Hacefile</h2>
+<p>The Hacefile is a <a href="https://spacelift.io/blog/yaml">YAML file</a> that
+describes the tasks you want to run.
+Conceptually it's a lot like a Makefile, but the syntax and semantics are
+quite different.</p>
+<p>Here's a simple example, details to be explained below:</p>
+<pre><code class="language-yaml">tasks:
+  foo:
+    default: true
+    dependencies:
+      - bar
+    commands: |
+      echo &quot;make foo out of bar&quot; &gt; foo
+      cat bar &gt;&gt; foo
+  phony:
+    phony: true
+    commands: echo &quot;bat&quot; &gt; bat</code></pre>
+<h2><a id="tasks" class="anchor" href="#tasks">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Tasks</h2>
+<p>A task is a named set of shell commands that are run in order, and they go
+under the <code>tasks</code> toplevel key. For example:</p>
+<pre><code class="language-yaml">tasks:
+  foo:
+    default: true
+    cwd: /tmp
+    dependencies:
+      - bar
+    commands: |
+      echo &quot;make foo out of bar&quot; &gt; foo
+      cat bar &gt;&gt; foo</code></pre>
+<p>This defines a task named <code>foo</code> that depends on <code>bar</code> and runs two commands.</p>
+<p>Because it's marked as <code>default</code> it will be run if you don't specify any
+tasks on the command line.</p>
+<p>The optional <code>cwd</code> key sets the current working directory for the task.</p>
+<h3><a id="commands" class="anchor" href="#commands">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Commands</h3>
+<p>The commands are a string that can be multiple lines, and they are run in
+order. If any command fails, the task fails.</p>
+<p>Each line should be a valid shell command, and they are run in a shell. The
+shell is <code>/bin/sh</code> on linux and <code>cmd.exe</code> on windows (please note that
+nobody has ever tried this tool on windows AFAIK).</p>
+<p>Commands are in fact templates using
+<a href="https://github.com/straight-shoota/crinja">Jinja</a> syntax,
+see <a href="#variables">Variables</a> below for more details and examples.</p>
+<h3><a id="outputs" class="anchor" href="#outputs">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Outputs</h3>
+<p>A task can have zero, one, or multiple outputs. If a task declares it has
+outputs but fails to create them, it's considered to have failed.</p>
+<p>In the example above, there is no explicit <code>outputs</code> key, so the task has
+one output, named like the task itself: <code>foo</code>.</p>
+<p>A task can declare it generates no outputs by tagging itself as <code>phony</code>:</p>
+<pre><code class="language-yaml">task2:
+  dependencies:
+    - bar
+  phony: true
+  commands: |
+    notify-send &quot;Done: $(cat bar)&quot;</code></pre>
+<p>This example shows a notification on screen with the contents of the file
+<code>bar</code> but doesn't actually create any files.</p>
+<p>If a task generates multiple outputs, you can declare them like this:</p>
+<pre><code class="language-yaml">task3:
+  dependencies:
+    - bar
+  outputs:
+    - baz
+    - bat
+  commands: |
+    echo &quot;This is baz&quot; &gt; baz
+    echo &quot;This is bat&quot; &gt; bat</code></pre>
+<p>This task is <strong>called</strong> <code>task3</code> but it generates two files, <code>baz</code> and <code>bat</code>.</p>
+<p><strong>⚠️WARNING:</strong> You can have two tasks with the same output, but you can't
+have two tasks with the same name.</p>
+<p><strong>⚠Warning:</strong> If there are two tasks with the same
+output, Hacé will run them both, and the second one will overwrite the
+first. This is a bug, and will be fixed.</p>
+<p>Outputs can interpolate variables and environment variables.</p>
+<h3><a id="dependencies" class="anchor" href="#dependencies">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Dependencies</h3>
+<p>Dependencies are files or task names. Hacefile will try to run tasks only
+if a dependency file has changed since the last time the task was run or
+if a task dependency itself would run.</p>
+<p>If a dependency is the output of another task, then that task will run
+first (if needed).</p>
+<p>If a dependency is missing and the Hacefile doesn't describe how to
+generate it, the task is not ready to run, and there will be an error.</p>
+<p>Tasks without dependencies are always considered &quot;out of date&quot; and
+will always run if you ask for them.</p>
+<p>Dependencies can interpolate variables and environment variables.</p>
+<p>Dependencies will expand &quot;globs&quot;, such as &quot;*&quot;, &quot;**&quot; and &quot;?&quot;</p>
+<h3><a id="default-tasks" class="anchor" href="#default-tasks">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Default tasks</h3>
+<p>If a task has <code>default</code> set to <code>true</code>, it will run when no task is
+specified on the command line. You have to set this explicitly if
+you want it, otherwise no task will run unless explicitly required.</p>
+<h3><a id="always-run" class="anchor" href="#always-run">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Always Run</h3>
+<p>If a task has <code>always_run</code> set to <code>true</code>, it will run even if it's
+not out of date. This is useful for tasks that don't have outputs.</p>
+<h2><a id="environment-variables" class="anchor" href="#environment-variables">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Environment variables</h2>
+<p>Just an ordinary map of environment variables in the <code>env</code> top
+key. The variables will be available to all tasks and you can
+expand them using in commands, dependencies and outputs with <code>${PATH}</code></p>
+<p>Any variables in the environment when the Hacefile is loaded will
+also be in the environment.</p>
+<p>If you want to <em>unset</em> a variable, set it to <code>null</code>. If you want
+it set to an empty value, use <code>&quot;&quot;</code>.</p>
+<pre><code class="language-yaml">env:
+  FOO: bar
+  BAZ: null</code></pre>
+<h2><a id="variables" class="anchor" href="#variables">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Variables</h2>
+<p>You can declare variables in the <code>variables</code> top level key. They are
+available to all tasks, which can use them in their commands
+using a <a href="https://github.com/straight-shoota/crinja">Jinja</a> template language syntax.</p>
+<p>A special variable is <code>self</code> which is the task itself, so you can
+use the task itself to define parts of the commands it contains.</p>
+<p><strong>⚠️⚠️WARNING⚠️⚠️</strong> These are <em>not</em> <a href="#environment-variables">environment variables</a>.</p>
+<pre><code class="language-yaml">variables:
+  i: 3
+  s: &quot;string&quot;
+  foo:
+    bar: &quot;bat&quot;
+    foo: 86
+tasks:
+  foo:
+    dependencies:
+      - bar
+    commands: |
+      echo &quot;make foo out of {{ foo['bar'] }} at {{ i }}&quot; &gt; foo
+      cat {{ self[&quot;dependencies&quot;][0] }} &gt;&gt; foo</code></pre>
+<p>In that example, it's doing <code>cat bar &gt;&gt; foo</code> because that's in
+<code>self[&quot;dependencies&quot;]</code>. This may look a bit confusing but I expect
+it will be useful.</p>
+<p>Currently the available members of <code>self</code> are:</p>
+<ul>
+<li>commands: all commands</li>
+<li>dependencies: all dependencies, as an array</li>
+<li>phony: boolean</li>
+<li>default: boolean</li>
+<li>outputs: all outputs, as an array</li>
+</ul>
+<p>You can also set variables from the command line. This example sets <code>VAR</code> to <code>VALUE</code>:</p>
+<pre><code class="language-sh">hace foo VAR=VALUE</code></pre>
+<p>Variables can interpolate environment variables:</p>
+<pre><code class="language-yaml">variables:
+  dest_dir: &quot;${HOME}/.local/bin&quot;</code></pre>
+<p>Because we are using <a href="https://github.com/straight-shoota/crinja/blob/master/TEMPLATE_SYNTAX.md">templates</a>
+you can even do things like this:</p>
+<pre><code class="language-yaml">tasks:
+  foo:
+    default: true
+    outputs:
+      - foo
+    dependencies:
+      - &quot;*.c&quot;
+    commands: |
+      {% for dep in self[&quot;dependencies&quot;] %} gcc -c {{dep}} {% endfor %}</code></pre>
+<h2><a id="development" class="anchor" href="#development">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Development</h2>
+<p>See <a href="TODO.md">TODO.md</a> for a list of things that are not done yet,
+as well as things that were considered and decided against (TODON'T 😀)</p>
+<p>Main things to consider if you want to contribute:</p>
+<ul>
+<li>
+<p>Take tests seriously. When a project is small, it's easy to test
+everything.</p>
+<p>When it's big, it's impossible to test everything. So, start testing early
+and keep testing often.</p>
+</li>
+<li>
+<p>Take documentation seriously. If you don't document it, it doesn't exist.</p>
+</li>
+</ul>
+<h2><a id="contributing" class="anchor" href="#contributing">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Contributing</h2>
+<ol>
+<li>Fork it (<a href="https://github.com/ralsina/hace/fork">https://github.com/ralsina/hace/fork</a>)</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create a new Pull Request</li>
+</ol>
+<h2><a id="contributors" class="anchor" href="#contributors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Contributors</h2>
+<ul>
+<li><a href="https://github.com/ralsina">Roberto Alsina</a> - creator and maintainer</li>
+</ul>
+</div>
+</body>
+</html>
