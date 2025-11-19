@@ -12,9 +12,29 @@ if ! git rev-parse --git-dir > /dev/null 2>&1; then
     exit 1
 fi
 
+# Check for uncommitted changes, but ignore certain files
 if ! git diff-index --quiet HEAD --; then
-    echo "Error: Working directory is not clean. Please commit or stash changes."
-    exit 1
+    # Get list of modified files
+    modified_files=$(git diff-index --name-only HEAD --)
+
+    # Check if any important files are modified
+    important_files=false
+    for file in $modified_files; do
+        case "$file" in
+            .claude/settings.local.json|spec/testcases/*/results/*|*.log)
+                echo "ℹ️  Ignoring modified file: $file"
+                ;;
+            *)
+                echo "❌ Error: Working directory has uncommitted changes in: $file"
+                echo "   Please commit or stash these changes before releasing."
+                important_files=true
+                ;;
+        esac
+    done
+
+    if [ "$important_files" = true ]; then
+        exit 1
+    fi
 fi
 
 PKGNAME=$(basename "$PWD")
