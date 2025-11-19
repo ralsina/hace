@@ -127,6 +127,7 @@ tasks:
     commands: |
       cd docs && mdbook serve
     phony: true
+    always_run: true
 
   user-docs-deploy:
     description: "Deploy user documentation to production server"
