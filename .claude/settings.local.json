@@ -18,7 +18,8 @@
       "Bash(crystal build:*)",
       "Bash(ameba:*)",
       "Bash(find:*)",
-      "Bash(PROJECT_ROOT=/home/ralsina/code/hace crystal spec:*)"
+      "Bash(PROJECT_ROOT=/home/ralsina/code/hace crystal spec:*)",
+      "Bash(PROJECT_ROOT=/home/ralsina/code/hace crystal build:*)"
     ],
     "deny": [],
     "ask": []

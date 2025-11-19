@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2025-11-19
+
+### 🚀 Features
+
+* Enhance release-check to ignore irrelevant files in working directory
+* Implement combined shell execution with environment variable persistence
+* Add automatic .env file support with dotenv integration
+* Add shell autocompletion support for bash, fish, and zsh
+* Add parallel task execution and multithreading support
+
+### 🐛 Bug Fixes
+
+* Update do_release.sh to ignore irrelevant files in working directory
+* Simplify release-dry-run task to avoid croupier dependency issues
+* Improve release process reliability and fix circular dependency
+* Make docs-serve always run as development server
+* Improve documentation tasks and remove redundant API docs generation
+
+### 🖐️ Bump
+
+* Release v0.5.1
+
+### 🚜 Refactor
+
+* Temporarily disable cyclomatic complexity warning for gen_task method
+* Remove environment variable usage for dry-run flag
+* Rename documentation tasks for simpler workflow
+* Break down large run() method for better maintainability
+
+### 🎨 Styling
+
+* Remove trailing empty line in shell_execution_spec.cr
+
+### 🧪 Testing
+
+* Add comprehensive parallel execution test suite
+
+### ⚙️ Miscellaneous Tasks
+
+* 0.5.0
+* Fix static build
+
 ## [0.5.1] - 2025-11-19
 
 ### 🖐️ Bump
