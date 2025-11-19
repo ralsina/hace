@@ -20,4 +20,7 @@
 /spec/testcases/**/counter
 /spec/testcases/**/input
 /spec/testcases/**/input2
+/spec/testcases/parallel/results/timing.log
 aur-hace/
+
+/.claude/settings.local.json

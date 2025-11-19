@@ -19,7 +19,11 @@
       "Bash(ameba:*)",
       "Bash(find:*)",
       "Bash(PROJECT_ROOT=/home/ralsina/code/hace crystal spec:*)",
-      "Bash(PROJECT_ROOT=/home/ralsina/code/hace crystal build:*)"
+      "Bash(PROJECT_ROOT=/home/ralsina/code/hace crystal build:*)",
+      "Bash(gh release:*)",
+      "Read(//tmp/shell_test/**)",
+      "Bash(HACE_LOG_LEVEL=debug /home/ralsina/code/hace/bin/hace test-default:*)",
+      "Bash(export HACE_LOG_LEVEL=debug:*)"
     ],
     "deny": [],
     "ask": []
