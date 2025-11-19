@@ -116,6 +116,33 @@ tasks:
     outputs:
       - docs/index.html
 
+  user-docs:
+    description: "Build user documentation using mdbook"
+    dependencies:
+      - docs/src
+      - docs/book.toml
+    commands: |
+      cd docs && mdbook build
+    outputs:
+      - docs/book/index.html
+
+  user-docs-serve:
+    description: "Serve user documentation locally with live reload"
+    dependencies:
+      - docs/src
+      - docs/book.toml
+    commands: |
+      cd docs && mdbook serve
+    phony: true
+
+  user-docs-deploy:
+    description: "Deploy user documentation to production server"
+    dependencies:
+      - docs/book
+    commands: |
+      rsync -avz --delete docs/book/ root@rocky:/data/stacks/web/websites/hace.ralsina.me/
+    phony: true
+
   pre-commit:
     description: "Install git pre-commit hooks for code quality checks"
     default: true

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(shards build:*)",
+      "Bash(crystal spec:*)",
+      "Bash(hace user-docs)",
+      "Bash(git checkout:*)",
+      "Bash(hace build:*)",
+      "Bash(./bin/hace:*)",
+      "Read(//dev/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
