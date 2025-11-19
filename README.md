@@ -16,16 +16,40 @@ Its functionality is mostly derived from using
 
 ## Installation
 
-If you have `crystal` and `shards` installed, you can do:
+### Pre-built Binaries (Recommended)
+
+**GitHub Releases**: Static binaries for Linux are available from the [releases page](https://github.com/ralsina/hace/releases). No Crystal installation required.
+
+```sh
+# Linux amd64
+wget https://github.com/ralsina/hace/releases/latest/download/hace-static-linux-amd64
+chmod +x hace-static-linux-amd64
+sudo mv hace-static-linux-amd64 /usr/local/bin/hace
+
+# Linux ARM64
+wget https://github.com/ralsina/hace/releases/latest/download/hace-static-linux-arm64
+chmod +x hace-static-linux-arm64
+sudo mv hace-static-linux-arm64 /usr/local/bin/hace
+```
+
+**Arch Linux (AUR)**: Available as the `hace` package in the [AUR](https://aur.archlinux.org/packages/hace):
+
+```sh
+yay -S hace  # Using yay AUR helper
+# or
+git clone https://aur.archlinux.org/hace.git && cd hace && makepkg -si
+```
+
+### Build from Source
+
+If you have `crystal` and `shards` installed, you can build from source:
 
 ```sh
 git clone git@github.com:ralsina/hace.git
 cd hace
-shards build --release
+shards build
 cp bin/hace ~/.local/bin  # or wherever you want it
 ```
-
-Binaries for Linux in amd64 are available in [the releases page](https://github.com/ralsina/hace/releases).
 
 ## Usage
 

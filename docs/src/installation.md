@@ -2,9 +2,40 @@
 
 Hacé is written in Crystal and can be installed in several ways.
 
+## Pre-built Binaries (Recommended)
+
+### GitHub Releases
+
+Static binaries for Linux are available from the [GitHub Releases page](https://github.com/ralsina/hace/releases). These are self-contained executables that don't require Crystal to be installed.
+
+```bash
+# Download the latest release (example for Linux amd64)
+wget https://github.com/ralsina/hace/releases/latest/download/hace-static-linux-amd64
+chmod +x hace-static-linux-amd64
+sudo mv hace-static-linux-amd64 /usr/local/bin/hace
+```
+
+Available architectures:
+- `hace-static-linux-amd64` - Linux x86_64
+- `hace-static-linux-arm64` - Linux ARM64
+
+### Arch Linux (AUR)
+
+For Arch Linux users, Hacé is available in the [Arch User Repository (AUR)](https://aur.archlinux.org/packages/hace):
+
+```bash
+# Using an AUR helper like yay
+yay -S hace
+
+# Or manually with git
+git clone https://aur.archlinux.org/hace.git
+cd hace
+makepkg -si
+```
+
 ## Prerequisites
 
-You need Crystal installed on your system. See the [Crystal installation guide](https://crystal-lang.org/install/) for instructions.
+For building from source, you need Crystal installed on your system. See the [Crystal installation guide](https://crystal-lang.org/install/) for instructions.
 
 ## Install from Source
 
