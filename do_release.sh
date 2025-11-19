@@ -106,6 +106,8 @@ else
     echo "Warning: do_aur.sh not found, skipping AUR update"
 fi
 
+shards build  # because we previously deleted the binary :-)
+
 # Deploy documentation
 echo "Deploying documentation..."
 $HACE_BIN user-docs-deploy -B
