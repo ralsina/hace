@@ -27,6 +27,7 @@ module Hace
     property tasks : Hash(String, CommandTask) = {} of String => CommandTask
     property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
     property env = {} of String => String?
+    property shell : String? = nil
 
     def self.load_file(filename)
       begin
@@ -269,7 +270,7 @@ module Hace
 
     def gen_tasks(dry_run : Bool = false)
       @tasks.each do |name, task|
-        task.gen_task(name, dry_run)
+        task.gen_task(name, self, dry_run)
       end
     end
 
@@ -308,6 +309,7 @@ module Hace
     @always_run : Bool = false
     @cwd : String? = nil
     @description : String? = nil
+    @shell : String? = nil
 
     def to_hash
       # Yes, not pretty but this gives me the right types for merging
@@ -331,7 +333,7 @@ module Hace
       @commands = Hace.expand_string(@commands, variables)
     end
 
-    def gen_task(name, dry_run : Bool = false)
+    def gen_task(name, hacefile : HaceFile, dry_run : Bool = false)
       # phony tasks have no outputs.
       # tasks where outputs are not specified have only one output, the task name
 
@@ -368,26 +370,42 @@ module Hace
           Log.info { "Started task: #{name}" }
           cwd = @cwd.nil? ? Dir.current : @cwd.as(String)
           Dir.cd cwd do
-            commands.map do |command|
-              if dry_run
-                # In dry-run mode, show the command that would be executed
+            if dry_run
+              # In dry-run mode, show each command that would be executed
+              commands.each do |command|
                 puts "Would run: #{command}".colorize(:yellow)
                 Log.info { "DRY-RUN: Would run command: #{command}" }
-                "dry_run_success"
-              else
-                # Normal execution
-                Log.info { "Running command: #{command}" }
-                status = Process.run(
-                  command: command,
-                  shell: true,
-                  env: Hace::ENVIRONMENT,
-                  input: Process::Redirect::Inherit,
-                  output: Process::Redirect::Inherit,
-                  error: Process::Redirect::Inherit,
-                )
-                raise "Command failed: exit #{status.exit_code} when running #{command}" unless status.success?
-                status.to_s
               end
+              "dry_run_success"
+            else
+              # Determine which shell to use
+              task_shell = @shell || hacefile.shell || "/bin/sh"
+
+              # Build combined shell script with set -e for fail-fast behavior
+              combined_script = "set -e\n"
+              commands.each do |command|
+                combined_script += command + "\n"
+              end
+
+              # Log individual commands for debugging
+              commands.each do |command|
+                Log.info { "Running command: #{command}" }
+              end
+
+              # Execute combined script in single shell process
+              status = Process.run(
+                command: task_shell,
+                args: ["-c", combined_script],
+                env: Hace::ENVIRONMENT,
+                input: Process::Redirect::Inherit,
+                output: Process::Redirect::Inherit,
+                error: Process::Redirect::Inherit,
+              )
+              unless status.success?
+                # Simple error message - the combined script failed
+                raise "Command failed: exit #{status.exit_code}"
+              end
+              status.to_s
             end
           end
           Log.info { "Finished task: #{name}" }

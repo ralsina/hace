@@ -264,7 +264,7 @@ describe Hace do
 
     it "should error out if a command fails" do
       with_scenario("failure") do
-        expect_raises(Exception, "Command failed: exit 1 when running /bin/false") do
+        expect_raises(Exception, "Command failed: exit 1") do
           HaceFile.run
         end
       end
@@ -272,7 +272,7 @@ describe Hace do
 
     it "should not run later tasks if a dependency fails" do
       with_scenario("failed-chain") do
-        expect_raises(Exception, "Command failed: exit 1 when running /bin/false") do
+        expect_raises(Exception, "Command failed: exit 1") do
           HaceFile.run
         end
         File.exists?("foo").should be_false
