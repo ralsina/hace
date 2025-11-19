@@ -30,6 +30,7 @@ jobs:
 
           # Install project dependencies and build
           shards install
+          shards build  # Build bin/hace for tests that need it
           crystal build src/run_tests.cr
 
           # Run tests with kcov coverage
