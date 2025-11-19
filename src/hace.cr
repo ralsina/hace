@@ -333,6 +333,7 @@ module Hace
       @commands = Hace.expand_string(@commands, variables)
     end
 
+    # ameba:disable Metrics/CyclomaticComplexity
     def gen_task(name, hacefile : HaceFile, dry_run : Bool = false)
       # phony tasks have no outputs.
       # tasks where outputs are not specified have only one output, the task name
