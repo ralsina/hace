@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2025-11-19
+
+### ⚙️ Miscellaneous Tasks
+
+* Release script
+
 ## [0.5.0] - 2025-11-19
 
 ### 🚀 Features
@@ -13,6 +19,10 @@ All notable changes to this project will be documented in this file.
 
 * Make static binaries really static
 * Added version command
+
+### 🖐️ Bump
+
+* Release v0.5.0
 
 ### 🚜 Refactor
 

@@ -13,3 +13,4 @@ git tag "v$VERSION"
 git push --tags
 bin/hace static
 gh release create "v$VERSION" "bin/$PKGNAME-static-linux-amd64" "bin/$PKGNAME-static-linux-arm64" --title "Release v$VERSION" --notes "$(git cliff -l -s all)"
+./do_aur.sh
