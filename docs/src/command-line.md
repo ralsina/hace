@@ -19,7 +19,7 @@ hace -f custom-build.yml
 hace --file production.yml build
 ```
 
-### `--dry-run`
+### `-n, --dry-run`
 
 Show what would be executed without actually running commands.
 
@@ -37,7 +37,7 @@ hace --question
 # Output: test: up-to-date
 ```
 
-### `--always-make`
+### `-B, --always-make`
 
 Force all tasks to run, ignoring dependency timestamps.
 
@@ -45,15 +45,31 @@ Force all tasks to run, ignoring dependency timestamps.
 hace --always-make
 ```
 
+### `--list`
+
+List all available tasks with their descriptions and properties in a formatted table.
+
+```bash
+hace --list
+```
+
+The table shows:
+
+- **TASK**: Task name
+- **DESCRIPTION**: Brief description of what the task does
+- **PHONY**: ✓ if task has no file outputs
+- **DEFAULT**: ✓ if task runs by default when no tasks specified
+- **ALWAYS**: ✓ if task always runs regardless of dependencies
+
 ### `--auto`
 
 Enable auto-monitoring mode. Hacé will watch for file changes and rebuild automatically.
 
 ```bash
-hace auto
+hace --auto
 ```
 
-### `--quiet`
+### `-q, --quiet`
 
 Suppress normal output, only show errors.
 
@@ -61,19 +77,27 @@ Suppress normal output, only show errors.
 hace --quiet build
 ```
 
-### `--verbosity <LEVEL>`
+### `-k, --keep-going`
+
+Continue as much as possible after an error.
+
+```bash
+hace --keep-going build test deploy
+```
+
+### `-v <level>, --verbosity <LEVEL>`
 
 Control output verbosity (0-5).
 
 - **0**: Silent mode (only errors)
-- **1**: Minimal output (default)
-- **2**: Normal output
-- **3**: Verbose output
-- **4**: Debug output
-- **5**: Trace output
+- **1**: Error messages only
+- **2**: Warnings and errors
+- **3**: Info messages (default)
+- **4**: Verbose output
+- **5**: Debug output
 
 ```bash
-hace --verbosity 3 build
+hace --verbosity 4 build
 hace -v 2 test
 ```
 
@@ -168,10 +192,10 @@ hace test
 
 ```bash
 # Watch for changes and rebuild automatically
-hace auto
+hace --auto
 
 # Or auto-monitor specific tasks
-hace auto build test
+hace --auto build test
 ```
 
 ### Debugging
