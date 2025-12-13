@@ -109,10 +109,7 @@ module Hace
           next unless commands
 
           cmd_str = commands.as_s
-          if cmd_str.includes?("{{CLI_ARGS}}") ||
-             cmd_str.includes?("{{ CLI_ARGS }}") ||
-             cmd_str.includes?("{{CLI_ARGS_LIST}}") ||
-             cmd_str.includes?("{{ CLI_ARGS_LIST }}")
+          if cmd_str.matches?(/\{\{\s*CLI_ARGS(_LIST)?\s*\}\}/)
             Hace::TASKS_WITH_CLI_ARGS.add(name.as_s)
             Log.debug { "detect_cli_args_usage: task '#{name}' uses CLI_ARGS" }
           end
