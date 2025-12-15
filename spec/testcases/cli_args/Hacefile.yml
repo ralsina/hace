@@ -1,0 +1,45 @@
+tasks:
+  # Test explicit {{CLI_ARGS}} usage
+  explicit:
+    phony: true
+    default: true
+    commands: |
+      echo "Args: {{CLI_ARGS}}" > explicit.txt
+
+  # Test {{CLI_ARGS_LIST}} iteration
+  list_form:
+    phony: true
+    commands: |
+      echo "Count: {{CLI_ARGS_LIST | length}}" > list.txt
+      {% for arg in CLI_ARGS_LIST %}
+      echo "  - {{arg}}" >> list.txt
+      {% endfor %}
+
+  # Test auto-append (no explicit usage)
+  auto_append:
+    phony: true
+    commands: |
+      echo "Starting" > auto.txt
+      echo "crystal spec" >> auto.txt
+
+  # Test middle placement with explicit CLI_ARGS
+  middle:
+    phony: true
+    commands: |
+      echo "Before" > middle.txt
+      echo "crystal spec {{CLI_ARGS}}" >> middle.txt
+      echo "After" >> middle.txt
+
+  # Test with multiple commands - auto-append to last only
+  multi_cmd:
+    phony: true
+    commands: |
+      echo "Step 1" > multi.txt
+      echo "Step 2" >> multi.txt
+      echo "Final step" >> multi.txt
+
+  # Test empty CLI_ARGS (no passthrough)
+  empty_args:
+    phony: true
+    commands: |
+      echo "No args: '{{CLI_ARGS}}'" > empty.txt

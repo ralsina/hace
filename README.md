@@ -309,6 +309,75 @@ tasks:
       {% for dep in self["dependencies"] %} gcc -c {{dep}} {% endfor %}
 ```
 
+## CLI Arguments Passthrough
+
+You can pass arguments directly to task commands using the `--` separator:
+
+```bash
+hace spec -- --verbose --tag=fast
+```
+
+Arguments after `--` are available in your Hacefile as template variables:
+
+- `{{CLI_ARGS}}` - Shell-quoted string of all passthrough arguments
+- `{{CLI_ARGS_LIST}}` - Array for Jinja iteration
+
+### Explicit Usage
+
+Place `{{CLI_ARGS}}` where you want the arguments to appear:
+
+```yaml
+tasks:
+  spec:
+    phony: true
+    commands: |
+      crystal spec {{CLI_ARGS}}
+```
+
+Running `hace spec -- --verbose` executes: `crystal spec --verbose`
+
+### Iterating Over Arguments
+
+Use `{{CLI_ARGS_LIST}}` with Jinja loops:
+
+```yaml
+tasks:
+  test-each:
+    phony: true
+    commands: |
+      {% for arg in CLI_ARGS_LIST %}
+      echo "Testing with: {{arg}}"
+      crystal spec {{arg}}
+      {% endfor %}
+```
+
+### Auto-Append Behavior
+
+If your commands don't use `{{CLI_ARGS}}` explicitly, passthrough arguments
+are automatically appended to the last command:
+
+```yaml
+tasks:
+  spec:
+    phony: true
+    commands: |
+      echo "Running tests..."
+      crystal spec
+```
+
+Running `hace spec -- --verbose` executes:
+1. `echo "Running tests..."`
+2. `crystal spec --verbose` (arguments auto-appended to last command)
+
+### Shell Quoting
+
+Arguments containing spaces or special characters are automatically shell-quoted:
+
+```bash
+hace spec -- "--tag=slow test"
+# Becomes: crystal spec '--tag=slow test'
+```
+
 ## Development
 
 See [TODO.md](TODO.md) for a list of things that are not done yet,

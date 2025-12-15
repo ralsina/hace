@@ -6,7 +6,7 @@ DOC = <<-DOC
 hace makes things, like make.
 
 Usage:
-  hace [options] [<task>...]
+  hace [options] [<task>...] [-- <args>...]
   hace --completion=<shell>
   hace --help
 
@@ -226,7 +226,11 @@ struct LogFormat < Log::StaticFormatter
 end
 
 begin
-  args = Docopt.docopt(DOC, argv: ARGV, version: "Hacé version #{Hace::VERSION}", help: true, exit: true)
+  # Split ARGV at -- separator for CLI args passthrough
+  dash_index = ARGV.index("--")
+  hace_args, passthrough_args = dash_index ? {ARGV[0...dash_index].to_a, ARGV[(dash_index + 1)..].to_a} : {ARGV.to_a, [] of String}
+
+  args = Docopt.docopt(DOC, argv: hace_args, version: "Hacé version #{Hace::VERSION}", help: true, exit: true)
 
   # Extract options from docopt result with safe casting
   quiet = args["--quiet"].as?(Bool) || false
@@ -305,6 +309,7 @@ begin
       Hace::HaceFile.auto(
         arguments: task_args,
         filename: file,
+        cli_args: passthrough_args,
       )
       Log.info { "Running in auto mode, press Ctrl+C to stop" }
       loop do
@@ -323,6 +328,7 @@ begin
     Hace::HaceFile.run(
       filename: file,
       arguments: task_args,
+      cli_args: passthrough_args,
       run_all: always_make,
       dry_run: dry_run,
       question: question,

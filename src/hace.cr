@@ -11,7 +11,21 @@ module Hace
   VARIABLES   = {} of String => YAML::Any
   ENVIRONMENT = {} of String => String
 
+  # Track which tasks explicitly use {{CLI_ARGS}} (detected before Crinja expansion)
+  TASKS_WITH_CLI_ARGS = Set(String).new
+
   extend self
+
+  # Inject CLI_ARGS and CLI_ARGS_LIST into VARIABLES for template expansion
+  def self.inject_cli_args(cli_args : Array(String))
+    # CLI_ARGS: shell-quoted string for direct shell usage
+    cli_args_string = cli_args.map { |arg| Process.quote(arg) }.join(" ")
+    VARIABLES["CLI_ARGS"] = YAML::Any.new(cli_args_string)
+
+    # CLI_ARGS_LIST: array for Jinja iteration
+    cli_args_list = cli_args.map { |arg| YAML::Any.new(arg) }
+    VARIABLES["CLI_ARGS_LIST"] = YAML::Any.new(cli_args_list)
+  end
 
   # This parses only env and variables, not tasks
   class PartialHaceFile
@@ -43,13 +57,19 @@ module Hace
         data = File.read(filename)
         p = Hace::PartialHaceFile.from_yaml(data)
 
-        rendered_data = data.split("\n").map do |line|
-          begin
-            Crinja.render(line, p.variables)
-          rescue
-            line
-          end
-        end.join("\n")
+        # Detect which tasks explicitly use CLI_ARGS BEFORE Crinja expansion
+        # This is needed because Crinja will replace {{CLI_ARGS}} with actual values
+        detect_cli_args_usage(data)
+
+        # Merge Hacefile variables with global VARIABLES (includes CLI_ARGS if already set)
+        render_context = p.variables.merge(Hace::VARIABLES)
+
+        # Render entire file at once to support multi-line Jinja control structures
+        rendered_data = begin
+          Crinja.render(data, render_context)
+        rescue
+          data
+        end
 
         f = Hace::HaceFile.from_yaml(rendered_data)
         ENV.each { |k, v| Hace::ENVIRONMENT[k] = v }
@@ -74,12 +94,38 @@ module Hace
       f
     end
 
+    # Detect which tasks explicitly use CLI_ARGS before Crinja expansion
+    # Parses raw YAML to find task commands containing {{CLI_ARGS}} patterns
+    private def self.detect_cli_args_usage(raw_data : String)
+      Hace::TASKS_WITH_CLI_ARGS.clear
+
+      begin
+        yaml = YAML.parse(raw_data)
+        tasks = yaml["tasks"]?
+        return unless tasks
+
+        tasks.as_h.each do |name, task|
+          commands = task["commands"]?
+          next unless commands
+
+          cmd_str = commands.as_s
+          if cmd_str.matches?(/\{\{\s*CLI_ARGS(_LIST)?\s*\}\}/)
+            Hace::TASKS_WITH_CLI_ARGS.add(name.as_s)
+            Log.debug { "detect_cli_args_usage: task '#{name}' uses CLI_ARGS" }
+          end
+        end
+      rescue ex
+        Log.debug { "detect_cli_args_usage: error parsing YAML: #{ex}" }
+      end
+    end
+
     # Configuration structure for task execution
     private struct ExecutionSetup
       def initialize(
         @hacefile : HaceFile,
         @arguments : Array(String),
         @filename : String,
+        @cli_args : Array(String),
         @run_all : Bool,
         @dry_run : Bool,
         @question : Bool,
@@ -91,6 +137,7 @@ module Hace
       getter hacefile : HaceFile
       getter arguments : Array(String)
       getter filename : String
+      getter cli_args : Array(String)
       getter? run_all : Bool
       getter? dry_run : Bool
       getter? question : Bool
@@ -100,12 +147,16 @@ module Hace
       def self.from_arguments(
         arguments : Array(String),
         filename : String,
+        cli_args : Array(String),
         run_all : Bool,
         dry_run : Bool,
         question : Bool,
         keep_going : Bool,
         parallel : Bool,
       )
+        # Inject CLI_ARGS BEFORE loading (so they're available during task expansion)
+        Hace.inject_cli_args(cli_args)
+
         hacefile = HaceFile.load_file(filename)
 
         # Extract and apply variable assignments from arguments
@@ -120,6 +171,7 @@ module Hace
           hacefile: hacefile,
           arguments: arguments,
           filename: filename,
+          cli_args: cli_args,
           run_all: run_all,
           dry_run: dry_run,
           question: question,
@@ -146,6 +198,7 @@ module Hace
     def self.run(
       arguments = [] of String,
       filename = "Hacefile.yml",
+      cli_args = [] of String,
       run_all : Bool = false,
       dry_run : Bool = false,
       question : Bool = false,
@@ -155,6 +208,7 @@ module Hace
       setup = ExecutionSetup.from_arguments(
         arguments: arguments,
         filename: filename,
+        cli_args: cli_args,
         run_all: run_all,
         dry_run: dry_run,
         question: question,
@@ -277,8 +331,11 @@ module Hace
     def self.auto(
       arguments = [] of String,
       filename = "Hacefile.yml",
+      cli_args = [] of String,
     )
-      # TODO: implement the other flags and arguments
+      # Inject CLI_ARGS BEFORE loading (so they're available during task expansion)
+      Hace.inject_cli_args(cli_args)
+
       hacefile = load_file(filename)
       hacefile.gen_tasks
       begin
@@ -314,7 +371,7 @@ module Hace
     def to_hash
       # Yes, not pretty but this gives me the right types for merging
       # with variables, so I can use it in Crinja.render
-      YAML.parse(self.to_yaml).as_h
+      YAML.parse(to_yaml).as_h
     end
 
     # We want to support variables and environment variables also in things
@@ -322,14 +379,17 @@ module Hace
     #
     # Besides the global VARIABLES, they also have access to self
     def expand
-      variables = {"self" => self.to_hash}.merge Hace::VARIABLES
+      # Build variables hash maintaining proper types for Crinja
+      variables = Hace::VARIABLES.dup
+      variables["self"] = YAML.parse(to_yaml)
+
       @outputs = @outputs.map { |outp| Hace.expand_string(outp, variables) }
-      variables = {"self" => self.to_hash}.merge Hace::VARIABLES
+      variables["self"] = YAML.parse(to_yaml)
 
       # Dependencies expand both variables and globs
       @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, variables) }
       @dependencies = @dependencies.flat_map { |dep| Hace.expand_glob(dep) }
-      variables = {"self" => self.to_hash}.merge Hace::VARIABLES
+      variables["self"] = YAML.parse(to_yaml)
       @commands = Hace.expand_string(@commands, variables)
     end
 
@@ -385,6 +445,20 @@ module Hace
 
               # Build combined shell script
               combined_script = commands.join("\n")
+
+              # Hybrid auto-append: if CLI_ARGS not explicitly used, append to last command
+              # Uses pre-Crinja detection from TASKS_WITH_CLI_ARGS set
+              uses_explicit_cli_args = Hace::TASKS_WITH_CLI_ARGS.includes?(name)
+              if !uses_explicit_cli_args
+                cli_args_list = Hace::VARIABLES["CLI_ARGS_LIST"]?.try(&.as_a?)
+                if cli_args_list && !cli_args_list.empty?
+                  quoted_args = cli_args_list.map { |arg| Process.quote(arg.as_s) }.join(" ")
+                  lines = combined_script.split("\n")
+                  lines[-1] = lines[-1] + " " + quoted_args
+                  combined_script = lines.join("\n")
+                  Log.debug { "Auto-appended CLI_ARGS to last command: #{quoted_args}" }
+                end
+              end
 
               # Log individual commands for debugging
               commands.each do |command|
