@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2025-12-15
+
+### 🚀 Features
+
+* Add CLI args passthrough with `--` separator
+
+### 🚜 Refactor
+
+* Simplify CLI_ARGS detection with regex
+
+### 📚 Documentation
+
+* Remove badge for API docs
+* Updated installation
+* Enhance installation documentation
+
+### ⚙️ Miscellaneous Tasks
+
+* Build bin/hace before running coverage tests
+* Fix coverage workflow by building kcov from source
+* Fix coverage workflow by removing kcov dependency
+* Fix missing binary in test execution
+
 ## [0.7.0] - 2025-11-19
 
 ### 🚀 Features
@@ -11,6 +34,10 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 * Improve static build script for proper release process
+
+### 🖐️ Bump
+
+* Release v0.7.0
 
 ### 📚 Documentation
 
