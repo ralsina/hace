@@ -2,11 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2026-02-14
+
+### 🐛 Bug Fixes
+
+* Compatibility with crinja master version
+
+### 🏛️ Build
+
+* Use crinja master
+
+### 📚 Documentation
+
+* Fix doc build
+
+### ⚙️ Miscellaneous Tasks
+
+* Removing release workflow because doing it locally is better
+
 ## [0.8.0] - 2025-12-15
 
 ### 🚀 Features
 
 * Add CLI args passthrough with `--` separator
+
+### 🖐️ Bump
+
+* Release v0.8.0
 
 ### 🚜 Refactor
 

@@ -23,7 +23,9 @@
       "Bash(gh release:*)",
       "Read(//tmp/shell_test/**)",
       "Bash(HACE_LOG_LEVEL=debug /home/ralsina/code/hace/bin/hace test-default:*)",
-      "Bash(export HACE_LOG_LEVEL=debug:*)"
+      "Bash(export HACE_LOG_LEVEL=debug:*)",
+      "Bash(crystal eval:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []
