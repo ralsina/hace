@@ -1,43 +1,50 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
-# Hacé Project Guide
+## Hacé Project Guide
 
-## Project Overview
+### Project Overview
 
-**Hacé** is a task automation tool similar to `make` but with different syntax and semantics. It reads YAML configuration from `Hacefile.yml` files and executes shell commands based on file dependencies and build requirements.
+**Hacé** is a task automation tool similar to `make` but with different syntax
+and semantics. It reads YAML configuration from `Hacefile.yml` files and
+executes shell commands based on file dependencies and build requirements.
 
-## Core Purpose
+### Core Purpose
 
 Hacé serves as a build automation and task runner that:
+
 - Executes shell commands in a task-based workflow
 - Manages file dependencies and rebuilds only when necessary
 - Supports template variables using Jinja syntax
 - Handles environment variables and custom variables
 - Provides intelligent task scheduling based on file modification times
-- Supports both regular tasks (with file outputs) and phony tasks (actions without outputs)
+- Supports both regular tasks (with file outputs) and phony tasks
 
-## Architecture
+### Architecture
 
-### Key Components
+#### Key Components
 
-1. **`HaceFile` class** (`src/hace.cr`): Central parser and controller for Hacefile.yml
-2. **`CommandTask` class** (`src/hace.cr`): Represents individual tasks with commands and dependencies
-3. **Main entry point** (`src/main.cr`): CLI parsing and command delegation
-4. **Test Infrastructure** (`spec/`): Comprehensive test suite with scenario-based testing
+1. **`HaceFile` class** (`src/hace.cr`): Central parser and controller
+2. **`CommandTask` class** (`src/hace.cr`): Represents individual tasks
+3. **Main entry point** (`src/main.cr`): CLI parsing via docopt
+4. **Test Infrastructure** (`spec/`): Scenario-based testing with
+   `with_scenario()` helper
 
-### External Dependencies
+#### External Dependencies
 
-- **Croupier**: Dataflow library for task dependency management
-- **Commander**: CLI parsing and command handling
+- **Croupier**: Dataflow library for task dependency management and execution
+- **docopt**: CLI parsing (note: uses custom fork at `ralsina/docopt.cr`)
 - **Crinja**: Jinja template engine for variable expansion
+- **dotenv**: Loading environment variables from `.env` files
 - **Log**: Crystal's logging library with custom color formatting
 - **YAML**: YAML parsing for Hacefile.yml
 
-### Task Properties
+#### Task Properties
 
 Each task supports:
+
 - `commands`: Multi-line shell commands (Jinja templates supported)
 - `dependencies`: File paths or task names with glob expansion (`*`, `**`, `?`)
 - `outputs`: Generated files (defaults to task name if not specified)
@@ -45,10 +52,12 @@ Each task supports:
 - `default`: Boolean for default tasks when no arguments given
 - `always_run`: Boolean to run even when dependencies are up-to-date
 - `cwd`: Working directory for the task
+- `description`: Task description shown in `--list` output
+- `shell`: Custom shell for the task (overrides global shell setting)
 
-## Development Workflow
+### Development Workflow
 
-### Essential Commands
+#### Essential Commands
 
 ```bash
 # Install dependencies
@@ -57,8 +66,14 @@ shards install
 # Build the project (no --release flag per preferences)
 shards build
 
-# Run the test suite
+# Run the full test suite
 crystal spec
+
+# Run a specific spec file
+crystal spec spec/hace_spec.cr
+
+# Run a specific test by line number
+crystal spec spec/hace_spec.cr:42
 
 # Run linting and auto-fix issues
 ameba --fix
@@ -70,34 +85,36 @@ ameba
 crystal spec && ameba --fix && shards build
 ```
 
-### Project Structure
+#### Project Structure
 
-```
+```text
 hace/
 ├── src/                 # Main source code
-│   ├── main.cr         # Entry point and CLI setup
-│   ├── hace.cr         # Core Hace functionality
-│   └── run_tests.cr    # Test runner
+│   ├── main.cr         # Entry point, docopt CLI, shell completion
+│   └── hace.cr         # Core Hace functionality
 ├── spec/               # Test suite
 │   ├── spec_helper.cr  # Test helpers
-│   ├── hace_spec.cr    # Main test file
-│   └── testcases/      # Test scenario files
-├── lib/                # External dependencies (vendored)
+│   ├── hace_spec.cr    # Main test file with with_scenario() helper
+│   └── testcases/      # Isolated test scenario directories
+├── lib/                # External dependencies (do not modify)
 ├── bin/                # Compiled binaries
 ├── shard.yml           # Project configuration
 ├── .ameba.yml          # Linter configuration
-└── README.md           # Comprehensive documentation
+└── README.md           # User documentation
 ```
 
-## Hacefile.yml Format
+### Hacefile.yml Format
 
-### Basic Structure
+#### Basic Structure
 
 ```yaml
 # Environment variables (can be null to unset)
 env:
   PATH: "/custom/path"
   DEBUG_VAR: null
+
+# Global shell for all tasks (optional, defaults to /bin/sh)
+shell: "/bin/bash"
 
 # Global variables (available to all tasks)
 variables:
@@ -130,7 +147,7 @@ tasks:
       {{ build_dir }}/app --test
 ```
 
-### Variable Expansion
+#### Variable Expansion
 
 Supports two types of variable expansion:
 
@@ -138,12 +155,13 @@ Supports two types of variable expansion:
 2. **Environment Variables**: `${ENV_VAR_NAME}`
 
 Special `self` variable provides access to task properties:
+
 - `self["dependencies"]`: Array of dependencies
 - `self["outputs"]`: Array of output files
 - `self["phony"]`: Boolean indicating if task is phony
 - `self["default"]`: Boolean indicating if task is default
 
-### Command Line Usage
+#### Command Line Usage
 
 ```bash
 # Run default tasks
@@ -164,6 +182,12 @@ hace --question
 # Always run all tasks
 hace --always-make
 
+# Run tasks in parallel when possible
+hace --parallel
+
+# Continue after errors
+hace --keep-going
+
 # Custom Hacefile
 hace -f custom.yml
 
@@ -173,42 +197,52 @@ hace --quiet
 # Verbosity control (0-5)
 hace --verbosity 1
 
+# List available tasks
+hace --list
+
 # Auto mode (monitor files for changes)
-hace auto
+hace --auto
+
+# CLI args passthrough to tasks
+hace spec -- --verbose --tag=fast
+
+# Generate shell completion script
+hace --completion=bash
 ```
 
-## Development Conventions
+### Development Conventions
 
-### Code Style
+#### Code Style
 
 1. **No `not_nil!`**: Avoid using `not_nil!` in favor of proper nil handling
-2. **Descriptive Names**: Use descriptive parameter names in blocks instead of single letters
-3. **Template Safety**: Proper variable expansion and escaping in Jinja templates
-4. **Error Handling**: Graceful handling of missing files, failed commands, and circular dependencies
+2. **Descriptive Names**: Use descriptive parameter names in blocks
+3. **Template Safety**: Proper variable expansion and escaping in Jinja
+4. **Error Handling**: Graceful handling of missing files and failed commands
 
-### Testing Philosophy
+#### Testing Philosophy
 
-- **Comprehensive Coverage**: Extensive test suite covering all functionality
-- **Scenario-Based Testing**: Tests use isolated scenarios with proper cleanup
-- **Helper Functions**: `with_scenario()` function for setting up test environments
-- **Integration Testing**: Tests cover real-world usage patterns and edge cases
+- **Scenario-Based Testing**: Tests use `with_scenario(name, &block)` helper
+  that changes to `spec/testcases/<name>/` directory, cleans up generated
+  files, and resets `TaskManager` state between tests
+- **Test location**: Tests are in separate spec files by feature (e.g.,
+  `dryrun_spec.cr`, `cli_args_spec.cr`)
 
-### Development Process
+#### Development Process
 
-1. **Always run tests before declaring task finished**
+1. **Always run tests before declaring task finished**: `crystal spec`
 2. **Fix linting issues automatically** with `ameba --fix`
-3. **Build the project** after changes to verify it compiles
-4. **Follow docopt pattern** for CLI interfaces (user preference)
+3. **Build the project** after changes: `shards build`
+4. **CLI uses docopt**: The CLI is defined via a docopt string in `src/main.cr`
 
-### External Libraries
+#### External Libraries
 
 - **`lib/` contains external dependencies** that cannot be modified
 - Dependencies are vendored for offline development and reproducibility
-- Key libraries: Croupier (core), Commander (CLI), Crinja (templating)
+- Key libraries: Croupier (task graph), docopt (CLI), Crinja (templating)
 
-## Special Features
+### Special Features
 
-### File Dependencies and Globbing
+#### File Dependencies and Globbing
 
 ```yaml
 tasks:
@@ -216,10 +250,9 @@ tasks:
     dependencies:
       - "*.cr"              # Current directory .cr files
       - "src/**/*.cr"       # Recursive in src directory
-      - "lib/{ameba,crinja}/**/*.cr"  # Multiple directories
 ```
 
-### Multiple Outputs
+#### Multiple Outputs
 
 ```yaml
 tasks:
@@ -232,7 +265,7 @@ tasks:
       echo "second" > output2.txt
 ```
 
-### Environment Variable Handling
+#### Environment Variable Handling
 
 ```yaml
 env:
@@ -244,23 +277,21 @@ env:
   EMPTY_VAR: ""
 ```
 
-### Error Scenarios
+#### Error Scenarios
 
 - Missing Hacefile: Raises clear error message
 - Failed commands: Stops execution with descriptive error
 - Unknown tasks: Warns and continues with available tasks
 - Circular dependencies: Detected and reported by Croupier
 
-This codebase demonstrates mature Crystal development practices with a focus on reliability, testability, and user experience in the build automation domain.
-
-## Important User Preferences
+### Important User Preferences
 
 - Use **docopt** for command line interfaces (already implemented)
-- **Don't use `not_nil!`** - avoid at all costs, use proper nil handling instead
+- **Don't use `not_nil!`** - avoid at all costs, use proper nil handling
 - **Don't use `--release`** flag when building
-- Code in **`lib/` cannot be modified** - contains external libraries and tools
-- Prefer **descriptive names** for parameters in blocks instead of single letters
-- **Always fix linting issues** with `ameba --fix` before declaring tasks complete
+- Code in **`lib/` cannot be modified** - contains external libraries
+- Prefer **descriptive names** for parameters in blocks
+- **Always fix linting issues** with `ameba --fix` before declaring done
 - **Build after changes** to verify code compiles
 - **Run tests** before declaring tasks finished
-- If project has multiple binaries, check that **ALL binaries build** before completion
+- If project has multiple binaries, check that **ALL binaries build**

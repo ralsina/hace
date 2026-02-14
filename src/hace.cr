@@ -1,4 +1,5 @@
 require "crinja"
+require "crinja/yaml"
 require "croupier"
 require "log"
 require "yaml"
@@ -15,6 +16,26 @@ module Hace
   TASKS_WITH_CLI_ARGS = Set(String).new
 
   extend self
+
+  # Convert YAML::Any values to Crinja-compatible values
+  # This is needed because Crinja::Value.new(YAML::Any) doesn't properly
+  # unwrap the value due to overload resolution favoring the Raw type
+  def self.to_crinja_value(value : YAML::Any) : Crinja::Value
+    Crinja.value(value)
+  end
+
+  def self.to_crinja_value(value) : Crinja::Value
+    Crinja.value(value)
+  end
+
+  # Convert a Hash(String, YAML::Any) to Crinja::Variables
+  def self.to_crinja_variables(hash : Hash(String, YAML::Any)) : Crinja::Variables
+    Crinja::Variables.new.tap do |vars|
+      hash.each do |key, value|
+        vars[key] = to_crinja_value(value)
+      end
+    end
+  end
 
   # Inject CLI_ARGS and CLI_ARGS_LIST into VARIABLES for template expansion
   def self.inject_cli_args(cli_args : Array(String))
@@ -66,7 +87,7 @@ module Hace
 
         # Render entire file at once to support multi-line Jinja control structures
         rendered_data = begin
-          Crinja.render(data, render_context)
+          Crinja.render(data, Hace.to_crinja_variables(render_context))
         rescue
           data
         end
@@ -515,7 +536,7 @@ module Hace
 
   def self.expand_string(str : String, variables = Hace::VARIABLES) : String
     # Expand variables
-    str = Crinja.render(str, variables)
+    str = Crinja.render(str, to_crinja_variables(variables))
     # Expand environment variables
     str = str.gsub(/\$\{?(\w+)\}?/) do |match|
       env_key = $1
