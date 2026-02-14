@@ -14,9 +14,9 @@ dependencies:
     branch: main
   docopt:
     github: ralsina/docopt.cr
-    version: "~> 0.3.0"
   crinja:
     github: straight-shoota/crinja
+    branch: master
   dotenv:
     github: gdotdesign/cr-dotenv
 
