@@ -11,7 +11,6 @@ targets:
 dependencies:
   croupier:
     github: ralsina/croupier
-    branch: main
   docopt:
     github: ralsina/docopt.cr
   crinja:
@@ -25,7 +24,5 @@ development_dependencies:
     github: hanneskaeufler/crytic
   ameba:
     github: crystal-ameba/ameba
-
-crystal: 1.13.0
 
 license: MIT
