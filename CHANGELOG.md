@@ -4,8 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [0.8.2] - 2026-03-04
 
+### 🐛 Bug Fixes
+
+* Switch to alpine 3.23
+
 ### 🖐️ Bump
 
+* Release v0.8.2
 * Release v0.8.2
 * Release v0.8.2
 * Release v0.8.2
