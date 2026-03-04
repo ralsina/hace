@@ -72,10 +72,10 @@ git cliff --bump -o
 echo "Committing version bump and changelog..."
 git commit -a -m "bump: Release v$VERSION"
 
-# Create and push tag
-echo "Creating and pushing tag..."
+# Create tag
+echo "Creating tag and pushing..."
 git tag "v$VERSION"
-git push --tags
+git push
 
 # Build static binaries
 echo "Building static binaries..."
@@ -92,6 +92,7 @@ done
 
 # Create GitHub release
 echo "Creating GitHub release..."
+git push --tags
 gh release create "v$VERSION" \
     "bin/$PKGNAME-static-linux-amd64" \
     "bin/$PKGNAME-static-linux-arm64" \
