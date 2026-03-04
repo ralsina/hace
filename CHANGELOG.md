@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 
 * Release v0.8.2
 * Release v0.8.2
+* Release v0.8.2
 
 ### ⚙️ Miscellaneous Tasks
 
