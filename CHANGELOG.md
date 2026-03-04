@@ -2,11 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.2] - 2026-03-04
+
+### 🖐️ Bump
+
+* Release v0.8.2
+
+### ⚙️ Miscellaneous Tasks
+
+* Updated deps
+
 ## [0.8.1] - 2026-02-14
 
 ### 🐛 Bug Fixes
 
 * Compatibility with crinja master version
+
+### 🖐️ Bump
+
+* Release v0.8.1
 
 ### 🏛️ Build
 
