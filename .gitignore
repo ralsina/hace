@@ -22,5 +22,6 @@
 /spec/testcases/**/input2
 /spec/testcases/parallel/results/timing.log
 aur-hace/
+.zcode/
 
 /.claude/settings.local.json
