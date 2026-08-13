@@ -94,18 +94,18 @@ module Hace
 
         f = Hace::HaceFile.from_yaml(rendered_data)
         ENV.each { |k, v| Hace::ENVIRONMENT[k] = v }
-        f.env.each { |k, v|
+        f.env.each do |k, v|
           if v.nil?
             Hace::ENVIRONMENT.delete(k)
           else
             Hace::ENVIRONMENT[k] = v
           end
-        }
+        end
 
         # Variables support ENV variable expansion
-        f.variables.each { |k, v|
+        f.variables.each do |k, v|
           VARIABLES[k] = YAML.parse(Hace.expand_string(v.to_yaml))
-        }
+        end
 
         # Tasks support expansion
         f.tasks.each { |_, task| task.expand }
@@ -303,9 +303,9 @@ module Hace
     private def self.find_stale_tasks(targets : Array(String))
       TaskManager.tasks.values
         .select(&.stale?)
-        .select { |task|
+        .select do |task|
           (targets.includes? task.id) || (!(targets & task.outputs).empty?)
-        }
+        end
     end
 
     def self.process_arguments(hacefile, arguments : Array(String))
@@ -448,7 +448,7 @@ module Hace
         mergeable: true,
         no_save: true,
         always_run: @always_run,
-        proc: TaskProc.new {
+        proc: TaskProc.new do
           Log.info { "Started task: #{name}" }
           cwd = @cwd.nil? ? Dir.current : @cwd.as(String)
           Dir.cd cwd do
@@ -528,7 +528,7 @@ module Hace
             end
           end
           Log.info { "Finished task: #{name}" }
-        },
+        end,
         id: name,
       )
     end

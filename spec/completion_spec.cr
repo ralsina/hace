@@ -65,39 +65,39 @@ def generate_completion(shell : String)
 end
 
 def generate_bash_completion
-  <<-'BASH'
-#!/bin/bash
-_hace_completion() {
-    local cur prev words cword
-    _init_completion || return
-}
-complete -F _hace_completion hace
-BASH
+  <<-BASH
+    #!/bin/bash
+    _hace_completion() {
+        local cur prev words cword
+        _init_completion || return
+    }
+    complete -F _hace_completion hace
+    BASH
 end
 
 def generate_fish_completion
-  <<-'FISH'
-function __hace_task_names
-    echo "test"
-end
-complete -c hace -f
-FISH
+  <<-FISH
+    function __hace_task_names
+        echo "test"
+    end
+    complete -c hace -f
+    FISH
 end
 
 def generate_zsh_completion
-  <<-'ZSH'
-#compdef hace
-_hace() {
-    local -a tasks
-}
-_hace "$@"
-ZSH
+  <<-ZSH
+    #compdef hace
+    _hace() {
+        local -a tasks
+    }
+    _hace "$@"
+    ZSH
 end
 
 def get_task_names(filename = "Hacefile.yml") : Array(String)
   hacefile = Hace::HaceFile.load_file(filename)
   hacefile.tasks.keys
-rescue ex
+rescue
   # If Hacefile doesn't exist or is invalid, return empty array
   [] of String
 end
