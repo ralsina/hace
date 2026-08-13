@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.3] - 2026-08-13
+
+### 🐛 Bug Fixes
+
+* Unbreak CI on Crystal 1.21 (ameba 1.7.0-dev, skip postinstall)
+* Remove duplicate keep-alive loop in --auto mode
+* Make release script idempotent and retry-safe
+* Reset module-level state between test scenarios
+
+### 🚜 Refactor
+
+* Add getters to CommandTask instead of reaching into ivars
+
+### 📚 Documentation
+
+* Sync README help block with actual CLI
+
+### 🎨 Styling
+
+* Satisfy ameba 1.7.0-dev rules (heredoc, curly blocks, unused rescue)
+
+### ⚙️ Miscellaneous Tasks
+
+* Ignore .zcode/ directory
+
 ## [0.8.2] - 2026-03-04
 
 ### 🐛 Bug Fixes
@@ -10,6 +35,7 @@ All notable changes to this project will be documented in this file.
 
 ### 🖐️ Bump
 
+* Release v0.8.2
 * Release v0.8.2
 * Release v0.8.2
 * Release v0.8.2
