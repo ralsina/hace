@@ -57,25 +57,27 @@ directory.
 
 ```console
 $ ./bin/hace --help
-  hace - hace makes things, like make
+hace makes things, like make.
 
-  Usage:
-    hace [command] [flags] [arguments]
+Usage:
+  hace [options] [<task>...] [-- <args>...]
+  hace --completion=<shell>
+  hace --help
 
-  Commands:
-    auto            Run in auto mode
-    help [command]  Help about any command.
-
-  Flags:
-    -n, --dry-run      Don't actually run any commands
-    -f, --file         Read the file named as a Hacefile default: 'Hacefile.yml'
-    -h, --help         Help for this command.
-    -k, --keep-going   Continue as much as possible after an error.
-        --question     Don't run anything, exit 0 if all tasks are up to date, 1
-                       otherwise
-    -q, --quiet        Don't log anything
-    -B, --always-make  Unconditionally run all tasks.
-    -v, --verbosity    Control the logging verbosity, 0 to 5  default: 3
+Options:
+  -f <file>, --file=<file>     Read the file named as a Hacefile [default: Hacefile.yml]
+  -n, --dry-run                Don't actually run any commands
+  -q, --quiet                  Don't log anything
+  -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5 [default: 3]
+  -B, --always-make            Unconditionally run all tasks
+  -k, --keep-going             Continue as much as possible after an error
+  --parallel                   Run tasks in parallel when possible
+  --question                   Don't run anything, exit 0 if all tasks are up to date, 1 otherwise
+  --list                       List available tasks
+  --auto                       Run in auto mode, watching for file changes
+  --completion=<shell>         Generate shell completion script (bash, fish, zsh)
+  --version                    Display version information
+  -h, --help                   Show this help message
 ```
 
 The arguments are task names, and if you don't specify any, the default
@@ -319,8 +321,8 @@ hace spec -- --verbose --tag=fast
 
 Arguments after `--` are available in your Hacefile as template variables:
 
-- `{{CLI_ARGS}}` - Shell-quoted string of all passthrough arguments
-- `{{CLI_ARGS_LIST}}` - Array for Jinja iteration
+* `{{CLI_ARGS}}` - Shell-quoted string of all passthrough arguments
+* `{{CLI_ARGS_LIST}}` - Array for Jinja iteration
 
 ### Explicit Usage
 
@@ -366,8 +368,9 @@ tasks:
 ```
 
 Running `hace spec -- --verbose` executes:
+
 1. `echo "Running tests..."`
-2. `crystal spec --verbose` (arguments auto-appended to last command)
+1. `crystal spec --verbose` (arguments auto-appended to last command)
 
 ### Shell Quoting
 
@@ -396,10 +399,10 @@ Main things to consider if you want to contribute:
 ## Contributing
 
 1. Fork it (<https://github.com/ralsina/hace/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+1. Create your feature branch (`git checkout -b my-new-feature`)
+1. Commit your changes (`git commit -am 'Add some feature'`)
+1. Push to the branch (`git push origin my-new-feature`)
+1. Create a new Pull Request
 
 ## Contributors
 

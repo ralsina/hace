@@ -1,0 +1,6 @@
+# mdl (markdownlint) configuration, read by the pre-commit markdownlint hook.
+# https://github.com/markdownlint/markdownlint
+#
+# The rule exclusions live in .mdl_style.rb (mdl's style DSL is the only
+# place exclude_rule works).
+style ".mdl_style.rb"
