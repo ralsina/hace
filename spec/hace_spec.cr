@@ -7,25 +7,25 @@ describe Hace do
       with_scenario("basic") do
         f = HaceFile.from_yaml(File.read("Hacefile.yml"))
         f.tasks.keys.should eq ["foo", "phony"]
-        f.tasks["foo"].@phony.should be_false
-        f.tasks["foo"].@dependencies.should eq ["bar"]
+        f.tasks["foo"].phony?.should be_false
+        f.tasks["foo"].dependencies.should eq ["bar"]
 
-        f.tasks["phony"].@phony.should be_true
-        f.tasks["phony"].@dependencies.empty?.should be_true
+        f.tasks["phony"].phony?.should be_true
+        f.tasks["phony"].dependencies.empty?.should be_true
       end
     end
 
     it "should expand globs in dependencies" do
       with_scenario("glob", keep: ["thing_a.c", "thing_b.c"]) do
         f = HaceFile.load_file("Hacefile.yml")
-        f.tasks["foo"].@dependencies.sort.should eq ["thing_a.c", "thing_b.c"]
+        f.tasks["foo"].dependencies.sort.should eq ["thing_a.c", "thing_b.c"]
       end
     end
 
     it "should expand arrays correctly" do
       with_scenario("expand-arrays") do
         f = HaceFile.load_file("Hacefile.yml")
-        f.tasks["build"].@outputs.sort.should eq ["bar", "foo"]
+        f.tasks["build"].outputs.sort.should eq ["bar", "foo"]
       end
     end
 
@@ -34,8 +34,8 @@ describe Hace do
         HaceFile.from_yaml(File.read("Hacefile.yml")).gen_tasks
         TaskManager.tasks.keys.should eq ["foo", "phony"]
 
-        TaskManager.tasks["foo"].@outputs.should eq ["foo"]
-        TaskManager.tasks["phony"].@outputs.empty?.should be_true
+        TaskManager.tasks["foo"].outputs.should eq ["foo"]
+        TaskManager.tasks["phony"].outputs.empty?.should be_true
       end
     end
 
@@ -62,7 +62,7 @@ describe Hace do
         f.gen_tasks
 
         f.tasks.keys.should eq ["foo"]
-        f.tasks["foo"].@outputs.should eq ["bar", "bat"]
+        f.tasks["foo"].outputs.should eq ["bar", "bat"]
         TaskManager.tasks.keys.should eq ["bar", "bat"]
       end
     end

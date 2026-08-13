@@ -323,7 +323,7 @@ module Hace
       if arguments.empty?
         Log.info { "Using default tasks" }
         hacefile.tasks.each do |name, task|
-          if task.@default
+          if task.default?
             arguments << name
           end
         end
@@ -336,11 +336,11 @@ module Hace
         hacefile.tasks.each do |name, task|
           if arg == name
             # For non-phony tasks, use the outputs as arguments
-            p_args += task.@outputs
+            p_args += task.outputs
             # For phony tasks (no outputs) use the task name as argument
-            p_args << name if task.@phony
+            p_args << name if task.phony?
             # If the argument is an output of a task, add the argument
-          elsif task.@outputs.includes?(arg)
+          elsif task.outputs.includes?(arg)
             p_args << arg
           end
         end
@@ -398,6 +398,17 @@ module Hace
     @cwd : String? = nil
     @description : String? = nil
     @shell : String? = nil
+
+    # Read-only accessors so callers don't have to reach into instance vars.
+    getter commands : String
+    getter dependencies : Array(String)
+    getter outputs : Array(String)
+    getter description : String?
+    getter cwd : String?
+    getter shell : String?
+    getter? phony : Bool
+    getter? default : Bool
+    getter? always_run : Bool
 
     def to_hash
       # Yes, not pretty but this gives me the right types for merging
