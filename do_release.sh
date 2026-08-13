@@ -52,30 +52,46 @@ if [ ! -x "$HACE_BIN" ]; then
 fi
 
 VERSION=$(git cliff --bumped-version |cut -dv -f2)
+TAG="v$VERSION"
 
-echo "Preparing release v$VERSION for $PKGNAME"
+# Retry safety: if the tag already exists, a previous release run committed the
+# bump but failed before finishing. Resume from the tag instead of creating a
+# duplicate "bump: Release" commit with the same version.
+if git rev-parse "$TAG" >/dev/null 2>&1; then
+    echo "Tag $TAG already exists; resuming release from existing bump commit."
+else
+    echo "Preparing release $TAG for $PKGNAME"
 
-# Update version in shard.yml
-echo "Updating version in shard.yml..."
-sed "s/^version:.*$/version: $VERSION/g" -i shard.yml
-git add shard.yml
+    # Update version in shard.yml
+    echo "Updating version in shard.yml..."
+    sed "s/^version:.*$/version: $VERSION/g" -i shard.yml
+    git add shard.yml
 
-# Run quality checks
-echo "Running linting and tests..."
-$HACE_BIN lint test
+    # Run quality checks
+    echo "Running linting and tests..."
+    $HACE_BIN lint test
 
-# Update changelog
-echo "Updating changelog..."
-git cliff --bump -o
+    # Update changelog
+    echo "Updating changelog..."
+    git cliff --bump -o
 
-# Commit version bump and changelog
-echo "Committing version bump and changelog..."
-git commit -a -m "bump: Release v$VERSION"
+    # Commit version bump and changelog.
+    # Pre-commit hooks (end-of-file-fixer, trailing-whitespace) may rewrite the
+    # freshly-generated CHANGELOG, which makes the first commit fail. Re-add any
+    # hook-modified files and retry once so the commit lands cleanly instead of
+    # leaving the release half-done and tempting a full re-run.
+    echo "Committing version bump and changelog..."
+    if ! git commit -a -m "bump: Release v$VERSION"; then
+        echo "Initial commit failed (likely hooks modified files); re-staging and retrying..."
+        git add -u
+        git commit -m "bump: Release v$VERSION"
+    fi
 
-# Create tag
-echo "Creating tag and pushing..."
-git tag "v$VERSION"
-git push
+    # Create tag and push
+    echo "Creating tag and pushing..."
+    git tag "$TAG"
+    git push
+fi
 
 # Build static binaries
 echo "Building static binaries..."
@@ -90,14 +106,19 @@ for arch in amd64 arm64; do
     fi
 done
 
-# Create GitHub release
+# Create GitHub release (idempotent: skip if the release already exists,
+# which happens when resuming a partially-finished release run)
 echo "Creating GitHub release..."
 git push --tags
-gh release create "v$VERSION" \
-    "bin/$PKGNAME-static-linux-amd64" \
-    "bin/$PKGNAME-static-linux-arm64" \
-    --title "Release v$VERSION" \
-    --notes "$(git cliff -l -s all)"
+if gh release view "$TAG" >/dev/null 2>&1; then
+    echo "Release $TAG already exists on GitHub; skipping creation."
+else
+    gh release create "$TAG" \
+        "bin/$PKGNAME-static-linux-amd64" \
+        "bin/$PKGNAME-static-linux-arm64" \
+        --title "Release $TAG" \
+        --notes "$(git cliff -l -s all)"
+fi
 
 # Update AUR package if script exists
 if [ -f "./do_aur.sh" ]; then
