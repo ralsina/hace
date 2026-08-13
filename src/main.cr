@@ -305,16 +305,16 @@ begin
   if auto
     task_args_array = args["<task>"].as?(Array) || [] of String
     task_args = task_args_array.map(&.as(String))
+    # Hace::HaceFile.auto never returns on the success path: it enters its
+    # own keep-alive loop so Croupier's file-watcher fibers keep running.
+    # On failure it returns 1; load_file/gen_tasks errors propagate and are
+    # caught here.
     begin
-      Hace::HaceFile.auto(
+      exit(Hace::HaceFile.auto(
         arguments: task_args,
         filename: file,
         cli_args: passthrough_args,
-      )
-      Log.info { "Running in auto mode, press Ctrl+C to stop" }
-      loop do
-        ::sleep 1.seconds
-      end
+      ))
     rescue ex
       Log.error { ex }
       exit(1)
