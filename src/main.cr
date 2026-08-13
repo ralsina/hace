@@ -273,10 +273,10 @@ begin
       puts "---------------- -------------------------------------------------- --------  --------  ------- "
 
       hacefile.tasks.each do |name, task|
-        phony_mark = task.@phony ? "✓" : " "
-        default_mark = task.@default ? "✓" : " "
-        always_mark = task.@always_run ? "✓" : " "
-        description = task.@description || "No description"
+        phony_mark = task.phony? ? "✓" : " "
+        default_mark = task.default? ? "✓" : " "
+        always_mark = task.always_run? ? "✓" : " "
+        description = task.description || "No description"
 
         # Truncate description if too long
         description = description[0, 49] + "…" if description.size > 50
