@@ -1,23 +1,6 @@
 require "./spec_helper"
 include Hace
 
-def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new, &)
-  Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
-  Dir.cd("spec/testcases/#{name}") do
-    File.delete?(".croupier") unless keep.includes? ".croupier"
-    Dir.glob("*").each do |f|
-      next if f == "Hacefile.yml" || keep.includes?(f)
-      if File.directory?(f)
-        FileUtils.rm_rf(f)
-      else
-        File.delete?(f)
-      end
-    end
-    TaskManager.cleanup
-    yield
-  end
-end
-
 describe Hace do
   describe "HaceFile" do
     it "should parse the tasks section" do
@@ -411,6 +394,38 @@ describe Hace do
         content.should contain("make foo out of bar")
         content.should contain("test content")
       end
+    end
+  end
+
+  describe "state reset" do
+    it "with_scenario clears module-level state between runs" do
+      # Populate VARIABLES via the variables scenario (defines a variables
+      # section) and ENVIRONMENT via the env scenario (defines an env section).
+      with_scenario("variables") do
+        HaceFile.load_file("Hacefile.yml")
+        VARIABLES.empty?.should be_false
+      end
+      with_scenario("env") do
+        HaceFile.load_file("Hacefile.yml")
+        ENVIRONMENT.empty?.should be_false
+      end
+
+      # Next scenario: globals should start empty again, proving the reset.
+      with_scenario("basic") do
+        VARIABLES.empty?.should be_true
+        ENVIRONMENT.empty?.should be_true
+        TASKS_WITH_CLI_ARGS.empty?.should be_true
+      end
+    end
+
+    it "reset_state clears all module-level globals" do
+      VARIABLES["leftover"] = YAML::Any.new("value")
+      ENVIRONMENT["leftover"] = "value"
+      TASKS_WITH_CLI_ARGS.add("leftover")
+      Hace.reset_state
+      VARIABLES.empty?.should be_true
+      ENVIRONMENT.empty?.should be_true
+      TASKS_WITH_CLI_ARGS.empty?.should be_true
     end
   end
 end

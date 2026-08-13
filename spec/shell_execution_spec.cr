@@ -3,23 +3,6 @@ include Hace
 
 HACE_BIN = File.join(__DIR__, "..", "bin", "hace")
 
-def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new, &)
-  Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
-  Dir.cd("spec/testcases/#{name}") do
-    File.delete?(".croupier") unless keep.includes? ".croupier"
-    Dir.glob("*").each do |f|
-      next if f == "Hacefile.yml" || keep.includes?(f)
-      if File.directory?(f)
-        FileUtils.rm_rf(f)
-      else
-        File.delete?(f)
-      end
-    end
-    TaskManager.cleanup
-    yield
-  end
-end
-
 describe "Shell Execution Enhancements" do
   describe "environment variable persistence" do
     it "should persist environment variables across commands in the same task" do

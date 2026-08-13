@@ -17,6 +17,16 @@ module Hace
 
   extend self
 
+  # Clear the module-level mutable state (VARIABLES, ENVIRONMENT and the
+  # CLI_ARGS tracking set). Intended for use between test scenarios so that
+  # values injected by one run (CLI_ARGS, Hacefile variables, env entries) do
+  # not leak into the next. Mirrors Croupier::TaskManager.cleanup.
+  def self.reset_state
+    VARIABLES.clear
+    ENVIRONMENT.clear
+    TASKS_WITH_CLI_ARGS.clear
+  end
+
   # Convert YAML::Any values to Crinja-compatible values
   # This is needed because Crinja::Value.new(YAML::Any) doesn't properly
   # unwrap the value due to overload resolution favoring the Raw type

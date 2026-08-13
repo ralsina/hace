@@ -1,30 +1,13 @@
 require "./spec_helper"
 include Hace
 
-def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new, &)
-  Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
-  Dir.cd("spec/testcases/#{name}") do
-    File.delete?(".croupier") unless keep.includes? ".croupier"
-    Dir.glob("*").each do |f|
-      next if f == "Hacefile.yml" || f == ".env" || keep.includes?(f)
-      if File.directory?(f)
-        FileUtils.rm_rf(f)
-      else
-        File.delete?(f)
-      end
-    end
-    TaskManager.cleanup
-    yield
-  end
-end
-
 describe "Dotenv Support" do
   describe "automatic .env loading" do
     it "should load environment variables from .env file" do
       output = IO::Memory.new
       error = IO::Memory.new
       hace_binary = File.join([ENV["PROJECT_ROOT"]? || Dir.current, "bin", "hace"])
-      with_scenario("dotenv_test") do
+      with_scenario("dotenv_test", extra_keep: [".env"]) do
         Process.run(
           hace_binary,
           ["test-env"],

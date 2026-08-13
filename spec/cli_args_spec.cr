@@ -1,23 +1,6 @@
 require "./spec_helper"
 include Hace
 
-def with_scenario(name, keep = [] of String, logs : IO::Memory = IO::Memory.new, &)
-  Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
-  Dir.cd("spec/testcases/#{name}") do
-    File.delete?(".croupier") unless keep.includes? ".croupier"
-    Dir.glob("*").each do |f|
-      next if f == "Hacefile.yml" || keep.includes?(f)
-      if File.directory?(f)
-        FileUtils.rm_rf(f)
-      else
-        File.delete?(f)
-      end
-    end
-    TaskManager.cleanup
-    yield
-  end
-end
-
 describe "CLI Args Passthrough" do
   describe "explicit {{CLI_ARGS}}" do
     it "should replace template with shell-quoted args" do
