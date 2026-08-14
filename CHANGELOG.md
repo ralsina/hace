@@ -2,14 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.4] - 2026-08-14
+
+### 🐛 Bug Fixes
+
+* Drop crytic dev dependency, unbuildable on Crystal 1.21
+
 ## [0.8.3] - 2026-08-13
 
 ### 🐛 Bug Fixes
 
+* Pin croupier to 0.12.0 (0.12.2+ breaks on Crystal 1.18-1.21)
 * Unbreak CI on Crystal 1.21 (ameba 1.7.0-dev, skip postinstall)
 * Remove duplicate keep-alive loop in --auto mode
 * Make release script idempotent and retry-safe
 * Reset module-level state between test scenarios
+
+### 🖐️ Bump
+
+* Release v0.8.3
 
 ### 🚜 Refactor
 
