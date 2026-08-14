@@ -125,6 +125,7 @@ tasks:
     commands: |
       rsync -avz --delete docs/book/ root@rocky:/data/stacks/web/websites/hace.ralsina.me/
     phony: true
+    always_run: true
 
   pre-commit:
     description: "Install git pre-commit hooks for code quality checks"
