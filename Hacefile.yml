@@ -24,6 +24,7 @@ tasks:
       - shard.lock
     commands: |
       shards install
+      crystal build lib/ameba/src/cli.cr -o bin/ameba
 
   build-release:
     description: "Build hace binary in release mode with optimizations"
@@ -62,18 +63,6 @@ tasks:
       crystal spec -v --error-trace
     phony: true
     always_run: true
-
-  mutation:
-    description: "Run mutation testing using Crytic to verify code quality"
-    always_run: true
-    dependencies:
-      - src
-      - spec
-      - shard.lock
-      - shard.yml
-    commands: |
-      bin/crytic test -s src/hace.cr
-    phony: true
 
   coverage:
     description: "Generate test coverage report using kcov"

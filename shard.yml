@@ -21,8 +21,6 @@ dependencies:
     github: gdotdesign/cr-dotenv
 
 development_dependencies:
-  crytic:
-    github: hanneskaeufler/crytic
   ameba:
     github: crystal-ameba/ameba
     version: 1.7.0-dev
