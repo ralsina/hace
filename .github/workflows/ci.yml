@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
       - name: Run tests
         run: |
-          shards install --skip-postinstall
+          shards install
           crystal tool format --check
           shards build
           crystal spec -v

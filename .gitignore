@@ -3,6 +3,9 @@
 /docs/*.css
 /docs/*.js
 /docs/*.json
+/docs/Hace/
+/docs/css/
+/docs/js/
 /lib/
 /bin/
 /.shards/
