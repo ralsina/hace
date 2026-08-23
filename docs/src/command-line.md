@@ -29,12 +29,13 @@ hace --dry-run build
 
 ### `--question`
 
-Check if tasks are stale (need to run) without executing them.
+Check if tasks are stale (need to run) without executing them. Exits 0 when
+everything is up to date, 1 when at least one task is stale.
 
 ```bash
 hace --question
-# Output: build: stale
-# Output: test: up-to-date
+# Exit code 0: all requested tasks are up to date
+# Exit code 1: stale tasks found; they are listed in the output
 ```
 
 ### `-B, --always-make`
@@ -293,16 +294,17 @@ hace deploy ENVIRONMENT=production VERSION=2.1.0
 
 ## Exit Codes
 
-- **0**: Success
-- **1**: General error (command failed, missing Hacefile, etc.)
-- **2**: Invalid command line arguments
+- **0**: Success (also: `--question` found everything up to date)
+- **1**: General error — a command failed, the Hacefile is missing or invalid,
+  a requested task does not exist, `--question` found stale tasks, or the
+  command line is malformed
 
 ## Environment Variables
 
 Hacé respects these environment variables:
 
-- `HACE_DEFAULT_VERBOSITY`: Default verbosity level
-- `HACE_AUTO_RESCAN_INTERVAL`: Auto-monitor rescan interval (seconds)
+- `HACE_DEFAULT_VERBOSITY`: Default verbosity level, used when `--verbosity`
+  is not passed (0 to 5)
 
 ```bash
 export HACE_DEFAULT_VERBOSITY=2

@@ -60,18 +60,24 @@ variables:
 
 ```yaml
 # Default shell for all tasks
-shell: "bash -e -c"
+shell: "/bin/sh"
 
 # You can use any shell
-shell: "sh -c"           # Standard POSIX shell
-shell: "bash -e -c"       # Bash with fail-fast
-shell: "zsh -e -c"        # Zsh with fail-fast
+shell: "sh"               # Standard POSIX shell (fail-fast by default)
+shell: "bash"             # Bash (fail-fast by default)
+shell: "zsh"              # Zsh (fail-fast by default)
 shell: "python -c"        # Python for scripts
 shell: "cmd.exe /c"       # Windows Command Prompt
 shell: "powershell -c"    # PowerShell
 ```
 
 > **Note**: Users are responsible for providing correct shell arguments. Hacé adds the script to the shell arguments (after any existing `-c` flag or at the end).
+>
+> **Fail-fast**: When a POSIX-style shell (`sh`, `bash`, `zsh`, `dash`, `ash`,
+> `ksh`, `mksh`) is specified *without* explicit arguments, Hacé runs commands
+> with `-e -c`, so multi-command tasks stop at the first failing command. To
+> continue after errors, pass the flags yourself (e.g. `shell: "sh -c"`).
+> Non-POSIX shells only receive the script via their usual flag.
 
 ## Task Properties
 
@@ -193,12 +199,12 @@ tasks:
 
 ### shell
 
-**Optional**: Shell for executing this task's commands. Overrides global shell configuration. Defaults to global shell or `/bin/sh -e -c`.
+**Optional**: Shell for executing this task's commands. Overrides global shell configuration. Defaults to global shell or `/bin/sh` (run with `-e -c`, see the fail-fast note above).
 
 ```yaml
 tasks:
   build_with_fail_fast:
-    shell: "bash -e -c"
+    shell: "bash"
     commands: |
       echo "Building with fail-fast..."
       make
@@ -308,11 +314,11 @@ tasks:
 Hacé looks for configuration files in this order:
 
 1. `Hacefile.yml`
-2. `hacefile.yml`
-3. `.hace.yml`
-4. `Hacefile.yaml`
-5. `hacefile.yaml`
-6. `.hace.yaml`
+1. `hacefile.yml`
+1. `.hace.yml`
+1. `Hacefile.yaml`
+1. `hacefile.yaml`
+1. `.hace.yaml`
 
 You can specify a custom file with `-f` or `--file`:
 
@@ -325,9 +331,9 @@ hace -f custom-build.yml
 Hacé uses **combined script execution** which means:
 
 1. **All commands in a task run in a single shell process**
-2. **Environment variables persist across commands** within the same task
-3. **Shell state is maintained** (working directory, variables, functions)
-4. **Better performance** than spawning separate shells for each command
+1. **Environment variables persist across commands** within the same task
+1. **Shell state is maintained** (working directory, variables, functions)
+1. **Better performance** than spawning separate shells for each command
 
 ```yaml
 tasks:
@@ -342,8 +348,9 @@ tasks:
 
 ### Fail-Fast Behavior
 
-- **Default shell** (`/bin/sh`): Automatically uses `-e` flag for fail-fast
-- **User-specified shells**: No automatic fail-fast, user controls behavior
+- **POSIX shells** (`sh`, `bash`, `zsh`, etc.): fail-fast by default (`-e`)
+- **Other shells**: no automatic fail-fast, user controls behavior
+- **Explicit flags**: passing arguments yourself (e.g. `bash -e -c`) always wins
 - **Task override**: Task-specific shell overrides global shell configuration
 
 ```yaml

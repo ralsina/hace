@@ -68,7 +68,8 @@ Options:
   -f <file>, --file=<file>     Read the file named as a Hacefile [default: Hacefile.yml]
   -n, --dry-run                Don't actually run any commands
   -q, --quiet                  Don't log anything
-  -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5 [default: 3]
+  -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5
+                                     (default: 3, or HACE_DEFAULT_VERBOSITY)
   -B, --always-make            Unconditionally run all tasks
   -k, --keep-going             Continue as much as possible after an error
   --parallel                   Run tasks in parallel when possible
