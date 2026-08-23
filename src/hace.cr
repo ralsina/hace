@@ -12,10 +12,28 @@ module Hace
   VARIABLES   = {} of String => YAML::Any
   ENVIRONMENT = {} of String => String
 
-  # Track which tasks explicitly use {{CLI_ARGS}} (detected before Crinja expansion)
+  # Track which tasks explicitly use CLI_ARGS (detected before Crinja expansion)
   TASKS_WITH_CLI_ARGS = Set(String).new
 
+  # Shells that understand POSIX fail-fast (-e). When a task or Hacefile
+  # selects one of these shells *without* explicit arguments, hace runs the
+  # commands with "-e -c" so multi-command tasks stop at the first failure,
+  # matching the default /bin/sh behavior. Other shells (python, cmd.exe, ...)
+  # only get the script passed via -c.
+  FAIL_FAST_SHELLS = %w[sh bash zsh dash ash ksh mksh]
+
   extend self
+
+  # Raised when the user requests a task that is not defined in the Hacefile.
+  # Exiting non-zero on typos matters for scripts and CI pipelines.
+  class UnknownTaskError < Exception
+    def initialize(unknown_tasks : Array(String), available_tasks : Array(String))
+      super(
+        "Unknown task(s): #{unknown_tasks.join(", ")}. " \
+        "Available tasks: #{available_tasks.join(", ")}"
+      )
+    end
+  end
 
   # Clear the module-level mutable state (VARIABLES, ENVIRONMENT and the
   # CLI_ARGS tracking set). Intended for use between test scenarios so that
@@ -75,11 +93,11 @@ module Hace
     property shell : String? = nil
 
     def self.load_file(filename)
-      begin
-        if !File.exists?(filename)
-          raise "No Hacefile '#{filename}' found"
-        end
+      # Checked outside the rescue below so the message stays accurate
+      # instead of being wrapped as a parsing failure.
+      raise "No Hacefile '#{filename}' found" unless File.exists?(filename)
 
+      begin
         # Load .env file if it exists
         Hace.load_dotenv
 
@@ -95,10 +113,14 @@ module Hace
         # Merge Hacefile variables with global VARIABLES (includes CLI_ARGS if already set)
         render_context = p.variables.merge(Hace::VARIABLES)
 
-        # Render entire file at once to support multi-line Jinja control structures
+        # Render entire file at once to support multi-line Jinja control
+        # structures. If the whole-file render fails (e.g. a variable value
+        # holds template syntax meant for the later per-string expansion)
+        # fall back to raw YAML; real template errors will resurface there.
         rendered_data = begin
           Crinja.render(data, Hace.to_crinja_variables(render_context))
-        rescue
+        rescue ex : Crinja::Error
+          Log.warn { "Whole-file template render failed, using raw YAML: #{ex.message}" }
           data
         end
 
@@ -125,8 +147,11 @@ module Hace
       f
     end
 
-    # Detect which tasks explicitly use CLI_ARGS before Crinja expansion
-    # Parses raw YAML to find task commands containing {{CLI_ARGS}} patterns
+    # Detect which tasks explicitly use CLI_ARGS before Crinja expansion.
+    # Any mention of CLI_ARGS or CLI_ARGS_LIST counts, so both interpolation
+    # ({{ CLI_ARGS }}) and statement usage ({% for arg in CLI_ARGS_LIST %})
+    # are covered; a literal "CLI_ARGS" inside a command is unlikely enough
+    # that a simple substring check is the most robust option here.
     private def self.detect_cli_args_usage(raw_data : String)
       Hace::TASKS_WITH_CLI_ARGS.clear
 
@@ -140,7 +165,7 @@ module Hace
           next unless commands
 
           cmd_str = commands.as_s
-          if cmd_str.matches?(/\{\{\s*CLI_ARGS(_LIST)?\s*\}\}/)
+          if cmd_str.includes?("CLI_ARGS")
             Hace::TASKS_WITH_CLI_ARGS.add(name.as_s)
             Log.debug { "detect_cli_args_usage: task '#{name}' uses CLI_ARGS" }
           end
@@ -330,6 +355,7 @@ module Hace
       end
 
       real_arguments = [] of String
+      unknown_tasks = [] of String
 
       arguments.each do |arg|
         p_args = [] of String
@@ -344,12 +370,16 @@ module Hace
             p_args << arg
           end
         end
-        # Tasks that generate no argument don't exist
-        if p_args.empty?
-          Log.warn { "Task #{arg} not found" }
-        end
+        # Tasks that generate no argument don't exist. Collect them all so
+        # the error can report every typo at once.
+        unknown_tasks << arg if p_args.empty?
         real_arguments += p_args
       end
+
+      unless unknown_tasks.empty?
+        raise UnknownTaskError.new(unknown_tasks, hacefile.tasks.keys)
+      end
+
       real_arguments = Set.new(real_arguments).to_a
     end
 
@@ -510,12 +540,14 @@ module Hace
               # Parse shell and arguments (user is responsible for proper shell configuration)
               shell_parts = task_shell.split(" ")
               shell_cmd = shell_parts[0]
-              shell_args = shell_parts.size > 1 ? shell_parts[1..-1] : [] of String
+              shell_args = shell_parts.size > 1 ? shell_parts[1..] : [] of String
 
               # Add the script arguments
               if shell_args.empty?
-                # If using default shell (/bin/sh), add -e for fail-fast, otherwise just -c
-                if task_shell == "/bin/sh"
+                # A bare POSIX-style shell gets fail-fast (-e) so multi-command
+                # tasks stop at the first failure, matching the /bin/sh default.
+                # Non-POSIX shells (python, cmd.exe, ...) just get the script.
+                if Hace::FAIL_FAST_SHELLS.includes?(File.basename(shell_cmd))
                   shell_args = ["-e", "-c", combined_script]
                 else
                   shell_args = ["-c", combined_script]

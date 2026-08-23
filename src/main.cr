@@ -14,7 +14,8 @@ DOC = <<-DOC
     -f <file>, --file=<file>     Read the file named as a Hacefile [default: Hacefile.yml]
     -n, --dry-run                Don't actually run any commands
     -q, --quiet                  Don't log anything
-    -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5 [default: 3]
+    -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5
+                                     (default: 3, or HACE_DEFAULT_VERBOSITY)
     -B, --always-make            Unconditionally run all tasks
     -k, --keep-going             Continue as much as possible after an error
     --parallel                   Run tasks in parallel when possible
@@ -216,7 +217,7 @@ struct LogFormat < Log::StaticFormatter
         Log::Severity::Info,
         Log::Severity::Debug,
         Log::Severity::Trace,
-      ][[verbosity, 5].min]
+      ][[verbosity.clamp(0..), 5].min]
     end
     Log.setup(
       _verbosity,
@@ -230,11 +231,13 @@ begin
   dash_index = ARGV.index("--")
   hace_args, passthrough_args = dash_index ? {ARGV[0...dash_index].to_a, ARGV[(dash_index + 1)..].to_a} : {ARGV.to_a, [] of String}
 
-  args = Docopt.docopt(DOC, argv: hace_args, version: "Hacé version #{Hace::VERSION}", help: true, exit: true)
+  # With exit: false, docopt raises Docopt::DocoptExit for usage errors
+  # (handled below) instead of exiting the process with a success status.
+  args = Docopt.docopt(DOC, argv: hace_args, version: "Hacé version #{Hace::VERSION}", help: true, exit: false)
 
   # Extract options from docopt result with safe casting
   quiet = args["--quiet"].as?(Bool) || false
-  verbosity_str = args["--verbosity"].as?(String) || "3"
+  verbosity_str = args["--verbosity"].as?(String) || ENV["HACE_DEFAULT_VERBOSITY"]? || "3"
   verbosity = verbosity_str.to_i
   file = args["--file"].as?(String) || "Hacefile.yml"
   dry_run = args["--dry-run"].as?(Bool) || false
@@ -246,10 +249,10 @@ begin
   auto = args["--auto"].as?(Bool) || false
   completion_shell = args["--completion"].as?(String)
 
-  # Only set up logging if not in quiet mode and not just checking version/help
-  if !quiet && ARGV.size > 0 && !ARGV.includes?("--version") && !ARGV.includes?("--help") && !ARGV.includes?("--completion")
-    LogFormat.setup(false, verbosity)
-  end
+  # Help/version/completion exit before any logging matters; everything else
+  # gets a backend configured from --quiet/--verbosity (docopt already exited
+  # for --help and --version inside Docopt.docopt).
+  LogFormat.setup(quiet, verbosity)
 
   # Handle --completion option
   if completion_shell
@@ -265,7 +268,6 @@ begin
 
   # Handle --list option
   if list
-    LogFormat.setup(false, verbosity) unless quiet
     begin
       hacefile = Hace::HaceFile.load_file(file)
       # Display tasks in a formatted table
@@ -336,16 +338,17 @@ begin
       parallel: parallel,
     )
   )
-rescue ex
-  # Handle docopt help/version and general errors
-  message = ex.message
-  if message && (message.includes?("Usage:") || message.includes?("Version:"))
-    # Docopt is showing help or version, just exit cleanly
-    puts message
-    exit(0)
-  else
-    # Just print the error since we can't access args here
-    puts "Error: #{message}".colorize(:red)
-    exit(1)
+rescue ex : Docopt::DocoptExit
+  # Usage error: show the reason (if any) plus the usage line, exit non-zero
+  if message = ex.message
+    puts message unless message.empty?
   end
+  puts Docopt::DocoptExit.usage
+  exit(1)
+rescue ex : Docopt::DocoptLanguageError
+  puts "Error: invalid command definition: #{ex.message}".colorize(:red)
+  exit(1)
+rescue ex
+  puts "Error: #{ex.message}".colorize(:red)
+  exit(1)
 end
