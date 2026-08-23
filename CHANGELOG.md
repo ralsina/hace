@@ -2,11 +2,45 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-08-23
+
+### 🐛 Bug Fixes
+
+* [**breaking**] Fail loudly on unknown tasks and harden error paths
+* Bump croupier to 0.12.4 so -B forces fresh tasks
+* Build the book before deploying it
+* Unbreak docs workflow, retire deprecated pages actions
+* Make user-docs-deploy always run
+
+### 🚜 Refactor
+
+* Replace YAML::Any plumbing with typed Hace::Value values
+
+### 📚 Documentation
+
+* Document exit codes, fail-fast shells, verbosity env var
+
+### 🧪 Testing
+
+* Cover exit codes, unknown tasks, de-flake parallel specs
+
+### ⚙️ Miscellaneous Tasks
+
+* Ignore typed.txt test artifact
+* Drop generated test artifact from repository
+* Bump checkout to v7 in coverage workflow
+* Drop API docs and GitHub Pages, tidy CI
+* Remove GitHub Pages docs workflow
+
 ## [0.8.4] - 2026-08-14
 
 ### 🐛 Bug Fixes
 
 * Drop crytic dev dependency, unbuildable on Crystal 1.21
+
+### 🖐️ Bump
+
+* Release v0.8.4
 
 ## [0.8.3] - 2026-08-13
 
