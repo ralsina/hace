@@ -3,6 +3,10 @@ require "file_utils"
 require "../src/hace"
 include Hace
 
+# Path to the compiled hace binary, used by specs that exercise the CLI
+# end-to-end. Assumes `shards build` ran before the suite.
+HACE_BIN = File.join(__DIR__, "..", "bin", "hace")
+
 # Run a block inside the spec/testcases/<name> scenario directory.
 #
 # Cleans generated files, then resets both Croupier's TaskManager and Hace's

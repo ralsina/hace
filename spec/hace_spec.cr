@@ -1,6 +1,21 @@
 require "./spec_helper"
 include Hace
 
+# Parse "Task N started/completed at <epoch>" lines from the parallel
+# scenario's timing log into per-task {start, end} spans.
+def parse_task_spans(path : String)
+  starts = {} of String => Float64
+  ends = {} of String => Float64
+  File.read_lines(path).each do |line|
+    if match = line.match(/\A(Task \d+) started at (\d+(?:\.\d+)?)\z/)
+      starts[match[1]] = match[2].to_f
+    elsif match = line.match(/\A(Task \d+) completed at (\d+(?:\.\d+)?)\z/)
+      ends[match[1]] = match[2].to_f
+    end
+  end
+  {starts, ends}
+end
+
 describe Hace do
   describe "HaceFile" do
     it "should parse the tasks section" do
@@ -117,12 +132,29 @@ describe Hace do
     end
 
     it "should fail with unknown target" do
-      logs = IO::Memory.new
-      with_scenario("basic", logs: logs) do
-        HaceFile.run(arguments: ["sarasa"])
-        Fiber.yield
-        sleep 0.01.seconds
-        logs.to_s.includes?("Task sarasa not found").should be_true
+      with_scenario("basic") do
+        error = expect_raises(UnknownTaskError) do
+          HaceFile.run(arguments: ["sarasa"])
+        end
+        if message = error.message
+          message.should contain "Unknown task(s): sarasa"
+          message.should contain "Available tasks: foo, phony"
+        else
+          fail "UnknownTaskError should have a message"
+        end
+      end
+    end
+
+    it "should report all unknown targets at once" do
+      with_scenario("basic") do
+        error = expect_raises(UnknownTaskError) do
+          HaceFile.run(arguments: ["sarasa", "foobar"])
+        end
+        if message = error.message
+          message.should contain "Unknown task(s): sarasa, foobar"
+        else
+          fail "UnknownTaskError should have a message"
+        end
       end
     end
 
@@ -285,17 +317,7 @@ describe Hace do
   describe "parallel execution" do
     it "should run tasks in parallel when --parallel flag is used" do
       with_scenario("parallel") do
-        start_time = Time.utc
-
-        # Run tasks in parallel - should complete faster than sequential
         HaceFile.run(arguments: ["task1", "task2", "task3"], parallel: true)
-
-        end_time = Time.utc
-        duration = end_time - start_time
-
-        # Should complete in less than 2 seconds (parallel execution)
-        # Sequential would take at least 1.5 seconds (3 × 0.5s)
-        duration.should be < 2.0.seconds
 
         # All outputs should exist
         File.exists?("results/task1_output.txt").should be_true
@@ -306,26 +328,31 @@ describe Hace do
         File.read("results/task1_output.txt").should eq "Task 1 result\n"
         File.read("results/task2_output.txt").should eq "Task 2 result\n"
         File.read("results/task3_output.txt").should eq "Task 3 result\n"
+
+        # Concurrency check: the intervals overlap only if some task started
+        # before another finished, which cannot happen when running one by one.
+        starts, ends = parse_task_spans("results/timing.log")
+        starts.size.should eq 3
+        ends.size.should eq 3
+        (starts.values.max < ends.values.min).should be_true
       end
     end
 
     it "should run tasks sequentially by default" do
       with_scenario("parallel") do
-        start_time = Time.utc
-
-        # Run tasks without parallel flag - should run sequentially
         HaceFile.run(arguments: ["task1", "task2", "task3"])
-
-        end_time = Time.utc
-        duration = end_time - start_time
-
-        # Should take at least 1.5 seconds (3 × 0.5s) for sequential
-        duration.should be >= 1.5.seconds
 
         # All outputs should still exist
         File.exists?("results/task1_output.txt").should be_true
         File.exists?("results/task2_output.txt").should be_true
         File.exists?("results/task3_output.txt").should be_true
+
+        # No concurrency: every task must start after the previous one ended,
+        # so the latest start cannot precede the earliest completion.
+        starts, ends = parse_task_spans("results/timing.log")
+        starts.size.should eq 3
+        ends.size.should eq 3
+        (starts.values.max >= ends.values.min).should be_true
       end
     end
 
@@ -366,7 +393,6 @@ describe Hace do
       logs = IO::Memory.new
       with_scenario("parallel", logs: logs) do
         HaceFile.run(arguments: ["task1"], parallel: true)
-        sleep 0.01.seconds
         logs.to_s.includes?("Running tasks with parallel=true").should be_true
       end
     end
@@ -375,7 +401,6 @@ describe Hace do
       logs = IO::Memory.new
       with_scenario("parallel", logs: logs) do
         HaceFile.run(arguments: ["task1"], parallel: false)
-        sleep 0.01.seconds
         logs.to_s.includes?("Running tasks with parallel=false").should be_true
       end
     end

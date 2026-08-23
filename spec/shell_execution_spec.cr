@@ -1,8 +1,6 @@
 require "./spec_helper"
 include Hace
 
-HACE_BIN = File.join(__DIR__, "..", "bin", "hace")
-
 describe "Shell Execution Enhancements" do
   describe "environment variable persistence" do
     it "should persist environment variables across commands in the same task" do
