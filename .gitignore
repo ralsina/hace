@@ -23,6 +23,7 @@
 /spec/testcases/**/counter
 /spec/testcases/**/input
 /spec/testcases/**/input2
+/spec/testcases/**/typed.txt
 /spec/testcases/parallel/results/timing.log
 aur-hace/
 .zcode/
