@@ -8,8 +8,14 @@ require "dotenv"
 include Croupier
 
 module Hace
-  VERSION     = {{ `shards version #{__DIR__}`.chomp.stringify }}
-  VARIABLES   = {} of String => YAML::Any
+  VERSION = {{ `shards version #{__DIR__}`.chomp.stringify }}
+
+  # A variable value. Variables may be defined as any scalar or nested
+  # structure in the Hacefile, so this recursive union is the single typed
+  # representation used everywhere past the YAML parsing boundary.
+  alias Value = Bool? | Int64 | Float64 | String | Array(Value) | Hash(String, Value)
+
+  VARIABLES   = {} of String => Value
   ENVIRONMENT = {} of String => String
 
   # Track which tasks explicitly use CLI_ARGS (detected before Crinja expansion)
@@ -45,19 +51,65 @@ module Hace
     TASKS_WITH_CLI_ARGS.clear
   end
 
-  # Convert YAML::Any values to Crinja-compatible values
-  # This is needed because Crinja::Value.new(YAML::Any) doesn't properly
-  # unwrap the value due to overload resolution favoring the Raw type
-  def self.to_crinja_value(value : YAML::Any) : Crinja::Value
-    Crinja.value(value)
+  # Convert a parsed YAML node into the typed Value representation.
+  # This is the single place where YAML::Any is allowed to exist.
+  def self.from_yaml_any(any : YAML::Any) : Hace::Value
+    case raw = any.raw
+    when Nil, Bool, Int64, Float64
+      raw
+    when String
+      raw
+    when Array(YAML::Any)
+      raw.map { |item| Hace.from_yaml_any(item) }
+    when Hash(YAML::Any, YAML::Any)
+      converted = {} of String => Hace::Value
+      raw.each do |key, val|
+        # Nested map keys are stringified so the structure stays Hash(String, Value)
+        key_string = key.raw.is_a?(String) ? key.as_s : key.to_s
+        converted[key_string] = Hace.from_yaml_any(val)
+      end
+      converted
+    else
+      raise "Unsupported variable value: #{any.inspect}"
+    end
   end
 
-  def self.to_crinja_value(value) : Crinja::Value
-    Crinja.value(value)
+  # Expand ${ENV_VAR} references inside a value and everything nested in it,
+  # leaving non-string values untouched. This replaces the old trick of
+  # rendering the YAML representation and re-parsing it, which silently
+  # corrupted strings like "null" or "true" into nil/bool values.
+  def self.expand_env_in_value(value : Hace::Value) : Hace::Value
+    case value
+    when String
+      Hace.expand_env_vars(value)
+    when Array(Hace::Value)
+      value.map { |item| Hace.expand_env_in_value(item) }
+    when Hash(String, Hace::Value)
+      value.transform_values { |val| Hace.expand_env_in_value(val) }
+    else
+      value
+    end
   end
 
-  # Convert a Hash(String, YAML::Any) to Crinja::Variables
-  def self.to_crinja_variables(hash : Hash(String, YAML::Any)) : Crinja::Variables
+  def self.to_crinja_value(value : Hace::Value) : Crinja::Value
+    case value
+    when Nil, Bool, Int64, Float64, String
+      Crinja.value(value)
+    when Array(Hace::Value)
+      Crinja.value(value.map { |item| Hace.to_crinja_value(item) })
+    when Hash(String, Hace::Value)
+      converted = {} of String => Crinja::Value
+      value.each do |key, val|
+        converted[key] = Hace.to_crinja_value(val)
+      end
+      Crinja.value(converted)
+    else
+      raise "Unsupported variable value: #{value.inspect}"
+    end
+  end
+
+  # Convert a Hash(String, Value) to Crinja::Variables
+  def self.to_crinja_variables(hash : Hash(String, Value)) : Crinja::Variables
     Crinja::Variables.new.tap do |vars|
       hash.each do |key, value|
         vars[key] = to_crinja_value(value)
@@ -69,11 +121,11 @@ module Hace
   def self.inject_cli_args(cli_args : Array(String))
     # CLI_ARGS: shell-quoted string for direct shell usage
     cli_args_string = cli_args.map { |arg| Process.quote(arg) }.join(" ")
-    VARIABLES["CLI_ARGS"] = YAML::Any.new(cli_args_string)
+    VARIABLES["CLI_ARGS"] = cli_args_string
 
     # CLI_ARGS_LIST: array for Jinja iteration
-    cli_args_list = cli_args.map { |arg| YAML::Any.new(arg) }
-    VARIABLES["CLI_ARGS_LIST"] = YAML::Any.new(cli_args_list)
+    cli_args_list = cli_args.map { |arg| arg.as(Hace::Value) }
+    VARIABLES["CLI_ARGS_LIST"] = cli_args_list
   end
 
   # This parses only env and variables, not tasks
@@ -82,17 +134,59 @@ module Hace
     property variables : Hash(String, YAML::Any) = {} of String => (YAML::Any)
   end
 
+  # Bridges the recursive Value union through YAML::Serializable so HaceFile
+  # keeps strict deserialization while exposing typed variables.
+  class ValueConverter
+    def self.from_yaml(ctx : YAML::ParseContext, node : YAML::Nodes::Node) : Hash(String, Hace::Value)
+      value = Hace.from_yaml_any(YAML::Any.new(ctx, node))
+      unless value.is_a?(Hash(String, Hace::Value))
+        node.raise "Expected a mapping of variable names to values"
+      end
+      value
+    end
+
+    def self.to_yaml(variables : Hash(String, Hace::Value), builder : YAML::Nodes::Builder)
+      builder.mapping do
+        variables.each do |key, value|
+          builder.scalar(key)
+          write_value(value, builder)
+        end
+      end
+    end
+
+    private def self.write_value(value : Hace::Value, builder : YAML::Nodes::Builder)
+      case value
+      when Array(Hace::Value)
+        builder.sequence do
+          value.each { |item| write_value(item, builder) }
+        end
+      when Hash(String, Hace::Value)
+        builder.mapping do
+          value.each do |key, val|
+            builder.scalar(key)
+            write_value(val, builder)
+          end
+        end
+      else
+        builder.scalar(value)
+      end
+    end
+  end
+
   # Parser for Hacefile.yml
   class HaceFile
     include YAML::Serializable
     include YAML::Serializable::Strict
 
     property tasks : Hash(String, CommandTask) = {} of String => CommandTask
-    property variables : Hash(String, YAML::Any) = {} of String => YAML::Any
+
+    @[YAML::Field(converter: Hace::ValueConverter)]
+    property variables : Hash(String, Value) = {} of String => Value
+
     property env = {} of String => String?
     property shell : String? = nil
 
-    def self.load_file(filename)
+    def self.load_file(filename, variable_overrides : Hash(String, String) = {} of String => String)
       # Checked outside the rescue below so the message stays accurate
       # instead of being wrapped as a parsing failure.
       raise "No Hacefile '#{filename}' found" unless File.exists?(filename)
@@ -110,8 +204,14 @@ module Hace
         # This is needed because Crinja will replace {{CLI_ARGS}} with actual values
         detect_cli_args_usage(data)
 
-        # Merge Hacefile variables with global VARIABLES (includes CLI_ARGS if already set)
-        render_context = p.variables.merge(Hace::VARIABLES)
+        # Convert the raw variables section, then merge with global VARIABLES
+        # (includes CLI_ARGS and KEY=value overrides if already set). Globals
+        # win, so command-line overrides take precedence over Hacefile defaults.
+        file_variables = {} of String => Hace::Value
+        p.variables.each do |key, any_value|
+          file_variables[key] = Hace.from_yaml_any(any_value)
+        end
+        render_context = file_variables.merge(Hace::VARIABLES)
 
         # Render entire file at once to support multi-line Jinja control
         # structures. If the whole-file render fails (e.g. a variable value
@@ -125,6 +225,7 @@ module Hace
         end
 
         f = Hace::HaceFile.from_yaml(rendered_data)
+
         ENV.each { |k, v| Hace::ENVIRONMENT[k] = v }
         f.env.each do |k, v|
           if v.nil?
@@ -135,8 +236,14 @@ module Hace
         end
 
         # Variables support ENV variable expansion
-        f.variables.each do |k, v|
-          VARIABLES[k] = YAML.parse(Hace.expand_string(v.to_yaml))
+        f.variables.each do |key, value|
+          VARIABLES[key] = Hace.expand_env_in_value(value)
+        end
+
+        # Command-line KEY=value overrides win over Hacefile defaults, so
+        # they are applied last, before any task template gets expanded.
+        variable_overrides.each do |key, value|
+          VARIABLES[key] = value
         end
 
         # Tasks support expansion
@@ -213,10 +320,13 @@ module Hace
         # Inject CLI_ARGS BEFORE loading (so they're available during task expansion)
         Hace.inject_cli_args(cli_args)
 
-        hacefile = HaceFile.load_file(filename)
+        # Extract KEY=value variable assignments from the arguments. They are
+        # merged into VARIABLES right away and also passed to load_file,
+        # which re-applies them after Hacefile defaults so overrides win.
+        variable_overrides, arguments = extract_variable_assignments(arguments)
+        Hace::VARIABLES.merge!(variable_overrides)
 
-        # Extract and apply variable assignments from arguments
-        arguments, hacefile = extract_and_apply_variables(arguments, hacefile)
+        hacefile = HaceFile.load_file(filename, variable_overrides)
 
         # Generate tasks if not already done
         if TaskManager.tasks.empty?
@@ -236,18 +346,20 @@ module Hace
         )
       end
 
-      private def self.extract_and_apply_variables(arguments : Array(String), hacefile : HaceFile)
-        # Extract variable assignments from arguments (format: KEY=value)
-        vars = arguments.select { |arg| arg =~ /^(\w+)=(.*)$/ }
-        clean_arguments = arguments - vars
-
-        # Apply variables to hacefile
-        vars.each do |var|
-          key, value = var.split("=", 2)
-          hacefile.variables[key] = YAML::Any.new(value)
+      # Split KEY=value arguments out of *arguments*, returning the overrides
+      # and the remaining task names.
+      private def self.extract_variable_assignments(arguments : Array(String))
+        overrides = {} of String => String
+        remaining = [] of String
+        arguments.each do |arg|
+          if arg =~ /^(\w+)=(.*)$/
+            key, value = arg.split("=", 2)
+            overrides[key] = value
+          else
+            remaining << arg
+          end
         end
-
-        {clean_arguments, hacefile}
+        {overrides, remaining}
       end
     end
 
@@ -440,29 +552,41 @@ module Hace
     getter? default : Bool
     getter? always_run : Bool
 
-    def to_hash
-      # Yes, not pretty but this gives me the right types for merging
-      # with variables, so I can use it in Crinja.render
-      YAML.parse(to_yaml).as_h
+    # The task's own state as template variables, so commands can reference
+    # e.g. {{ self["dependencies"] }}. Built from the live fields on every
+    # use, replacing the old YAML serialize/parse roundtrip.
+    private def template_context : Hash(String, Value)
+      context = {} of String => Value
+      context["commands"] = @commands
+      context["dependencies"] = @dependencies.map { |dependency| dependency.as(Value) }
+      context["outputs"] = @outputs.map { |output| output.as(Value) }
+      context["phony"] = @phony
+      context["default"] = @default
+      context["always_run"] = @always_run
+      context["cwd"] = @cwd
+      context["description"] = @description
+      context["shell"] = @shell
+      context
+    end
+
+    private def expansion_variables : Hash(String, Value)
+      variables = Hace::VARIABLES.dup
+      variables["self"] = template_context
+      variables
     end
 
     # We want to support variables and environment variables also in things
     # like dependencies, outputs, etc. so we need to do some post-processing
     #
-    # Besides the global VARIABLES, they also have access to self
+    # Besides the global VARIABLES, they also have access to self, which is
+    # rebuilt after each stage so it always reflects the current state.
     def expand
-      # Build variables hash maintaining proper types for Crinja
-      variables = Hace::VARIABLES.dup
-      variables["self"] = YAML.parse(to_yaml)
-
-      @outputs = @outputs.map { |outp| Hace.expand_string(outp, variables) }
-      variables["self"] = YAML.parse(to_yaml)
+      @outputs = @outputs.map { |outp| Hace.expand_string(outp, expansion_variables) }
 
       # Dependencies expand both variables and globs
-      @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, variables) }
+      @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, expansion_variables) }
       @dependencies = @dependencies.flat_map { |dep| Hace.expand_glob(dep) }
-      variables["self"] = YAML.parse(to_yaml)
-      @commands = Hace.expand_string(@commands, variables)
+      @commands = Hace.expand_string(@commands, expansion_variables)
     end
 
     # ameba:disable Metrics/CyclomaticComplexity
@@ -522,9 +646,9 @@ module Hace
               # Uses pre-Crinja detection from TASKS_WITH_CLI_ARGS set
               uses_explicit_cli_args = Hace::TASKS_WITH_CLI_ARGS.includes?(name)
               if !uses_explicit_cli_args
-                cli_args_list = Hace::VARIABLES["CLI_ARGS_LIST"]?.try(&.as_a?)
-                if cli_args_list && !cli_args_list.empty?
-                  quoted_args = cli_args_list.map { |arg| Process.quote(arg.as_s) }.join(" ")
+                cli_args_list = Hace::VARIABLES["CLI_ARGS_LIST"]?.as?(Array(Hace::Value)) || [] of Hace::Value
+                if !cli_args_list.empty?
+                  quoted_args = cli_args_list.map { |arg| Process.quote(arg.as(String)) }.join(" ")
                   lines = combined_script.split("\n")
                   lines[-1] = lines[-1] + " " + quoted_args
                   combined_script = lines.join("\n")
@@ -587,14 +711,18 @@ module Hace
     end
   end
 
+  def self.expand_env_vars(str : String) : String
+    str.gsub(/\$\{?(\w+)\}?/) do |match|
+      env_key = $1
+      ENV.fetch(env_key) { match }
+    end
+  end
+
   def self.expand_string(str : String, variables = Hace::VARIABLES) : String
     # Expand variables
     str = Crinja.render(str, to_crinja_variables(variables))
     # Expand environment variables
-    str = str.gsub(/\$\{?(\w+)\}?/) do |match|
-      env_key = $1
-      ENV.fetch(env_key) { match }
-    end
+    Hace.expand_env_vars(str)
   end
 
   def self.expand_glob(str : String) : Array(String)

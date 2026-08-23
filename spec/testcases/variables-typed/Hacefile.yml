@@ -1,0 +1,15 @@
+variables:
+  nothing: "null"
+  truthy_string: "true"
+  count: 7
+  listvar:
+    - one
+    - two
+
+tasks:
+  show:
+    default: true
+    phony: true
+    commands: |
+      echo "[{{ nothing }}][{{ truthy_string }}][{{ count }}]" > typed.txt
+      echo "{% for item in listvar %}{{ item }}-{% endfor %}" >> typed.txt

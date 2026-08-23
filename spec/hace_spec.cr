@@ -60,7 +60,9 @@ describe Hace do
         f.variables.keys.should eq ["i", "s", "foo"]
         f.variables["i"].should eq 3
         f.variables["s"].should eq "string"
-        f.variables["foo"].as(YAML::Any).as_h.should eq({"bar" => "bat", "foo" => 86})
+        nested = f.variables["foo"].as(Hash(String, Hace::Value))
+        nested["bar"].should eq "bat"
+        nested["foo"].should eq 86
       end
     end
 
@@ -444,7 +446,7 @@ describe Hace do
     end
 
     it "reset_state clears all module-level globals" do
-      VARIABLES["leftover"] = YAML::Any.new("value")
+      VARIABLES["leftover"] = "value"
       ENVIRONMENT["leftover"] = "value"
       TASKS_WITH_CLI_ARGS.add("leftover")
       Hace.reset_state
