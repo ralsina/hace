@@ -24,6 +24,8 @@
 /spec/testcases/**/input
 /spec/testcases/**/input2
 /spec/testcases/**/typed.txt
+/spec/testcases/**/hello
+/spec/testcases/**/main.o
 /spec/testcases/parallel/results/timing.log
 aur-hace/
 .zcode/

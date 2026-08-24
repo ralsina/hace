@@ -7,11 +7,13 @@ DOC = <<-DOC
 
   Usage:
     hace [options] [<task>...] [-- <args>...]
+    hace --convert [options]
     hace --completion=<shell>
     hace --help
 
   Options:
-    -f <file>, --file=<file>     Read the file named as a Hacefile [default: Hacefile.yml]
+    -f <file>, --file=<file>     Read the file named as a Hacefile (default: Hacefile.yml,
+                                 falling back to a Makefile when no Hacefile exists)
     -n, --dry-run                Don't actually run any commands
     -q, --quiet                  Don't log anything
     -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5
@@ -22,6 +24,9 @@ DOC = <<-DOC
     --question                   Don't run anything, exit 0 if all tasks are up to date, 1 otherwise
     --list                       List available tasks
     --auto                       Run in auto mode, watching for file changes
+    --convert                    Convert the Makefile given with -f (default: Makefile,
+                                 falling back to GNUmakefile/makefile/Makefile) to
+                                 Hacefile YAML and print it to stdout
     --completion=<shell>         Generate shell completion script (bash, fish, zsh)
     --version                    Display version information
     -h, --help                   Show this help message
@@ -87,7 +92,7 @@ def generate_bash_completion
         fi
 
         # Complete options
-        local options="--file --dry-run --quiet --verbosity --always-make --keep-going --parallel --question --list --auto --completion --version --help -f -n -q -v -B -k -h"
+        local options="--file --dry-run --quiet --verbosity --always-make --keep-going --parallel --question --list --auto --convert --completion --version --help -f -n -q -v -B -k -h"
         COMPREPLY=($(compgen -W "$options" -- "$cur"))
     }
 
@@ -130,6 +135,9 @@ def generate_fish_completion
     # Task name completion - only offer tasks if no task has been specified yet
     complete -c hace -n '__hace_no_subcommand' -a "(__hace_task_names)" -d "Task name"
 
+    # Convert option completes Makefiles
+    complete -c hace -l convert -d "Convert a Makefile to Hacefile YAML" -F
+
     # Option completions
     complete -c hace -s f -l file -d "Read the file named as a Hacefile"
     complete -c hace -s n -l dry-run -d "Don't actually run any commands"
@@ -167,6 +175,7 @@ def generate_zsh_completion
             '(--question)--question[Don'''t run anything, exit 0 if all tasks are up to date]' \
             '(--list)--list[List available tasks]' \
             '(--auto)--auto[Run in auto mode, watching for file changes]' \
+            '(--convert)--convert[Convert a Makefile to Hacefile YAML]' \
             '(--completion)'{--completion=}'[Generate shell completion script]:shell:(bash fish zsh)' \
             '(--version)--version[Display version information]' \
             '(-h --help)'{-h,-help}'[Show this help message]' \
@@ -239,7 +248,7 @@ begin
   quiet = args["--quiet"].as?(Bool) || false
   verbosity_str = args["--verbosity"].as?(String) || ENV["HACE_DEFAULT_VERBOSITY"]? || "3"
   verbosity = verbosity_str.to_i
-  file = args["--file"].as?(String) || "Hacefile.yml"
+  file = args["--file"].as?(String) || Hace::HaceFile.default_filename
   dry_run = args["--dry-run"].as?(Bool) || false
   always_make = args["--always-make"].as?(Bool) || false
   keep_going = args["--keep-going"].as?(Bool) || false
@@ -262,6 +271,26 @@ begin
       exit(0)
     rescue ex
       puts "Error generating completion script: #{ex.message}".colorize(:red)
+      exit(1)
+    end
+  end
+
+  # Handle --convert option: print Makefile converted to Hacefile YAML.
+  # The source file comes from -f/--file; when not given, look for a
+  # Makefile under its usual names.
+  if args["--convert"] == true
+    makefile = args["--file"].as?(String)
+    makefile ||= Hace::MakefileConverter::MAKEFILE_NAMES.find { |name| File.exists?(name) }
+    makefile ||= "Makefile"
+    begin
+      unless File.exists?(makefile)
+        puts "Error: Makefile '#{makefile}' not found".colorize(:red)
+        exit(1)
+      end
+      puts Hace::MakefileConverter.convert(File.read(makefile))
+      exit(0)
+    rescue ex
+      puts "Error converting '#{makefile}': #{ex.message}".colorize(:red)
       exit(1)
     end
   end
