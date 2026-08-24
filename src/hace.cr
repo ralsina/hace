@@ -23,6 +23,11 @@ module Hace
   # Track which tasks explicitly use CLI_ARGS (detected before Crinja expansion)
   TASKS_WITH_CLI_ARGS = Set(String).new
 
+  # Environment variable names that already produced a deprecation warning
+  # (${NAME} expansion, brace-less $NAME in non-command fields), so each is
+  # reported at most once per run.
+  DEPRECATED_ENV_WARNED = Set(String).new
+
   # Shells that understand POSIX fail-fast (-e). When a task or Hacefile
   # selects one of these shells *without* explicit arguments, hace runs the
   # commands with "-e -c" so multi-command tasks stop at the first failure,
@@ -75,14 +80,16 @@ module Hace
     File.join(RECIPE_STAMP_DIR, "unwritable")
   end
 
-  # Clear the module-level mutable state (VARIABLES, ENVIRONMENT and the
-  # CLI_ARGS tracking set). Intended for use between test scenarios so that
-  # values injected by one run (CLI_ARGS, Hacefile variables, env entries) do
-  # not leak into the next. Mirrors Croupier::TaskManager.cleanup.
+  # Clear the module-level mutable state (VARIABLES, ENVIRONMENT, the
+  # CLI_ARGS tracking set and the env-deprecation warning set). Intended for
+  # use between test scenarios so that values injected by one run (CLI_ARGS,
+  # Hacefile variables, env entries) do not leak into the next. Mirrors
+  # Croupier::TaskManager.cleanup.
   def self.reset_state
     VARIABLES.clear
     ENVIRONMENT.clear
     TASKS_WITH_CLI_ARGS.clear
+    DEPRECATED_ENV_WARNED.clear
   end
 
   # Convert a parsed YAML node into the typed Value representation.
@@ -108,13 +115,14 @@ module Hace
     end
   end
 
-  # Expand ${ENV_VAR} references inside a value and everything nested in it,
-  # leaving non-string values untouched. This replaces the old trick of
-  # rendering the YAML representation and re-parsing it, which silently
-  # corrupted strings like "null" or "true" into nil/bool values.
+  # Expand the deprecated ${ENV_VAR} references inside a value and
+  # everything nested in it, leaving non-string values untouched. Warns when
+  # a brace-less $ENV_VAR reference would have expanded before (only names
+  # that resolve in the merged environment, to keep noise down).
   def self.expand_env_in_value(value : Hace::Value) : Hace::Value
     case value
     when String
+      Hace.warn_braceless_env_ref(value)
       Hace.expand_env_vars(value)
     when Array(Hace::Value)
       value.map { |item| Hace.expand_env_in_value(item) }
@@ -166,6 +174,7 @@ module Hace
   class PartialHaceFile
     include YAML::Serializable
     property variables : Hash(String, YAML::Any) = {} of String => (YAML::Any)
+    property env = {} of String => String?
   end
 
   # Bridges the recursive Value union through YAML::Serializable so HaceFile
@@ -253,6 +262,14 @@ module Hace
           data = MakefileConverter.convert(data)
         end
 
+        # Seed the merged environment view from the process environment
+        # (including anything dotenv just loaded). It is exposed as the `env`
+        # template namespace ({{ env.NAME }}) BEFORE any rendering, so
+        # {{ env.NAME }} resolves everywhere: whole-file render, variables
+        # and task fields.
+        Hace::ENVIRONMENT.clear
+        ENV.each { |key, value| Hace::ENVIRONMENT[key] = value }
+
         p = Hace::PartialHaceFile.from_yaml(data)
 
         # Detect which tasks explicitly use CLI_ARGS BEFORE Crinja expansion
@@ -266,6 +283,16 @@ module Hace
         p.variables.each do |key, any_value|
           file_variables[key] = Hace.from_yaml_any(any_value)
         end
+        if file_variables.has_key?("env") || variable_overrides.has_key?("env")
+          Log.warn { "Variable name 'env' is reserved for environment access ({{ env.NAME }}); user-defined 'env' is ignored" }
+        end
+
+        # env: values are templates rendered against the PRE-merge view, so
+        # PATH: "/opt/bin:{{ env.PATH }}" prepends to the inherited value
+        # instead of referencing itself. The rendered values are merged into
+        # ENVIRONMENT before anything else is expanded; afterwards the `env`
+        # namespace always reflects the final merged view.
+        rendered_env = merge_env_section(p.env, file_variables)
         render_context = file_variables.merge(Hace::VARIABLES)
 
         # Render entire file at once to support multi-line Jinja control
@@ -289,23 +316,24 @@ module Hace
 
         f = Hace::HaceFile.from_yaml(rendered_data)
 
-        ENV.each { |k, v| Hace::ENVIRONMENT[k] = v }
-        f.env.each do |k, v|
-          if v.nil?
-            Hace::ENVIRONMENT.delete(k)
-          else
-            Hace::ENVIRONMENT[k] = v
-          end
-        end
+        # The whole-file render expanded the env: section against the final
+        # view (whose values already include the rendered overrides, e.g.
+        # "pre:{{ env.PATH }}" would become "pre:pre:..."), so discard that
+        # text and keep the values rendered against the pre-merge view above.
+        f.env = rendered_env
 
-        # Variables support ENV variable expansion
+        # Variables support the deprecated ${ENV} expansion (warns) and
+        # brace-less $ENV references stay literal (warns when the name
+        # resolves). The reserved 'env' name never overwrites the namespace.
         f.variables.each do |key, value|
+          next if key == "env"
           VARIABLES[key] = Hace.expand_env_in_value(value)
         end
 
         # Command-line KEY=value overrides win over Hacefile defaults, so
         # they are applied last, before any task template gets expanded.
         variable_overrides.each do |key, value|
+          next if key == "env"
           VARIABLES[key] = value
         end
 
@@ -317,6 +345,32 @@ module Hace
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
       f
+    end
+
+    # Render the raw env: section values as templates against the pre-merge
+    # environment view and merge them into ENVIRONMENT (nil unsets). Updates
+    # the `env` template namespace to the final merged view, and returns the
+    # rendered values so the caller can replace the whole-file-rendered env:
+    # text (which would otherwise apply the overrides twice).
+    private def self.merge_env_section(
+      raw_env : Hash(String, String?),
+      file_variables : Hash(String, Hace::Value),
+    ) : Hash(String, String?)
+      VARIABLES["env"] = Hace.env_namespace
+      pre_merge_context = file_variables.merge(Hace::VARIABLES)
+      rendered_env = {} of String => String?
+      raw_env.each do |key, value|
+        rendered_env[key] = value.nil? ? nil : Hace.expand_string(value, pre_merge_context)
+      end
+      rendered_env.each do |key, value|
+        if value.nil?
+          Hace::ENVIRONMENT.delete(key)
+        else
+          Hace::ENVIRONMENT[key] = value
+        end
+      end
+      VARIABLES["env"] = Hace.env_namespace
+      rendered_env
     end
 
     # Detect which tasks explicitly use CLI_ARGS before Crinja expansion.
@@ -825,12 +879,20 @@ module Hace
       # already see the final outputs.
       @outputs = [task_name] if @outputs.empty? && !@phony
 
-      @outputs = @outputs.map { |outp| Hace.expand_string(outp, expansion_variables) }
+      @outputs = @outputs.map { |outp| expand_field(outp, expansion_variables) }
 
       # Dependencies expand both variables and globs
-      @dependencies = @dependencies.map { |dep| Hace.expand_string(dep, expansion_variables) }
+      @dependencies = @dependencies.map { |dep| expand_field(dep, expansion_variables) }
       @dependencies = @dependencies.flat_map { |dep| Hace.expand_glob(dep) }
       @commands = Hace.expand_string(@commands, expansion_variables)
+    end
+
+    # Expand a non-command field (outputs, dependencies). Unlike commands,
+    # these never reach a shell, so brace-less $WORD references are warned
+    # about instead of silently staying literal.
+    private def expand_field(str : String, variables)
+      Hace.warn_braceless_env_ref(str)
+      Hace.expand_string(str, variables)
     end
 
     # ameba:disable Metrics/CyclomaticComplexity
@@ -967,17 +1029,57 @@ module Hace
     end
   end
 
+  # Snapshot the merged environment view as template variables, backing the
+  # `env` namespace ({{ env.NAME }}). It matches what task shells see for
+  # $NAME: process environment (including dotenv) plus env: overrides.
+  def self.env_namespace : Hash(String, Value)
+    view = {} of String => Value
+    ENVIRONMENT.each { |key, value| view[key] = value }
+    view
+  end
+
+  # Expand the deprecated braced ${ENV_VAR} references from the merged
+  # environment view. Actual substitutions log a deprecation warning, once
+  # per variable name per run; undefined references stay literal (matching
+  # both the old behavior and post-removal shell passthrough).
   def self.expand_env_vars(str : String) : String
-    str.gsub(/\$\{?(\w+)\}?/) do |match|
+    str.gsub(/\$\{(\w+)\}/) do |_match|
       env_key = $1
-      ENV.fetch(env_key) { match }
+      value = ENVIRONMENT.fetch(env_key, nil)
+      if value
+        warn_deprecated_env_var(env_key)
+        value
+      else
+        _match
+      end
+    end
+  end
+
+  private def self.warn_deprecated_env_var(name : String)
+    return if DEPRECATED_ENV_WARNED.includes?("${#{name}}")
+    DEPRECATED_ENV_WARNED << "${#{name}}"
+    Log.warn { "\"${#{name}}\" expansion is deprecated and will be removed; use \"{{ env.#{name} }}\" instead" }
+  end
+
+  # Warn about brace-less $WORD references in non-command fields: hace no
+  # longer expands them, so a value like "$HOME" stays literal. Only names
+  # that resolve in the merged environment warn, since only those could
+  # have relied on the old expansion.
+  def self.warn_braceless_env_ref(str : String)
+    str.scan(/\$([A-Za-z_]\w*)/) do |match|
+      name = match[1]
+      next unless ENVIRONMENT.has_key?(name)
+      key = "$#{name}"
+      next if DEPRECATED_ENV_WARNED.includes?(key)
+      DEPRECATED_ENV_WARNED << key
+      Log.warn { "Brace-less '$#{name}' is not expanded by hace in this field; if you meant the environment variable, use \"{{ env.#{name} }}\"" }
     end
   end
 
   def self.expand_string(str : String, variables = Hace::VARIABLES) : String
     # Expand variables
     str = Crinja.render(str, to_crinja_variables(variables))
-    # Expand environment variables
+    # Expand deprecated environment variable references
     Hace.expand_env_vars(str)
   end
 

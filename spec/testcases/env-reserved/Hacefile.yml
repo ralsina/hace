@@ -1,0 +1,8 @@
+variables:
+  env:
+    A: "user-value"
+tasks:
+  show:
+    phony: true
+    commands: |
+      echo "[{{ env.A }}]" > out.txt

@@ -1,0 +1,29 @@
+env:
+  FOO: "from-file"
+  PPRE: "pre:{{ env.MARK }}"
+variables:
+  home_dir: "{{ env.FOO }}"
+  braced_var: "${FOO}"
+  braceless_var: "$FOO"
+tasks:
+  show:
+    phony: true
+    commands: |
+      echo "env.FOO={{ env.FOO }}" > out.txt
+      echo "shell=$FOO" >> out.txt
+      echo "var={{ home_dir }}" >> out.txt
+      echo "missing=[{{ env.NOPE }}]" >> out.txt
+      echo "defaulted=[{{ env.NOPE | default('dflt') }}]" >> out.txt
+      echo "ppre=$PPRE" >> out.txt
+      echo "braced={{ braced_var }}" >> out.txt
+      echo "braceless=[{{ braceless_var }}]" >> out.txt
+  gen:
+    outputs:
+      - "{{ env.FOO }}.txt"
+    commands: |
+      echo generated > {{ env.FOO }}.txt
+  lit:
+    outputs:
+      - "$FOO.txt"
+    commands: |
+      echo literal > "$FOO.txt"

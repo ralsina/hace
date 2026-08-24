@@ -10,7 +10,7 @@ Hacé provides flexible environment variable management for your build processes
 env:
   # Set environment variables
   NODE_ENV: "production"
-  PATH: "/usr/local/bin:$PATH"
+  PATH: "/usr/local/bin:{{ env.PATH }}"
   DEBUG: "true"
 
   # Set empty string
@@ -19,6 +19,40 @@ env:
   # Unset environment variables
   UNWANTED_VAR: null
 ```
+
+### Accessing environment variables in templates
+
+Environment variables are available in any templated field (commands,
+dependencies, outputs, variables) through the `env` namespace:
+
+```yaml
+variables:
+  deploy_dir: "{{ env.HOME }}/deploy"
+
+tasks:
+  build:
+    commands: |
+      echo "Building for {{ env.NODE_ENV }}"
+      crystal build src/main.cr
+```
+
+The namespace reflects the **merged** view: the process environment
+(including `.env` contents) with the `env:` section applied on top —
+exactly what the task's shell sees for `$NODE_ENV`. Undefined names
+render as empty strings; use `{{ env.MISSING | default("x") }}` for
+defaults.
+
+Inside `commands`, plain shell syntax (`$VAR`, `${VAR}`) keeps working
+because the child shell sees the same merged environment.
+
+**Deprecated:** the older hacé-level `${VAR}` expansion still works but
+warns and will be removed. Migration:
+
+| Old (deprecated) | New |
+| --- | --- |
+| `${VAR}` in commands, deps, outputs, variables | `{{ env.VAR }}` |
+| Brace-less `$VAR` outside commands (never reliable) | `{{ env.VAR }}` |
+| `"$VAR"` inside a template expression | `env.VAR` (no quotes needed) |
 
 ### Precedence
 
@@ -32,8 +66,9 @@ Environment variables are resolved in this order:
 
 ```yaml
 env:
-  # Modify existing PATH
-  PATH: "/opt/myapp/bin:$PATH"
+  # Modify existing PATH (values are templates rendered against the
+  # pre-override environment)
+  PATH: "/opt/myapp/bin:{{ env.PATH }}"
 
   # Set new variables
   APP_HOME: "/opt/myapp"
@@ -67,14 +102,14 @@ tasks:
 tasks:
   deploy:
     commands: |
-      {% if '$NODE_ENV' == 'production' %}
+      {% if env.NODE_ENV == 'production' %}
       echo "Deploying to production"
       kubectl apply -f k8s/production/
-      {% elif '$NODE_ENV' == 'staging' %}
+      {% elif env.NODE_ENV == 'staging' %}
       echo "Deploying to staging"
       kubectl apply -f k8s/staging/
       {% else %}
-      echo "Unknown environment: $NODE_ENV"
+      echo "Unknown environment: {{ env.NODE_ENV }}"
       {% endif %}
 ```
 
@@ -199,7 +234,7 @@ tasks:
 #### How It Works
 
 1. **Automatic Loading**: Hacé loads `.env` files from the current directory
-2. **Shell Expansion**: Variables available using `${VAR_NAME}` shell syntax
+2. **Shell Expansion**: Variables available to task shells as `$VAR_NAME`, and to templates as `{{ env.VAR_NAME }}`
 3. **Graceful Handling**: If no `.env` file exists, Hacé continues normally
 4. **Logging**: When a `.env` file is loaded, Hacé logs the file that was loaded
 
@@ -335,7 +370,7 @@ tasks:
 
 ```yaml
 variables:
-  env_file: "{{ '$NODE_ENV' | default('development') }}.env"
+  env_file: "{{ env.NODE_ENV | default('development') }}.env"
 
 tasks:
   setup:
@@ -416,7 +451,7 @@ tasks:
       app_name: {{ app_name }}
       environment: $NODE_ENV
       database_url: $DATABASE_URL
-      api_key: {% if '$API_KEY' %}***REDACTED***{% else %}null{% endif %}
+      api_key: {% if env.API_KEY %}***REDACTED***{% else %}null{% endif %}
       EOF
 
   show-config:

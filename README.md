@@ -325,23 +325,44 @@ always run, as before.
 
 Just an ordinary map of environment variables in the `env` top
 key. The variables will be available to all tasks and you can
-expand them using in commands, dependencies and outputs with `${PATH}`
+expand them using in commands, dependencies and outputs with `{{ env.PATH }}`
 
 Any variables in the environment when the Hacefile is loaded will
 also be in the environment.
 
-Hacé also supports automatic loading of environment variables from
-`.env` files. See the [Environment Variables Documentation](docs/src/environment.md)
-for detailed information about dotenv support.
-
-If you want to *unset* a variable, set it to `null`. If you want
-it set to an empty value, use `""`.
+The `env` namespace always reflects the **merged** view: the process
+environment (including anything loaded from `.env`) plus the `env:`
+overrides below. It is exactly what the task's shell sees for `$PATH`,
+so both spellings agree:
 
 ```yaml
 env:
   FOO: bar
   BAZ: null
+  PATH: "/opt/myapp/bin:{{ env.PATH }}"   # values are templates, rendered
+                                          # against the pre-override value
+tasks:
+  show:
+    phony: true
+    commands: |
+      echo "{{ env.FOO }} $FOO"   # both print "bar"
 ```
+
+Undefined names render as empty strings (or use
+`{{ env.MISSING | default("x") }}`).
+
+**Deprecation note:** the older `${FOO}` expansion in commands,
+dependencies and outputs still works but is deprecated and will be
+removed; use `{{ env.FOO }}` instead. Brace-less `$FOO` is never
+expanded by hacé: inside `commands` it is passed to the shell
+untouched, everywhere else it stays literal.
+
+If you want to *unset* a variable, set it to `null`. If you want
+it set to an empty value, use `""`.
+
+Hacé also supports automatic loading of environment variables from
+`.env` files. See the [Environment Variables Documentation](docs/src/environment.md)
+for detailed information about dotenv support.
 
 ## Variables
 
@@ -392,7 +413,7 @@ Variables can interpolate environment variables:
 
 ```yaml
 variables:
-  dest_dir: "${HOME}/.local/bin"
+  dest_dir: "{{ env.HOME }}/.local/bin"
 ```
 
 Because we are using [templates](https://github.com/straight-shoota/crinja/blob/master/TEMPLATE_SYNTAX.md)

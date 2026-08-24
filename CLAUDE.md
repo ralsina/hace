@@ -152,7 +152,7 @@ tasks:
 Supports two types of variable expansion:
 
 1. **Jinja Templates** (global variables): `{{ variable_name }}`
-2. **Environment Variables**: `${ENV_VAR_NAME}`
+2. **Environment Variables**: `{{ env.VARNAME }}` (merged view: process env + .env + `env:` overrides; `${VARNAME}` is deprecated)
 
 Special `self` variable provides access to task properties:
 
