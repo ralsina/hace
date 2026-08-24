@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-08-24
+
+### 🚀 Features
+
+* Add {{ env.NAME }} namespace, deprecate ${NAME} expansion
+* Make recipe changes invalidate stale tasks
+
+### 🐛 Bug Fixes
+
+* Stop dotenv spec from clobbering the repo's recipe stamps
+* Stop the staleness spec from dirtying the committed fixture
+* Keep exported Makefile variables usable in recipes
+
+### ⚙️ Miscellaneous Tasks
+
+* Ignore artifacts of the new env-namespace test scenarios
+* Exclude MD029 from markdownlint, the docs mix list numbering styles
+
 ## [1.1.0] - 2026-08-24
 
 ### 🚀 Features
@@ -16,6 +34,10 @@ All notable changes to this project will be documented in this file.
 * Satisfy project ameba (1.7.0-dev) in makefile code and specs
 * Commit C fixture ignored by the 3-letter artifact rule
 * Drop deprecated -Dpreview_mt from build flags
+
+### 🖐️ Bump
+
+* Release v1.1.0
 
 ### 📚 Documentation
 
