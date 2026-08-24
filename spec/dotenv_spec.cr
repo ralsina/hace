@@ -35,6 +35,10 @@ describe "Dotenv Support" do
       Process.run(
         hace_binary,
         ["-f", "/tmp/hace_test_no_env/Hacefile.yml", "test"],
+        # Run from the temp dir: a hace invocation stamps and prunes .hace/
+        # relative to its cwd, so running from the repo root would clobber
+        # the project's own recipe stamps mid-suite.
+        chdir: "/tmp/hace_test_no_env",
         output: output,
         error: error
       )
