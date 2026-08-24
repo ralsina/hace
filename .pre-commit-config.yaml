@@ -22,7 +22,7 @@ repos:
       rev: 0.2.2
       hooks:
           - id: checkmake
-            exclude: lexers/makefile.xml
+            exclude: '(^|/)(lexers/makefile.xml|src/makefile\.cr)$|^spec/testcases/[^/]+/(Makefile|GNUmakefile|makefile)$'
     - repo: https://github.com/python-jsonschema/check-jsonschema
       rev: 0.29.2
       hooks:

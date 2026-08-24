@@ -4,6 +4,7 @@ require "croupier"
 require "log"
 require "yaml"
 require "dotenv"
+require "./makefile"
 
 include Croupier
 
@@ -186,6 +187,17 @@ module Hace
     property env = {} of String => String?
     property shell : String? = nil
 
+    # Config file to use when none was given explicitly: prefer Hacefile.yml,
+    # falling back to a Makefile in the current directory so hace works out
+    # of the box in make-based projects.
+    def self.default_filename : String
+      return "Hacefile.yml" if File.exists?("Hacefile.yml")
+      MakefileConverter::MAKEFILE_NAMES.each do |name|
+        return name if File.exists?(name)
+      end
+      "Hacefile.yml"
+    end
+
     def self.load_file(filename, variable_overrides : Hash(String, String) = {} of String => String)
       # Checked outside the rescue below so the message stays accurate
       # instead of being wrapped as a parsing failure.
@@ -198,6 +210,14 @@ module Hace
         # The PartialFile contains data needed to render the file
         # which is actually a template
         data = File.read(filename)
+
+        # A Makefile is converted to Hacefile YAML up front; from here on it
+        # flows through exactly the same pipeline as a native Hacefile.
+        if MakefileConverter.looks_like_makefile?(filename)
+          Log.info { "'#{filename}' looks like a Makefile, converting on the fly" }
+          data = MakefileConverter.convert(data)
+        end
+
         p = Hace::PartialHaceFile.from_yaml(data)
 
         # Detect which tasks explicitly use CLI_ARGS BEFORE Crinja expansion
@@ -214,14 +234,22 @@ module Hace
         render_context = file_variables.merge(Hace::VARIABLES)
 
         # Render entire file at once to support multi-line Jinja control
-        # structures. If the whole-file render fails (e.g. a variable value
-        # holds template syntax meant for the later per-string expansion)
-        # fall back to raw YAML; real template errors will resurface there.
-        rendered_data = begin
-          Crinja.render(data, Hace.to_crinja_variables(render_context))
-        rescue ex : Crinja::Error
-          Log.warn { "Whole-file template render failed, using raw YAML: #{ex.message}" }
-          data
+        # structures. Content referencing the task-scoped 'self' variable
+        # (e.g. Makefiles converted with $@/$</$^ translations) can only be
+        # expanded per task, so the whole-file render is skipped for it.
+        # If the whole-file render fails (e.g. a variable value holds
+        # template syntax meant for the later per-string expansion) fall
+        # back to raw YAML; real template errors will resurface there.
+        if data.includes?("{{") && data.includes?("self[")
+          Log.debug { "Skipping whole-file template render: content references task-scoped 'self'" }
+          rendered_data = data
+        else
+          begin
+            rendered_data = Crinja.render(data, Hace.to_crinja_variables(render_context))
+          rescue ex : Crinja::Error
+            Log.warn { "Whole-file template render failed, using raw YAML: #{ex.message}" }
+            rendered_data = data
+          end
         end
 
         f = Hace::HaceFile.from_yaml(rendered_data)
@@ -246,8 +274,10 @@ module Hace
           VARIABLES[key] = value
         end
 
-        # Tasks support expansion
-        f.tasks.each { |_, task| task.expand }
+        # Tasks support expansion. The task name is passed along because
+        # tasks without explicit outputs default to it, and templates may
+        # reference outputs via self (e.g. Makefile $@ translations).
+        f.tasks.each { |name, task| task.expand(name) }
       rescue ex
         raise "Error parsing Hacefile '#{filename}': #{ex}"
       end
@@ -580,7 +610,12 @@ module Hace
     #
     # Besides the global VARIABLES, they also have access to self, which is
     # rebuilt after each stage so it always reflects the current state.
-    def expand
+    def expand(task_name : String)
+      # Tasks without explicit outputs default to a single output named
+      # after the task; do it here so templates expanding during this pass
+      # already see the final outputs.
+      @outputs = [task_name] if @outputs.empty? && !@phony
+
       @outputs = @outputs.map { |outp| Hace.expand_string(outp, expansion_variables) }
 
       # Dependencies expand both variables and globs

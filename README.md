@@ -61,11 +61,13 @@ hace makes things, like make.
 
 Usage:
   hace [options] [<task>...] [-- <args>...]
+  hace --convert [options]
   hace --completion=<shell>
   hace --help
 
 Options:
-  -f <file>, --file=<file>     Read the file named as a Hacefile [default: Hacefile.yml]
+  -f <file>, --file=<file>     Read the file named as a Hacefile (default: Hacefile.yml,
+                               falling back to a Makefile when no Hacefile exists)
   -n, --dry-run                Don't actually run any commands
   -q, --quiet                  Don't log anything
   -v <level>, --verbosity=<level>  Control the logging verbosity, 0 to 5
@@ -76,10 +78,52 @@ Options:
   --question                   Don't run anything, exit 0 if all tasks are up to date, 1 otherwise
   --list                       List available tasks
   --auto                       Run in auto mode, watching for file changes
+  --convert                    Convert the file given with -f (a Makefile) to Hacefile
+                               YAML and print it to stdout
   --completion=<shell>         Generate shell completion script (bash, fish, zsh)
   --version                    Display version information
   -h, --help                   Show this help message
 ```
+
+## Using Makefiles
+
+Hacé can run basic Makefiles directly, and can convert them into `Hacefile.yml`
+files:
+
+```console
+# Run a project that only has a Makefile: hace detects it and converts it on
+# the fly. Works with -f too: hace -f Makefile build
+$ hace build
+
+# Convert a Makefile into a Hacefile.yml, review it, and keep it:
+$ hace --convert > Hacefile.yml
+```
+
+The supported subset covers what most small Makefiles use:
+
+* Rules with prerequisites and tab-indented recipes; multiple targets in a
+  rule become multiple outputs
+* Variables (`=`, `:=`, `?=` and `+=`), including chained references.
+  References in recipes become Jinja templates, so `$(CC)` behaves like
+  `{{ CC }}` and can be overridden from the command line (`hace build CC=clang`)
+* The automatic variables `$@`, `$<`, `$^` and `$$` escaping
+* `.PHONY` and `.DEFAULT_GOAL`; the first rule is the default task
+* `export VAR=value` becomes an environment entry, a `SHELL` variable sets the
+  shell, comments and backslash line continuations are handled
+
+Make features that have no hacé equivalent (pattern rules such as
+`%.o: %.c`, conditionals like `ifeq`, functions like `$(wildcard ...)`,
+`include`, target-specific variables) are skipped with a warning naming the
+offending line, so conversion never aborts: check the output for anything you
+need to port by hand.
+
+Two deliberate simplifications to keep in mind:
+
+* Variable values are resolved when the file is converted, so recursive
+  variables must be defined before they are used (true of most real
+  Makefiles).
+* Rules without a recipe (pure dependency aggregators like `all: app`) become
+  phony hacé tasks, which means `--question` always considers them stale.
 
 The arguments are task names, and if you don't specify any, the default
 tasks will execute.
