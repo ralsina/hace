@@ -12,12 +12,14 @@
 * [Tasks and Dependencies](tasks-dependencies.md)
 * [Variables and Templates](variables-templates.md)
 * [Command Line Options](command-line.md)
+* [Using Makefiles](makefiles.md)
 
 # Advanced Topics
 
 * [Environment Variables](environment.md)
 * [File Globbing](globbing.md)
 * [Phony Tasks](phony-tasks.md)
+* [Pattern Rules](pattern-rules.md)
 * [Error Handling](error-handling.md)
 * [Auto Mode](auto-mode.md)
 

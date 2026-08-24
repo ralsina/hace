@@ -79,6 +79,23 @@ shell: "powershell -c"    # PowerShell
 > continue after errors, pass the flags yourself (e.g. `shell: "sh -c"`).
 > Non-POSIX shells only receive the script via their usual flag.
 
+### Pattern Rules
+
+```yaml
+patterns:
+  - outputs: ["%.o"]          # exactly one '%' marks the stem
+    dependencies: ["%.c"]     # each '%' becomes the matched stem
+    shell: "/bin/bash"        # optional, like tasks
+    commands: |
+      {{ CC }} -c {{ self["dependencies"][0] }} -o {{ self["outputs"][0] }}
+```
+
+Patterns are templates from which hacé synthesizes concrete tasks on demand
+for dependencies no explicit task covers — hacé's equivalent of make's
+`%.o: %.c` implicit rules. The matched stem is available in commands as
+`{{ self["stem"] }}`. See [Pattern Rules](pattern-rules.md) for the full
+semantics.
+
 ## Task Properties
 
 Each task in the `tasks` section can have the following properties:
