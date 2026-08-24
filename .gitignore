@@ -28,6 +28,8 @@
 /spec/testcases/**/hello
 /spec/testcases/**/main.o
 /spec/testcases/**/result.txt
+/spec/testcases/**/out.txt
+/spec/testcases/**/from-file.txt
 /spec/testcases/parallel/results/timing.log
 aur-hace/
 .zcode/
