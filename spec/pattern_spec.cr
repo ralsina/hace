@@ -79,7 +79,7 @@ describe "pattern rule resolution" do
   it "synthesizes tasks for uncovered dependencies" do
     with_scenario("pattern_basic") do
       File.write("hello.c", "int main(void){return 0;}\n")
-      hacefile = resolved(<<-'YAML')
+      hacefile = resolved(<<-YAML)
         patterns:
           - outputs: ["%.o"]
             dependencies: ["%.c"]
@@ -107,7 +107,7 @@ describe "pattern rule resolution" do
     with_scenario("pattern_basic") do
       Hace::VARIABLES["FLAGS"] = "-g"
       File.write("x.c", "")
-      hacefile = resolved(<<-'YAML')
+      hacefile = resolved(<<-YAML)
         patterns:
           - outputs: ["%.o"]
             dependencies: ["%.c"]
@@ -128,7 +128,7 @@ describe "pattern rule resolution" do
   it "prefers explicit tasks over patterns" do
     with_scenario("pattern_basic") do
       File.write("hello.c", "")
-      hacefile = resolved(<<-'YAML')
+      hacefile = resolved(<<-YAML)
         patterns:
           - outputs: ["%.o"]
             dependencies: ["%.c"]
@@ -154,7 +154,7 @@ describe "pattern rule resolution" do
   it "leaves existing files alone when no pattern prereqs exist" do
     with_scenario("pattern_basic") do
       File.write("artifact.o", "")
-      hacefile = resolved(<<-'YAML')
+      hacefile = resolved(<<-YAML)
         patterns:
           - outputs: ["%.o"]
             dependencies: ["%.c"]
@@ -176,7 +176,7 @@ describe "pattern rule resolution" do
   it "chains patterns transitively" do
     with_scenario("pattern_basic") do
       File.write("message.tpl", "hello\n")
-      hacefile = resolved(<<-'YAML')
+      hacefile = resolved(<<-YAML)
         patterns:
           - outputs: ["%.c"]
             dependencies: ["%.tpl"]
@@ -203,7 +203,7 @@ describe "pattern rule resolution" do
 
   it "terminates on self referential patterns" do
     with_scenario("pattern_basic") do
-      hacefile = resolved(<<-'YAML')
+      hacefile = resolved(<<-YAML)
         patterns:
           - outputs: ["%.x"]
             dependencies: ["%.x.z"]
@@ -225,7 +225,7 @@ describe "pattern rule resolution" do
   it "instantiates tasks for CLI requested targets" do
     with_scenario("pattern_basic") do
       File.write("solo.c", "")
-      hacefile_yaml = <<-'YAML'
+      hacefile_yaml = <<-YAML
         patterns:
           - outputs: ["%.o"]
             dependencies: ["%.c"]
@@ -245,7 +245,7 @@ describe "pattern rule resolution" do
 
   it "does not instantiate when prerequisites are missing entirely" do
     with_scenario("pattern_basic") do
-      hacefile = resolved(<<-'YAML')
+      hacefile = resolved(<<-YAML)
         patterns:
           - outputs: ["%.o"]
             dependencies: ["%.c"]

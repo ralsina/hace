@@ -692,8 +692,8 @@ module Hace
     def match_stem(name : String) : String?
       prefix, suffix = @outputs[0].split("%", limit: 2)
       minimum_size = prefix.size + suffix.size + 1
-      return nil if name.size < minimum_size
-      return nil unless name.starts_with?(prefix) && name.ends_with?(suffix)
+      return if name.size < minimum_size
+      return unless name.starts_with?(prefix) && name.ends_with?(suffix)
 
       name[prefix.size, name.size - prefix.size - suffix.size]
     end

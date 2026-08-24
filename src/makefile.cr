@@ -127,7 +127,7 @@ module Hace
       rule = current_rule
       if rule.nil?
         result.warnings << "line #{lineno}: recipe commences before any target, ignoring"
-        return nil
+        return
       end
 
       body = strip_comment(line[1..])
@@ -183,11 +183,11 @@ module Hace
     private def classify(line : String, result : ParseResult, lineno : Int32) : Rule?
       stripped = strip_comment(line)
 
-      return nil if stripped.strip.empty?
+      return if stripped.strip.empty?
 
       if assignment = stripped.match(ASSIGNMENT_RE)
         handle_assignment(assignment, result, lineno)
-        return nil
+        return
       end
 
       if match = stripped.match(RULE_RE)
@@ -244,14 +244,14 @@ module Hace
       # syntax ("objs: %.o: %.c"); hacé patterns cannot express it.
       if prereq_text.includes?(':')
         result.warnings << "line #{lineno}: static pattern rules are not supported, ignoring"
-        return nil
+        return
       end
 
       # Target-specific variables ("target: VAR = x") hide behind a rule
       # shape; detect them on the raw prerequisite text.
       if prereq_text.matches?(TSVAR_RE)
         result.warnings << "line #{lineno}: target-specific variables are not supported, ignoring"
-        return nil
+        return
       end
 
       normal_prereqs, order_only = split_order_only(prereq_text, result, lineno)
@@ -271,7 +271,7 @@ module Hace
 
       if target_names.all?(&.starts_with?('.'))
         handle_special_targets(target_names, normal_prereqs, result, lineno)
-        return nil
+        return
       end
 
       existing = result.rules.find { |candidate| candidate.targets == target_names }
@@ -362,8 +362,6 @@ module Hace
     # Translate references inside task prerequisites and recipes into Jinja
     # template syntax that hacé expands at task level, keeping CLI overrides
     # like `hace build DEBUG=1` working.
-    #
-    # ameba:disable Metrics/CyclomaticComplexity
     private def translate_task_refs(text : String, result : ParseResult) : String
       text.gsub(REF_RE) do
         full = $0

@@ -25,7 +25,7 @@ describe Hace::MakefileConverter do
 
   describe "#convert" do
     it "converts a basic rule" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         hello:
         	gcc -o hello hello.c
         MAKE
@@ -36,7 +36,7 @@ describe Hace::MakefileConverter do
     end
 
     it "keeps prerequisites as dependencies" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         app: main.o util.o
         	ld -o app main.o util.o
         MAKE
@@ -45,7 +45,7 @@ describe Hace::MakefileConverter do
     end
 
     it "marks the first rule as default" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         all: app
 
         app:
@@ -57,7 +57,7 @@ describe Hace::MakefileConverter do
     end
 
     it "honors .DEFAULT_GOAL" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         all: app
 
         app:
@@ -71,7 +71,7 @@ describe Hace::MakefileConverter do
     end
 
     it "marks .PHONY targets" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         build:
         	touch build
 
@@ -86,7 +86,7 @@ describe Hace::MakefileConverter do
     end
 
     it "turns rules without a recipe into phony aggregator tasks" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         all: app docs
 
         app:
@@ -100,7 +100,7 @@ describe Hace::MakefileConverter do
     end
 
     it "converts plain, conditional and appending assignments" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         NAME = world
         LAZY ?= fallback
         FLAGS += -O2
@@ -117,7 +117,7 @@ describe Hace::MakefileConverter do
     end
 
     it "expands chained variable references" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         CC = gcc
         COMPILE = $(CC) -c
         MAKE
@@ -142,7 +142,7 @@ describe Hace::MakefileConverter do
     end
 
     it "translates variable references in recipes to Jinja syntax" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         CC = gcc
         build:
         	$(CC) -v
@@ -152,7 +152,7 @@ describe Hace::MakefileConverter do
     end
 
     it "translates automatic variables to self references" do
-      yaml = MakefileConverter.convert(<<-'MAKE')
+      yaml = MakefileConverter.convert(<<-MAKE)
         out: dep1 dep2
         	cmd $@ $^
         	other $<
@@ -169,7 +169,7 @@ describe Hace::MakefileConverter do
     end
 
     it "supports multiple targets per rule as outputs" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         one two:
         	touch one two
         MAKE
@@ -178,7 +178,7 @@ describe Hace::MakefileConverter do
     end
 
     it "merges duplicated rules keeping the last recipe" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         target: first.h
         	echo one
 
@@ -192,7 +192,7 @@ describe Hace::MakefileConverter do
     end
 
     it "does not create tasks out of pattern rules" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         %.o: %.c
         	cc -c $<
 
@@ -205,7 +205,7 @@ describe Hace::MakefileConverter do
     end
 
     it "drops order-only prerequisites" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         site: content | builddir
         	cp -r content site
         MAKE
@@ -214,7 +214,7 @@ describe Hace::MakefileConverter do
     end
 
     it "strips comments everywhere" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         # top comment
         VAR = value # trailing comment
         task: # comment after colon
@@ -248,7 +248,7 @@ describe Hace::MakefileConverter do
     end
 
     it "ignores unsupported directives without aborting" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         include other.mk
 
         ifneq ($(OS),Windows)
@@ -261,7 +261,7 @@ describe Hace::MakefileConverter do
     end
 
     it "skips static pattern rules" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         objs = a.o b.o
 
         $(objs): %.o: %.c
@@ -275,7 +275,7 @@ describe Hace::MakefileConverter do
     end
 
     it "converts pattern rules into patterns entries" do
-      yaml = MakefileConverter.convert(<<-'MAKE')
+      yaml = MakefileConverter.convert(<<-MAKE)
         app: main.o
         	cc -o $@ $^
 
@@ -290,7 +290,7 @@ describe Hace::MakefileConverter do
     end
 
     it "splits multi target pattern rules into separate entries" do
-      yaml = MakefileConverter.convert(<<-'MAKE')
+      yaml = MakefileConverter.convert(<<-MAKE)
         %.a %.b: %.src
         	generate $@
         MAKE
@@ -299,7 +299,7 @@ describe Hace::MakefileConverter do
     end
 
     it "drops pattern rules without a recipe" do
-      hacefile = convert_to_hacefile(<<-'MAKE')
+      hacefile = convert_to_hacefile(<<-MAKE)
         plain:
         	touch plain
 
