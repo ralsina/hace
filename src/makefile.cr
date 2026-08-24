@@ -12,11 +12,13 @@ module Hace
   # - `export VAR=value` becomes an `env:` entry
   # - a `SHELL` variable becomes the Hacefile `shell:` setting
   # - .PHONY and .DEFAULT_GOAL
-  # - automatic variables: $@ $< $^ $? and $$ escaping
+  # - automatic variables: $@ $< $^ $? $* and $$ escaping
+  # - pattern rules ("%.o: %.c"), emitted into a `patterns:` section
   #
-  # Anything else (pattern rules, conditionals, functions like $(wildcard),
-  # include, target-specific variables, ...) produces a warning and is
-  # skipped; conversion never aborts because of unsupported constructs.
+  # Anything else (conditionals, functions like $(wildcard),
+  # include, target-specific variables, static pattern rules, ...) produces a
+  # warning and is skipped; conversion never aborts because of unsupported
+  # constructs.
   module MakefileConverter
     extend self
 
@@ -54,12 +56,15 @@ module Hace
       result.output
     end
 
-    # A make rule: one or more targets, prerequisites and a recipe.
+    # A make rule: one or more targets, prerequisites and a recipe. Rules
+    # whose targets contain '%' are pattern rules; they are emitted into the
+    # Hacefile's `patterns:` section instead of `tasks:`.
     private class Rule
       property targets : Array(String)
       property prerequisites : Array(String)
       property commands : Array(String)
       property line : Int32
+      property? pattern : Bool = false
 
       def initialize(@targets : Array(String), @prerequisites : Array(String), @line : Int32)
         @commands = [] of String
@@ -235,6 +240,13 @@ module Hace
         result.warnings << "line #{lineno}: double-colon rule treated as an ordinary rule"
       end
 
+      # A second colon in the prerequisite slot is make's static pattern rule
+      # syntax ("objs: %.o: %.c"); hacé patterns cannot express it.
+      if prereq_text.includes?(':')
+        result.warnings << "line #{lineno}: static pattern rules are not supported, ignoring"
+        return nil
+      end
+
       # Target-specific variables ("target: VAR = x") hide behind a rule
       # shape; detect them on the raw prerequisite text.
       if prereq_text.matches?(TSVAR_RE)
@@ -251,8 +263,10 @@ module Hace
       target_names.reject! { |name| name == "&" }
 
       if target_names.any?(&.includes?('%'))
-        result.warnings << "line #{lineno}: pattern rule skipped: #{target_names.join(" ")}"
-        return nil
+        rule = Rule.new(target_names, normal_prereqs, lineno)
+        rule.pattern = true
+        result.rules << rule
+        return rule
       end
 
       if target_names.all?(&.starts_with?('.'))
@@ -260,7 +274,7 @@ module Hace
         return nil
       end
 
-      existing = result.rules.find { |rule| rule.targets == target_names }
+      existing = result.rules.find { |candidate| candidate.targets == target_names }
       if existing
         existing.prerequisites |= normal_prereqs
         result.warnings << "line #{lineno}: merged duplicate rule for target(s): #{target_names.join(" ")}"
@@ -367,6 +381,8 @@ module Hace
         when automatic == "^" || automatic == "?"
           result.warnings << "'$?' translated as '$^' (staleness information is lost)" if automatic == "?"
           %({{ self["dependencies"] | join(" ") }})
+        when automatic == "*"
+          %({{ self["stem"] }})
         when automatic
           result.warnings << "unsupported automatic variable '$#{automatic}' kept literally"
           full
@@ -415,24 +431,52 @@ module Hace
 
       default_task = pick_default(result)
 
+      emit_patterns(io, result)
+
       io << "tasks:\n"
       result.rules.each do |rule|
+        next if rule.pattern?
         emit_task(io, rule, result, default_task)
       end
 
       result.output = io.to_s
     end
 
+    # Emit pattern rules into the `patterns:` section. Multi-target pattern
+    # rules ("%.a %.b: %.c") become one entry per target pattern, sharing the
+    # recipe. Pattern rules without a recipe are dropped with a warning.
+    private def emit_patterns(io : IO, result : ParseResult)
+      pattern_rules = result.rules.select(&.pattern?)
+      return if pattern_rules.empty?
+
+      io << "patterns:\n"
+      pattern_rules.each do |rule|
+        if rule.commands.empty?
+          result.warnings << "line #{rule.line}: pattern rule without a recipe ignored: #{rule.targets.join(" ")}"
+          next
+        end
+        rule.targets.each do |target|
+          io << "  - outputs: [#{scalar(target)}]\n"
+          unless rule.prerequisites.empty?
+            deps = rule.prerequisites.map { |dep| scalar(dep) }.join(", ")
+            io << "    dependencies: [#{deps}]\n"
+          end
+          emit_commands(io, rule)
+        end
+      end
+    end
+
     private def pick_default(result : ParseResult) : String?
+      concrete_rules = result.rules.reject(&.pattern?)
       goal = result.default_goal
       if goal
-        known = result.rules.map(&.first_target)
+        known = concrete_rules.map(&.first_target)
         unless known.includes?(goal)
           result.warnings << ".DEFAULT_GOAL refers to unknown target '#{goal}', using the first rule instead"
           goal = nil
         end
       end
-      goal || result.rules.first?.try(&.first_target)
+      goal || concrete_rules.first?.try(&.first_target)
     end
 
     private def emit_task(io : IO, rule : Rule, result : ParseResult, default_task : String?)

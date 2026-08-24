@@ -1,0 +1,16 @@
+variables:
+  CC: gcc
+
+patterns:
+  - outputs: ["%.o"]
+    dependencies: ["%.c"]
+    commands: |
+      {{ CC }} -c {{ self["dependencies"][0] }} -o {{ self["outputs"][0] }}
+
+tasks:
+  app:
+    default: true
+    dependencies:
+      - hello.o
+    commands: |
+      {{ CC }} -o {{ self["outputs"][0] }} {{ self["dependencies"] | join(" ") }}
