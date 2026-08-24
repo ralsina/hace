@@ -3,8 +3,10 @@ include Hace
 
 # Single source of truth for the scenario's Hacefile. Tests rewrite it
 # explicitly instead of trusting the on-disk copy, so a crashed run can
-# never pollute later runs through a half-edited fixture.
-FIXTURE = <<-YAML
+# never pollute later runs through a half-edited fixture. The trailing
+# "\n" matches the committed fixture byte for byte (heredocs drop the
+# final newline), so spec runs leave the working tree clean.
+FIXTURE = <<-YAML + "\n"
   tasks:
     greet:
       default: true
