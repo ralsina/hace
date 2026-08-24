@@ -191,7 +191,7 @@ describe Hace::MakefileConverter do
       task.commands.should contain("echo two")
     end
 
-    it "skips pattern rules" do
+    it "does not create tasks out of pattern rules" do
       hacefile = convert_to_hacefile(<<-'MAKE')
         %.o: %.c
         	cc -c $<
@@ -260,6 +260,55 @@ describe Hace::MakefileConverter do
       hacefile.tasks.has_key?("still").should be_true
     end
 
+    it "skips static pattern rules" do
+      hacefile = convert_to_hacefile(<<-'MAKE')
+        objs = a.o b.o
+
+        $(objs): %.o: %.c
+        	cc -c $<
+
+        real:
+        	touch real
+        MAKE
+
+      hacefile.tasks.has_key?("real").should be_true
+    end
+
+    it "converts pattern rules into patterns entries" do
+      yaml = MakefileConverter.convert(<<-'MAKE')
+        app: main.o
+        	cc -o $@ $^
+
+        %.o: %.c
+        	cc -c $< stem=$*
+        MAKE
+
+      yaml.should contain("patterns:")
+      yaml.should contain(%(outputs: ["%.o"]))
+      yaml.should contain(%(dependencies: ["%.c"]))
+      yaml.should contain(%({{ self["stem"] }}))
+    end
+
+    it "splits multi target pattern rules into separate entries" do
+      yaml = MakefileConverter.convert(<<-'MAKE')
+        %.a %.b: %.src
+        	generate $@
+        MAKE
+
+      yaml.scan(/outputs:/).size.should eq(2)
+    end
+
+    it "drops pattern rules without a recipe" do
+      hacefile = convert_to_hacefile(<<-'MAKE')
+        plain:
+        	touch plain
+
+        %.o: %.c
+        MAKE
+
+      hacefile.tasks.has_key?("plain").should be_true
+    end
+
     it "is deterministic" do
       content = "CC = gcc\nall:\n\t$(CC)\n"
       MakefileConverter.convert(content).should eq(MakefileConverter.convert(content))
@@ -317,6 +366,27 @@ describe "Makefile CLI support" do
       # Remove build artifacts so they never end up committed by accident.
       File.delete?("hello")
       File.delete?("main.o")
+    end
+    success.should be_true
+  end
+
+  it "builds through pattern rules converted from a Makefile" do
+    output = IO::Memory.new
+    error = IO::Memory.new
+    success = false
+    with_scenario("makefile_pattern", keep: ["Makefile", "main.c", "util.c"]) do
+      status = Process.run(HACE_BIN, ["--quiet", "-f", "Makefile", "app"],
+        output: output, error: error)
+      success = status.success?
+      unless success
+        puts output.to_s
+        puts error.to_s
+      end
+      File.exists?("app").should be_true
+      File.exists?("main.o").should be_true
+      File.delete?("app")
+      File.delete?("main.o")
+      File.delete?("util.o")
     end
     success.should be_true
   end

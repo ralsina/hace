@@ -106,16 +106,59 @@ The supported subset covers what most small Makefiles use:
 * Variables (`=`, `:=`, `?=` and `+=`), including chained references.
   References in recipes become Jinja templates, so `$(CC)` behaves like
   `{{ CC }}` and can be overridden from the command line (`hace build CC=clang`)
-* The automatic variables `$@`, `$<`, `$^` and `$$` escaping
+* The automatic variables `$@`, `$<`, `$^`, `$*` and `$$` escaping
 * `.PHONY` and `.DEFAULT_GOAL`; the first rule is the default task
+* Pattern rules such as `%.o: %.c` become hacé pattern rules (see below)
 * `export VAR=value` becomes an environment entry, a `SHELL` variable sets the
   shell, comments and backslash line continuations are handled
 
-Make features that have no hacé equivalent (pattern rules such as
-`%.o: %.c`, conditionals like `ifeq`, functions like `$(wildcard ...)`,
-`include`, target-specific variables) are skipped with a warning naming the
-offending line, so conversion never aborts: check the output for anything you
-need to port by hand.
+Make features that have no hacé equivalent (conditionals like `ifeq`,
+functions like `$(wildcard ...)`, `include`, target-specific variables,
+static pattern rules) are skipped with a warning naming the offending line,
+so conversion never aborts: check the output for anything you need to port
+by hand.
+
+## Pattern rules
+
+When a Hacefile grows past a handful of similar tasks, patterns let one rule
+cover them all. A top-level `patterns:` section defines templates that hacé
+instantiates on demand, like make's implicit rules:
+
+```yaml
+variables:
+  CC: gcc
+
+patterns:
+  - outputs: ["%.o"]          # exactly one '%' marks the stem
+    dependencies: ["%.c"]     # each '%' becomes the matched stem
+    commands: |
+      {{ CC }} -c {{ self["dependencies"][0] }} -o {{ self["outputs"][0] }}
+
+tasks:
+  app:
+    dependencies:
+      - hello.o               # no explicit hello.o task needed!
+    commands: |
+      {{ CC }} -o {{ self["outputs"][0] }} {{ self["dependencies"] | join(" ") }}
+```
+
+How it works:
+
+* When a dependency is not produced by any explicit task, hacé tries the
+  patterns in order; the first match whose dependencies all resolve creates
+  a concrete task (`hello.o` above) with the stem substituted everywhere,
+  exposed as `{{ self["stem"] }}`
+* Patterns chain: a synthesized task's own dependencies go through the same
+  resolution, so `%.c: %.tpl` can sit behind `%.o: %.c`
+* Instantiation happens even if the output file already exists, so editing
+  `hello.c` correctly rebuilds `hello.o` — staleness is content-based, not
+  timestamp-based
+* Explicit tasks always win over patterns; an existing file with no way to
+  produce its prerequisites is left alone
+* Targets requested on the command line work too: `hace foo.o` builds it via
+  a pattern even when nothing else mentions it
+* `--list` shows the instances a Hacefile would generate; unlike make,
+  intermediate files are left in place after the build
 
 Two deliberate simplifications to keep in mind:
 

@@ -181,6 +181,8 @@ module Hace
 
     property tasks : Hash(String, CommandTask) = {} of String => CommandTask
 
+    property patterns : Array(PatternRule) = [] of PatternRule
+
     @[YAML::Field(converter: Hace::ValueConverter)]
     property variables : Hash(String, Value) = {} of String => Value
 
@@ -358,9 +360,10 @@ module Hace
 
         hacefile = HaceFile.load_file(filename, variable_overrides)
 
-        # Generate tasks if not already done
+        # Generate tasks if not already done. Arguments are passed along so
+        # pattern rules can instantiate tasks for CLI-requested targets.
         if TaskManager.tasks.empty?
-          hacefile.gen_tasks(dry_run)
+          hacefile.gen_tasks(dry_run, arguments)
         end
 
         new(
@@ -442,6 +445,11 @@ module Hace
         Log.info { "No tasks to check" }
         return 0
       end
+
+      # Staleness is content-based: compare current inputs against the state
+      # saved by the previous run. Without this scan the modified set is empty
+      # and question mode only ever notices missing outputs.
+      TaskManager.mark_stale_inputs
 
       stale_tasks = find_stale_tasks(targets)
 
@@ -525,7 +533,88 @@ module Hace
       real_arguments = Set.new(real_arguments).to_a
     end
 
-    def gen_tasks(dry_run : Bool = false)
+    # Synthesize concrete tasks from `patterns` for dependencies that no
+    # explicit task produces, mirroring make's implicit rule behavior. Runs
+    # to a fixpoint so patterns can chain (e.g. "%.c: %.tpl" behind
+    # "%.o: %.c"). *requested* holds targets named on the command line, which
+    # also get a chance to be instantiated even if nothing depends on them.
+    def resolve_patterns(requested : Array(String) = [] of String) : HaceFile
+      @patterns.each_with_index { |pattern, index| pattern.validate!(index) }
+      return self if @patterns.empty?
+
+      # A name counts as covered when it is an output of some task *or* the
+      # name of an explicit task, so patterns can never clobber user rules.
+      covered = Set(String).new
+      @tasks.each_value { |task| covered.concat(task.outputs) }
+      @tasks.each_key { |name| covered << name }
+      attempted = Set(String).new
+      pending = [] of String
+      @tasks.each_value { |task| pending.concat(task.dependencies) }
+      pending.concat(requested)
+
+      until pending.empty?
+        candidate = pending.shift
+        next if covered.includes?(candidate) || attempted.includes?(candidate)
+        attempted << candidate
+
+        instantiation = try_instantiate(candidate, covered)
+        next unless instantiation
+
+        synthesized, prerequisites = instantiation
+        @tasks[candidate] = synthesized
+        covered << candidate
+        pending.concat(prerequisites)
+      end
+
+      self
+    end
+
+    # Try every pattern in declaration order against *name*; the first one
+    # whose output matches and whose substituted dependencies all resolve is
+    # instantiated into a real CommandTask. Returns it with its dependencies,
+    # or nil when no pattern applies.
+    private def try_instantiate(name : String, covered : Set(String)) : {CommandTask, Array(String)}?
+      @patterns.each do |pattern|
+        stem = pattern.match_stem(name) || next
+        prerequisites = pattern.dependencies_for(stem)
+        unless prerequisites.all? { |prereq| resolvable?(prereq, covered, Set{name}) }
+          next
+        end
+
+        synthesized = CommandTask.new(
+          commands: pattern.commands,
+          outputs: [name],
+          dependencies: prerequisites,
+          shell: pattern.shell,
+          description: "generated for #{name} (from pattern #{pattern.outputs[0]})",
+          stem: stem,
+        )
+        synthesized.expand(name)
+        return {synthesized, prerequisites}
+      end
+
+      nil
+    end
+
+    # A prerequisite grounds an instantiation when the file exists, is
+    # produced by a known task, or could itself be synthesized by another
+    # pattern whose own prerequisites bottom out. The seen set terminates
+    # self-referential pattern families like "%.x: %.x.z".
+    private def resolvable?(name : String, covered : Set(String), seen : Set(String)) : Bool
+      return true if File.exists?(name) || covered.includes?(name)
+      return false if seen.includes?(name)
+      seen << name
+
+      @patterns.any? do |pattern|
+        stem = pattern.match_stem(name) || next false
+        pattern.dependencies_for(stem).all? do |prereq|
+          resolvable?(prereq, covered, seen)
+        end
+      end
+    end
+
+    def gen_tasks(dry_run : Bool = false, requested : Array(String) = [] of String)
+      resolve_patterns(requested)
       @tasks.each do |name, task|
         task.gen_task(name, self, dry_run)
       end
@@ -540,7 +629,7 @@ module Hace
       Hace.inject_cli_args(cli_args)
 
       hacefile = load_file(filename)
-      hacefile.gen_tasks
+      hacefile.gen_tasks(requested: arguments.map(&.as(String)))
       begin
         real_arguments = process_arguments(hacefile, arguments)
         Log.info { "Running tasks: #{arguments.join(", ")}" }
@@ -553,6 +642,66 @@ module Hace
       loop do
         ::sleep 1.seconds
       end
+    end
+  end
+
+  # A template rule that synthesizes concrete tasks for dependencies not
+  # covered by explicit tasks, mirroring make's pattern rules ("%.o: %.c").
+  # Patterns live in the Hacefile under a top-level `patterns:` key and are
+  # expanded at load time, before the task graph is built.
+  class PatternRule
+    include YAML::Serializable
+    include YAML::Serializable::Strict
+
+    property outputs : Array(String) = [] of String
+    property dependencies : Array(String) = [] of String
+    property commands : String = ""
+    property shell : String? = nil
+
+    getter outputs : Array(String)
+    getter dependencies : Array(String)
+    getter commands : String
+    getter shell : String?
+
+    def initialize(@commands : String, @outputs : Array(String) = [] of String,
+                   @dependencies : Array(String) = [] of String, @shell : String? = nil)
+    end
+
+    # Structural checks that YAML parsing cannot express. Raises with a
+    # message identifying the offending pattern.
+    def validate!(index : Int32) : Nil
+      unless @outputs.size == 1
+        raise "patterns[#{index}]: exactly one output pattern is required"
+      end
+      unless @outputs[0].count('%') == 1
+        raise "patterns[#{index}]: output '#{@outputs[0]}' must contain exactly one '%'"
+      end
+      @dependencies.each do |dependency|
+        if dependency.count('%') > 1
+          raise "patterns[#{index}]: dependency '#{dependency}' must contain at most one '%'"
+        end
+      end
+      if @commands.strip.empty?
+        raise "patterns[#{index}]: commands cannot be empty"
+      end
+    end
+
+    # The stem with which *name* matches this pattern's output, or nil when
+    # there is no match. Empty stems are rejected so "%.o" does not match
+    # a file literally named ".o".
+    def match_stem(name : String) : String?
+      prefix, suffix = @outputs[0].split("%", limit: 2)
+      minimum_size = prefix.size + suffix.size + 1
+      return nil if name.size < minimum_size
+      return nil unless name.starts_with?(prefix) && name.ends_with?(suffix)
+
+      name[prefix.size, name.size - prefix.size - suffix.size]
+    end
+
+    # Dependencies with '%' placeholders replaced by *stem*. Dependencies
+    # without a placeholder pass through unchanged.
+    def dependencies_for(stem : String) : Array(String)
+      @dependencies.map { |dependency| dependency.includes?('%') ? dependency.sub('%', stem) : dependency }
     end
   end
 
@@ -570,6 +719,7 @@ module Hace
     @cwd : String? = nil
     @description : String? = nil
     @shell : String? = nil
+    @stem : String? = nil
 
     # Read-only accessors so callers don't have to reach into instance vars.
     getter commands : String
@@ -578,9 +728,19 @@ module Hace
     getter description : String?
     getter cwd : String?
     getter shell : String?
+    getter stem : String?
     getter? phony : Bool
     getter? default : Bool
     getter? always_run : Bool
+
+    # Plain keyword constructor used when synthesizing tasks from patterns.
+    # It coexists with the YAML::Serializable-generated parser initializer.
+    def initialize(@commands : String, @outputs : Array(String) = [] of String,
+                   @dependencies : Array(String) = [] of String, @phony : Bool = false,
+                   @default : Bool = false, @always_run : Bool = false,
+                   @cwd : String? = nil, @description : String? = nil,
+                   @shell : String? = nil, @stem : String? = nil)
+    end
 
     # The task's own state as template variables, so commands can reference
     # e.g. {{ self["dependencies"] }}. Built from the live fields on every
@@ -596,6 +756,7 @@ module Hace
       context["cwd"] = @cwd
       context["description"] = @description
       context["shell"] = @shell
+      context["stem"] = @stem
       context
     end
 

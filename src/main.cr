@@ -299,6 +299,10 @@ begin
   if list
     begin
       hacefile = Hace::HaceFile.load_file(file)
+      # Resolve pattern rules so instances requested on the command line or
+      # needed by explicit tasks show up in the listing too.
+      list_targets = args["<task>"].as?(Array) || [] of String
+      hacefile.resolve_patterns(list_targets.map(&.as(String)))
       # Display tasks in a formatted table
       puts "TASK             DESCRIPTION                                        PHONY     DEFAULT   ALWAYS "
       puts "---------------- -------------------------------------------------- --------  --------  ------- "
