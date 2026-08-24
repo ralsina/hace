@@ -324,7 +324,7 @@ describe Hace::MakefileConverter do
     end
 
     it "expands automatic variables during load" do
-      with_scenario("makefile_convert", keep: ["Makefile", "src"]) do
+      with_scenario("makefile_convert", keep: ["Makefile", "sources"]) do
         hacefile = HaceFile.load_file("Makefile")
         hacefile.tasks["hello"].commands.should eq("gcc -o hello main.o")
       end
@@ -358,7 +358,7 @@ describe "Makefile CLI support" do
     output = IO::Memory.new
     error = IO::Memory.new
     success = false
-    with_scenario("makefile_convert", keep: ["Makefile", "src"]) do
+    with_scenario("makefile_convert", keep: ["Makefile", "sources"]) do
       status = Process.run(HACE_BIN, ["--quiet", "-f", "Makefile", "hello"],
         output: output, error: error)
       success = status.success?
