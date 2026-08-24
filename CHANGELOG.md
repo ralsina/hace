@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-08-24
+
+### 🚀 Features
+
+* Add pattern rules, the equivalent of make's %.o: %.c
+* Run basic Makefiles and convert them with --convert
+
+### 🐛 Bug Fixes
+
+* Exclude generated aur-hace snapshot from ameba
+* Exclude generated aur-hace snapshot from ameba
+* Satisfy project ameba (1.7.0-dev) in makefile code and specs
+* Commit C fixture ignored by the 3-letter artifact rule
+* Drop deprecated -Dpreview_mt from build flags
+
+### 📚 Documentation
+
+* Document Makefile support and pattern rules in the handbook
+
 ## [1.0.0] - 2026-08-23
 
 ### 🐛 Bug Fixes
@@ -11,6 +30,10 @@ All notable changes to this project will be documented in this file.
 * Build the book before deploying it
 * Unbreak docs workflow, retire deprecated pages actions
 * Make user-docs-deploy always run
+
+### 🖐️ Bump
+
+* Release v1.0.0
 
 ### 🚜 Refactor
 
