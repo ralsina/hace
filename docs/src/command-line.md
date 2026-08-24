@@ -19,6 +19,9 @@ hace -f custom-build.yml
 hace --file production.yml build
 ```
 
+When omitted, hacé uses `Hacefile.yml`; if that does not exist but a
+`Makefile` does, the Makefile is used (see [Using Makefiles](makefiles.md)).
+
 ### `-n, --dry-run`
 
 Show what would be executed without actually running commands.
@@ -26,6 +29,18 @@ Show what would be executed without actually running commands.
 ```bash
 hace --dry-run build
 ```
+
+### `--convert`
+
+Convert the Makefile given with `-f` into Hacefile YAML and print it to
+standard output, ready to be reviewed and saved:
+
+```bash
+hace --convert > Hacefile.yml
+```
+
+The source file defaults to `Makefile` (falling back to `makefile` /
+`GNUmakefile`). See [Using Makefiles](makefiles.md) for the supported subset.
 
 ### `--question`
 
