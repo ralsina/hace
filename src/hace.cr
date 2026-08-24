@@ -1,6 +1,7 @@
 require "crinja"
 require "crinja/yaml"
 require "croupier"
+require "digest"
 require "log"
 require "yaml"
 require "dotenv"
@@ -40,6 +41,38 @@ module Hace
         "Available tasks: #{available_tasks.join(", ")}"
       )
     end
+  end
+
+  # Recipe stamps make the rendered recipe part of the staleness model.
+  #
+  # Croupier only considers missing outputs, input file hashes and upstream
+  # staleness, so editing a task's commands in the Hacefile would never
+  # trigger a rebuild. To fix that, every task gets an extra input: a small
+  # file whose content is the SHA1 of its commands, shell and working
+  # directory. When the recipe changes, the stamp content changes, and the
+  # regular input-hash comparison marks the task stale.
+  RECIPE_STAMP_DIR = ".hace"
+
+  def self.recipe_stamp_path(task_name : String) : String
+    File.join(RECIPE_STAMP_DIR, Digest::SHA1.hexdigest(task_name))
+  end
+
+  # Record the current recipe signature for *task_name* and return the stamp
+  # path. Writing is skipped when the content is unchanged so the file's
+  # mtime stays stable (mtime-based staleness modes would otherwise see it
+  # as modified on every run). Failures degrade gracefully: the returned
+  # path then simply does not exist, which scan_inputs skips, giving the
+  # old behavior without recipe sensitivity.
+  def self.stamp_recipe(task_name : String, signature : String) : String
+    Dir.mkdir_p(RECIPE_STAMP_DIR)
+    path = recipe_stamp_path(task_name)
+    digest = Digest::SHA1.hexdigest(signature)
+    previous = File.exists?(path) ? File.read(path) : nil
+    File.write(path, digest) unless previous == digest
+    path
+  rescue ex
+    Log.warn { "Could not record recipe stamp for '#{task_name}': #{ex.message}" }
+    File.join(RECIPE_STAMP_DIR, "unwritable")
   end
 
   # Clear the module-level mutable state (VARIABLES, ENVIRONMENT and the
@@ -618,6 +651,21 @@ module Hace
       @tasks.each do |name, task|
         task.gen_task(name, self, dry_run)
       end
+      prune_recipe_stamps
+    end
+
+    # Remove stamp files of tasks that no longer exist so the stamp
+    # directory does not grow without bound across Hacefile edits.
+    private def prune_recipe_stamps
+      return unless Dir.exists?(Hace::RECIPE_STAMP_DIR)
+
+      valid = Set.new(@tasks.keys.map { |name| Digest::SHA1.hexdigest(name) })
+      Dir.children(Hace::RECIPE_STAMP_DIR).each do |child|
+        next if valid.includes?(child)
+        File.delete?(File.join(Hace::RECIPE_STAMP_DIR, child))
+      end
+    rescue ex
+      Log.debug { "Could not prune recipe stamps: #{ex.message}" }
     end
 
     def self.auto(
@@ -797,6 +845,18 @@ module Hace
       @outputs = @phony ? [] of String : [name] if @outputs.empty?
       commands = @commands.split("\n").map(&.strip).reject(&.empty?)
 
+      # The stamp captures everything that defines how the recipe runs, so a
+      # Hacefile edit invalidates previously built outputs. CLI_ARGS are
+      # deliberately excluded: they vary per invocation by design.
+      task_shell = @shell || hacefile.shell || "/bin/sh"
+      recipe_signature = "#{task_shell}\u{0}#{@cwd}\u{0}#{commands.join("\n")}"
+      recipe_stamp = Hace.stamp_recipe(name, recipe_signature)
+
+      # Tasks without dependencies are always stale (Croupier treats empty
+      # inputs that way), which hacé relies on for aggregator-style tasks;
+      # only stamp tasks that have something to be stale *relative to*.
+      task_inputs = @dependencies.empty? ? @dependencies : @dependencies + [recipe_stamp]
+
       # In dry-run mode, show what would be executed before creating the task
       if dry_run
         puts "\n🔍 Task: #{name}".colorize(:cyan)
@@ -814,7 +874,7 @@ module Hace
 
       Task.new(
         outputs: @outputs,
-        inputs: @dependencies,
+        inputs: task_inputs,
         # Tasks with different outputs can be merged for parallel execution
         mergeable: true,
         no_save: true,

@@ -15,6 +15,7 @@
 # Dependencies will be locked in applications that use them
 /shard.lock
 .croupier
+.hace/
 .crystal/
 /coverage/
 
@@ -26,6 +27,7 @@
 /spec/testcases/**/typed.txt
 /spec/testcases/**/hello
 /spec/testcases/**/main.o
+/spec/testcases/**/result.txt
 /spec/testcases/parallel/results/timing.log
 aur-hace/
 .zcode/

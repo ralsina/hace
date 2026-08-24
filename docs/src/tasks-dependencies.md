@@ -1,15 +1,16 @@
 # Tasks and Dependencies
 
-Dependency management is at the heart of Hacé. This guide covers how to define tasks and their relationships.
+Dependency management is at the heart of Hacé. This guide covers how to
+define tasks and their relationships.
 
 ## Understanding Dependencies
 
 Hacé uses file timestamps to determine when tasks need to run. A task runs when:
 
 1. It has never been run before
-2. Any of its dependencies are newer than its outputs
-3. It's marked as `always_run: true`
-4. It's a phony task (always runs unless dependencies fail)
+1. Any of its dependencies are newer than its outputs
+1. It's marked as `always_run: true`
+1. It's a phony task (always runs unless dependencies fail)
 
 ## Task Types
 
@@ -362,3 +363,20 @@ tasks:
       # This would require custom implementation
       # to show the full dependency graph
 ```
+
+## When Do Tasks Re-Run
+
+A task is stale (and therefore runs) when any of these is true:
+
+- Its outputs don't exist
+- An input file's content changed since the last successful run (staleness
+  is content-based, not timestamp-based: `touch` alone does nothing)
+- A task producing one of its inputs is itself stale
+- It has no inputs at all
+- `always_run` is set
+
+The recipe participates too: hacé records a hash of each task's commands,
+shell and working directory, so editing the Hacefile invalidates previously
+built outputs even when no input file changed. The hashes live in a
+generated `.hace/` directory next to the Hacefile; it is machine state and
+can be safely deleted at any time.

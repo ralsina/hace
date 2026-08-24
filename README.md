@@ -17,7 +17,9 @@ Its functionality is mostly derived from using
 
 ### Pre-built Binaries (Recommended)
 
-**GitHub Releases**: Static binaries for Linux are available from the [releases page](https://github.com/ralsina/hace/releases). No Crystal installation required.
+**GitHub Releases**: Static binaries for Linux are available from the
+[releases page](https://github.com/ralsina/hace/releases).
+No Crystal installation required.
 
 ```sh
 # Linux amd64
@@ -75,7 +77,8 @@ Options:
   -B, --always-make            Unconditionally run all tasks
   -k, --keep-going             Continue as much as possible after an error
   --parallel                   Run tasks in parallel when possible
-  --question                   Don't run anything, exit 0 if all tasks are up to date, 1 otherwise
+  --question                   Don't run anything, exit 0 if all tasks are
+                               up to date, 1 otherwise
   --list                       List available tasks
   --auto                       Run in auto mode, watching for file changes
   --convert                    Convert the file given with -f (a Makefile) to Hacefile
@@ -309,6 +312,14 @@ you want it, otherwise no task will run unless explicitly required.
 
 If a task has `always_run` set to `true`, it will run even if it's
 not out of date. This is useful for tasks that don't have outputs.
+
+### Recipe changes
+
+Staleness covers the recipe too, not just files: hacé records a hash of
+every task's commands (plus its shell and working directory) and treats it
+as an implicit input. Edit a task's commands in the Hacefile and the next
+run rebuilds it, even if no dependency changed. Tasks without dependencies
+always run, as before.
 
 ## Environment variables
 

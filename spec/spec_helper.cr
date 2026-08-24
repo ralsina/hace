@@ -20,6 +20,7 @@ def with_scenario(name, keep = [] of String, extra_keep = [] of String, logs : I
   Log.setup(:debug, Log::IOBackend.new(io: logs, formatter: Log::ShortFormat))
   Dir.cd("spec/testcases/#{name}") do
     File.delete?(".croupier") unless keep.includes? ".croupier"
+    FileUtils.rm_rf(".hace") unless keep.includes? ".hace"
     Dir.glob("*").each do |f|
       next if f == "Hacefile.yml" || keep.includes?(f) || extra_keep.includes?(f)
       if File.directory?(f)

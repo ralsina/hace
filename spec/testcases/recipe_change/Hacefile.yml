@@ -1,0 +1,9 @@
+tasks:
+  greet:
+    default: true
+    outputs:
+      - result.txt
+    dependencies:
+      - input.txt
+    commands: |
+      cp input.txt result.txt
