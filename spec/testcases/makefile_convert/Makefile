@@ -4,7 +4,7 @@ TARGET = hello
 hello: main.o
 	$(CC) -o $@ $^
 
-main.o: src/main.c
+main.o: sources/main.c
 	@echo compiling $<
 	$(CC) -c $<
 
