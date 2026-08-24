@@ -11,3 +11,8 @@ Documentation/DocumentationAdmonition:
     - src/**/**
     - spec/**/**
   Enabled: true
+
+# Generated AUR packaging snapshot (created by do_aur.sh during releases);
+# it contains full copies of the source tree and its own vendored libs.
+Excluded:
+  - aur-hace/**/*
