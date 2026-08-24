@@ -211,6 +211,10 @@ module Hace
       case
       when match[1]? # export VAR=value
         result.env[name] = value
+        # Exported variables keep make's dual nature: they are part of the
+        # child environment AND readable as template variables, so recipe
+        # references like $(GREETING) resolve instead of rendering empty.
+        result.variables[name] = value
       when name == ".DEFAULT_GOAL"
         result.default_goal = value.empty? ? nil : value
       when operator == "+=" # VAR += value

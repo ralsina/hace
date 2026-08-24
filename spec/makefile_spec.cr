@@ -135,6 +135,18 @@ describe Hace::MakefileConverter do
       hacefile.env["BUILD_MODE"].should eq("fast")
     end
 
+    it "makes exported variables available to recipes" do
+      hacefile = convert_to_hacefile(<<-MAKE)
+        export GREETING = hi
+        all:
+        \techo $(GREETING) $GREETING
+        MAKE
+
+      hacefile.env["GREETING"].should eq("hi")
+      hacefile.variables["GREETING"].should eq("hi")
+      hacefile.tasks["all"].commands.should contain("{{ GREETING }}")
+    end
+
     it "maps the SHELL variable to the Hacefile shell setting" do
       hacefile = convert_to_hacefile("SHELL = /bin/bash\n")
       hacefile.shell.should eq("/bin/bash")
