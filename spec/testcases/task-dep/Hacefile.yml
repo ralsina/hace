@@ -1,0 +1,14 @@
+tasks:
+  make-output:
+    outputs:
+      - out.txt
+    commands: |
+      echo built > out.txt
+
+  deploy:
+    phony: true
+    always_run: true
+    dependencies:
+      - make-output
+    commands: |
+      echo deploying > deploy.log
