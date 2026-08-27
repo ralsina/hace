@@ -919,6 +919,17 @@ module Hace
       # only stamp tasks that have something to be stale *relative to*.
       task_inputs = @dependencies.empty? ? @dependencies : @dependencies + [recipe_stamp]
 
+      # Croupier connects tasks only through output filenames, but hacé
+      # allows naming tasks in dependencies. Rewrite such dependencies to
+      # the named task's outputs (the name itself for phony tasks, which
+      # have none).
+      task_inputs = task_inputs.flat_map do |dependency|
+        dependency_task = hacefile.tasks[dependency]?
+        next [dependency] unless dependency_task
+        next [dependency] if dependency_task.phony?
+        dependency_task.outputs.empty? ? [dependency] : dependency_task.outputs
+      end
+
       # In dry-run mode, show what would be executed before creating the task
       if dry_run
         puts "\n🔍 Task: #{name}".colorize(:cyan)
