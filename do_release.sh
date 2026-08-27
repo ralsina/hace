@@ -93,9 +93,13 @@ else
     git push
 fi
 
-# Build static binaries
+# Build static binaries.
+# Run build_static.sh directly instead of `hace static`, which runs `hace
+# clean` first and would delete the committed shard.lock. build_static.sh
+# honors the committed lockfile (it no longer deletes it), so the lock stays
+# intact and pins the dependencies for the release.
 echo "Building static binaries..."
-$HACE_BIN static
+./build_static.sh
 
 # Verify static binaries exist
 for arch in amd64 arm64; do
@@ -128,7 +132,9 @@ else
     echo "Warning: do_aur.sh not found, skipping AUR update"
 fi
 
-shards build  # because we previously deleted the binary :-)
+# build_static.sh moves bin/hace to the static names, so rebuild the plain
+# binary for local use and the steps below.
+shards build
 
 # Deploy documentation
 echo "Deploying documentation..."
