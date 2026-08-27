@@ -6,8 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ### 🐛 Bug Fixes
 
+* Build static binaries on alpine 3.24
 * Keep committed shard.lock during static builds
 * Link task-to-task dependencies through task outputs
+
+### 🖐️ Bump
+
+* Release v1.2.1
 
 ### 🧪 Testing
 

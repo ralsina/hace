@@ -33,7 +33,14 @@
       "Bash(git ls-remote *)",
       "Bash(git rm *)",
       "Bash(bash -n build_static.sh)",
-      "Bash(./do_release.sh)"
+      "Bash(./do_release.sh)",
+      "Bash(docker run *)",
+      "Bash(docker manifest *)",
+      "Bash(docker build *)",
+      "Bash(shards install *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(git restore *)",
+      "Bash(git tag *)"
     ],
     "deny": [],
     "ask": []
