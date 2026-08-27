@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.2] - 2026-08-27
+
+### 🐛 Bug Fixes
+
+* Keep committed shard.lock during release static builds
+
+### 🧪 Testing
+
+* Cover directory outputs consumed as dependencies (croupier 0.14.2)
+
+### ⚙️ Miscellaneous Tasks
+
+* Untrack .claude/settings.local.json so it stays ignored
+
 ## [1.2.1] - 2026-08-27
 
 ### 🐛 Bug Fixes
@@ -12,6 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ### 🖐️ Bump
 
+* Release v1.2.1
 * Release v1.2.1
 
 ### 🧪 Testing
