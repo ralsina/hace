@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2026-08-27
+
+### 🐛 Bug Fixes
+
+* Keep committed shard.lock during static builds
+* Link task-to-task dependencies through task outputs
+
+### 🧪 Testing
+
+* Remove generated deploy.log from scenario
+* Cover task-to-task dependency execution
+
+### ⚙️ Miscellaneous Tasks
+
+* Commit shard.lock
+* Bump croupier to 0.14.1
+
 ## [1.2.0] - 2026-08-24
 
 ### 🚀 Features
@@ -14,6 +31,10 @@ All notable changes to this project will be documented in this file.
 * Stop dotenv spec from clobbering the repo's recipe stamps
 * Stop the staleness spec from dirtying the committed fixture
 * Keep exported Makefile variables usable in recipes
+
+### 🖐️ Bump
+
+* Release v1.2.0
 
 ### ⚙️ Miscellaneous Tasks
 

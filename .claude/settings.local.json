@@ -25,7 +25,15 @@
       "Bash(HACE_LOG_LEVEL=debug /home/ralsina/code/hace/bin/hace test-default:*)",
       "Bash(export HACE_LOG_LEVEL=debug:*)",
       "Bash(crystal eval:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(../../bin/hace deploy *)",
+      "Bash(git -C lib/croupier log --oneline -3)",
+      "Bash(git -C lib/croupier remote -v)",
+      "Bash(git -C lib/croupier rev-parse --git-dir)",
+      "Bash(git ls-remote *)",
+      "Bash(git rm *)",
+      "Bash(bash -n build_static.sh)",
+      "Bash(./do_release.sh)"
     ],
     "deny": [],
     "ask": []
