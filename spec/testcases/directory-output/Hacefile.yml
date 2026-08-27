@@ -1,0 +1,16 @@
+tasks:
+  make-dir:
+    outputs:
+      - blog
+    dependencies:
+      - content.txt
+    commands: |
+      mkdir -p blog && cp content.txt blog/post.md
+
+  use-dir:
+    outputs:
+      - out.md
+    dependencies:
+      - blog
+    commands: |
+      cp blog/post.md out.md
