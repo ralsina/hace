@@ -1,6 +1,7 @@
 require "spec"
 require "file_utils"
 require "../src/hace"
+require "../src/completion"
 include Hace
 
 # Path to the compiled hace binary, used by specs that exercise the CLI
