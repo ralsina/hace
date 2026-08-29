@@ -40,8 +40,8 @@ tasks:
     dependencies:
       - bin/hace
     commands: |
-      rm ${HOME}/.local/bin/hace
-      cp bin/hace ${HOME}/.local/bin/hace
+      rm {{ env.HOME }}/.local/bin/hace
+      cp bin/hace {{ env.HOME }}/.local/bin/hace
 
   static:
     description: "Build statically linked binaries for Linux (amd64 and arm64)"
