@@ -2,11 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2026-08-29
+
+### 🐛 Bug Fixes
+
+* Pin ameba to 1.7.0 in shard lock
+
+### 🚜 Refactor
+
+* Dedupe shell resolution, task extraction, and completion code
+
+### 🎨 Styling
+
+* Fix ameba verbose nil type, indent completion scripts, bump to 1.2.3
+
+### ⚙️ Miscellaneous Tasks
+
+* Fix target
+
 ## [1.2.2] - 2026-08-27
 
 ### 🐛 Bug Fixes
 
 * Keep committed shard.lock during release static builds
+
+### 🖐️ Bump
+
+* Release v1.2.2
 
 ### 🧪 Testing
 
