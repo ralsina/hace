@@ -895,6 +895,13 @@ module Hace
       Hace.expand_string(str, variables)
     end
 
+    # The shell this task's recipe runs under: the per-task override, else
+    # the Hacefile-wide shell, else the POSIX default. It feeds both the
+    # recipe stamp (so a shell switch invalidates builds) and execution.
+    private def resolved_shell(hacefile : HaceFile) : String
+      @shell || hacefile.shell || "/bin/sh"
+    end
+
     # ameba:disable Metrics/CyclomaticComplexity
     def gen_task(name, hacefile : HaceFile, dry_run : Bool = false)
       # phony tasks have no outputs.
@@ -910,8 +917,7 @@ module Hace
       # The stamp captures everything that defines how the recipe runs, so a
       # Hacefile edit invalidates previously built outputs. CLI_ARGS are
       # deliberately excluded: they vary per invocation by design.
-      task_shell = @shell || hacefile.shell || "/bin/sh"
-      recipe_signature = "#{task_shell}\u{0}#{@cwd}\u{0}#{commands.join("\n")}"
+      recipe_signature = "#{resolved_shell(hacefile)}\u{0}#{@cwd}\u{0}#{commands.join("\n")}"
       recipe_stamp = Hace.stamp_recipe(name, recipe_signature)
 
       # Tasks without dependencies are always stale (Croupier treats empty
@@ -965,7 +971,7 @@ module Hace
               "dry_run_success"
             else
               # Determine which shell to use
-              task_shell = @shell || hacefile.shell || "/bin/sh"
+              task_shell = resolved_shell(hacefile)
               Log.debug { "Using shell: #{task_shell}" }
 
               # Build combined shell script
