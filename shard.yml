@@ -11,7 +11,7 @@ targets:
 dependencies:
   croupier:
     github: ralsina/croupier
-    version: 0.14.2
+    version: ~> 0.15.0
   docopt:
     github: ralsina/docopt.cr
   crinja:
