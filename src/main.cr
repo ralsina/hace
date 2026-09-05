@@ -36,7 +36,7 @@ DOC = <<-DOC
 # Docopt returns "<task>" as an Array(String) when tasks are named on the
 # command line and nil when none are. Normalize to a plain Array(String) so
 # the --list, --auto and plain run paths share one extraction.
-alias DocoptValues = Nil | String | Int32 | Bool | Array(String)
+alias DocoptValues = String | Int32 | Bool | Array(String)?
 
 def requested_task_names(args : Hash(String, DocoptValues)) : Array(String)
   args["<task>"].as?(Array) || [] of String
